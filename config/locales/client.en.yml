@@ -1,0 +1,21 @@
+en:
+  js:
+    taper:
+      card:
+        setlist: "Setlist"
+        sources: "Recordings"
+        no_sources: "No recordings yet. Know of one? Suggest it."
+        taped_by: "taped by %{name}"
+        suggest: "Suggest a recording or correction"
+        browse: "All shows"
+      kind:
+        audience: "AUD"
+        soundboard: "SBD"
+        matrix: "Matrix"
+        video: "Video"
+        unknown: "Recording"
+      provider:
+        archive_org: "archive.org"
+        youtube: "YouTube"
+        upload: "Upload"
+        link: "Link"

@@ -1,0 +1,32 @@
+plugins:
+  taper_enabled:
+    default: false
+    client: true
+  taper_category_id:
+    default: -1
+    min: -1
+    client: true
+  taper_reviewer_groups:
+    default: "3"
+    type: group_list
+    allow_any: false
+    client: true
+  taper_archive_org_collections:
+    default: ""
+    type: list
+    list_type: simple
+  taper_youtube_api_key:
+    default: ""
+    secret: true
+  taper_youtube_channel_ids:
+    default: ""
+    type: list
+    list_type: simple
+  taper_import_interval_hours:
+    default: 6
+    min: 1
+    max: 168
+  taper_import_page_size:
+    default: 50
+    min: 10
+    max: 200

@@ -1,0 +1,15 @@
+name: Discourse Plugin
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  ci:
+    uses: discourse/.github/.github/workflows/discourse-plugin.yml@v1
+    # Defaults: core_ref=latest, runs_on=ubuntu-latest. Tests against
+    # the current Discourse main branch only. Add a version matrix
+    # (see hosted-site/.github/workflows/discourse-plugin.yml) if/when
+    # this plugin needs to support older release branches.

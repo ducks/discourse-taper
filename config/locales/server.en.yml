@@ -1,0 +1,23 @@
+en:
+  site_settings:
+    taper_enabled: "Enable the taper archive."
+    taper_category_id: "Category that holds one topic per show. Its permissions decide who can see the archive."
+    taper_reviewer_groups: "Groups whose members can accept or reject suggestions. Staff always can."
+    taper_archive_org_collections: "archive.org collection identifiers to import from (one per band is set on the band itself)."
+    taper_youtube_api_key: "YouTube Data API key. Leave blank to disable the YouTube importer."
+    taper_youtube_channel_ids: "YouTube channel ids to import from (set per band on the band itself)."
+    taper_import_interval_hours: "How often the importers run, in hours."
+    taper_import_page_size: "Results fetched per request from each service."
+  taper:
+    setlist: "Setlist"
+    unknown_venue: "Unknown venue"
+    topic_intro: "%{band} at %{location} on %{date}. Recordings and details are in the card above; corrections and memories go below."
+    show:
+      sequence: "show %{n}"
+    errors:
+      category_not_configured: "The archive category is not configured."
+      not_pending: "This suggestion has already been reviewed."
+      show_not_found: "No show on that date to attach this source to. Suggest the show first."
+      source_needs_location: "A source needs a link or an upload."
+      importer_http: "The service answered with status %{status}."
+      importer_too_large: "The service response was too large."

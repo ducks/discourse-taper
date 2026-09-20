@@ -1,0 +1,133 @@
+.taper-show-card {
+  margin-bottom: 1.5em;
+  border: 1px solid var(--primary-low);
+  border-radius: var(--d-border-radius);
+  background: var(--secondary);
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 1em;
+    padding: 0.75em 1em;
+    border-bottom: 1px solid var(--primary-low);
+  }
+
+  &__icon {
+    font-size: var(--font-up-3);
+    color: var(--primary-medium);
+  }
+
+  &__heading {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__band {
+    font-size: var(--font-down-1);
+    color: var(--primary-medium);
+  }
+
+  &__where {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5em;
+    align-items: baseline;
+  }
+
+  &__tour {
+    color: var(--primary-medium);
+    font-size: var(--font-down-1);
+  }
+
+  &__body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+    gap: 1.5em;
+    padding: 1em;
+
+    @media (width <= 40em) {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    h3 {
+      margin: 0 0 0.5em;
+      font-size: var(--font-0);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--primary-medium);
+    }
+  }
+
+  &__setlist ol {
+    margin: 0;
+    padding-left: 1.5em;
+  }
+
+  &__song-notes {
+    color: var(--primary-medium);
+    font-size: var(--font-down-1);
+    margin-left: 0.5em;
+  }
+
+  &__sources ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  &__empty {
+    color: var(--primary-medium);
+    margin: 0;
+  }
+}
+
+.taper-source {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: 0.75em;
+  padding: 0.5em 0;
+  border-top: 1px solid var(--primary-very-low);
+
+  &:first-child {
+    border-top: 0;
+  }
+
+  &__kind {
+    grid-row: span 3;
+    align-self: start;
+    font-size: var(--font-down-2);
+    font-weight: bold;
+    padding: 0.15em 0.4em;
+    border-radius: var(--d-border-radius);
+    background: var(--primary-low);
+    color: var(--primary-high);
+  }
+
+  &--soundboard &__kind {
+    background: var(--tertiary-low);
+    color: var(--tertiary);
+  }
+
+  &--video &__kind {
+    background: var(--danger-low);
+    color: var(--danger);
+  }
+
+  &__title {
+    font-weight: bold;
+  }
+
+  &__meta {
+    color: var(--primary-medium);
+    font-size: var(--font-down-1);
+  }
+
+  &__lineage {
+    font-size: var(--font-down-1);
+    color: var(--primary-medium);
+
+    summary {
+      cursor: pointer;
+    }
+  }
+}
