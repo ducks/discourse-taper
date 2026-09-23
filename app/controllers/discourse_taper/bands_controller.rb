@@ -45,11 +45,7 @@ module DiscourseTaper
     end
 
     def ensure_reviewer
-      allowed = SiteSetting.taper_reviewer_groups.to_s.split("|").map(&:to_i)
-      ok =
-        current_user.staff? ||
-          (allowed.any? && GroupUser.exists?(group_id: allowed, user_id: current_user.id))
-      raise Discourse::InvalidAccess if !ok
+      raise Discourse::InvalidAccess if !DiscourseTaper.reviewer?(current_user)
     end
   end
 end

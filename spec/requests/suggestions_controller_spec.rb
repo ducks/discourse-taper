@@ -52,6 +52,19 @@ describe DiscourseTaper::SuggestionsController do
     expect(response.status).to eq(422)
   end
 
+  it "lets the reviewer correct the venue name on accept" do
+    sign_in(reviewer)
+    post "/taper/suggestions/#{suggestion.id}/accept.json",
+         params: {
+           venue: "Barton Hall, Cornell University",
+         }
+    expect(response.status).to eq(200)
+    show = DiscourseTaper::Show.last
+    expect(show.venue).to eq("Barton Hall, Cornell University")
+    expect(show.venue_record.name).to eq("Barton Hall, Cornell University")
+    expect(show.venue_record.aliases).to include("barton hall")
+  end
+
   it "rejects" do
     sign_in(reviewer)
     post "/taper/suggestions/#{suggestion.id}/reject.json", params: { note: "dupe" }

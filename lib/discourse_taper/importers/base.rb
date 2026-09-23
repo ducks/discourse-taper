@@ -85,7 +85,8 @@ module DiscourseTaper
       def file_group(date, items)
         sources = items.map { |item| source_payload(item, date) }
         venues = items.map { |item| item[:venue] }.compact_blank.tally
-        venue = majority(venues)
+        match = VenueResolver.new.resolve(venues)
+        venue = match ? match.name : majority(venues)
         show = ShowMatcher.new(band: band).find(date: date, venue: venue)
 
         pending = pending_for(date, show)
@@ -102,6 +103,14 @@ module DiscourseTaper
           "sources" => sources,
           "external_id" => sources.first["external_id"],
         }
+        if match
+          common["venue_match"] = {
+            "id" => match.venue&.id,
+            "name" => match.name,
+            "method" => match.method,
+            "score" => match.score,
+          }
+        end
 
         if show
           Suggestion.create!(
@@ -119,8 +128,12 @@ module DiscourseTaper
             origin: self.class.key,
             payload:
               common.merge(
-                "city" => majority(items.map { |item| item[:city] }.compact_blank.tally),
-                "region" => majority(items.map { |item| item[:region] }.compact_blank.tally),
+                "city" =>
+                  majority(items.map { |item| item[:city] }.compact_blank.tally) ||
+                    match&.venue&.city,
+                "region" =>
+                  majority(items.map { |item| item[:region] }.compact_blank.tally) ||
+                    match&.venue&.region,
               ),
           )
           :proposed

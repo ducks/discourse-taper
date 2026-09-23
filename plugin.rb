@@ -24,6 +24,16 @@ module ::DiscourseTaper
     id = SiteSetting.taper_category_id.to_i
     id.positive? ? Category.find_by(id: id) : nil
   end
+
+  # Staff, or a member of the configured reviewer groups. Checked on the
+  # server and exposed on the current user, so the client never inspects
+  # group membership itself.
+  def self.reviewer?(user)
+    return false if user.nil?
+    return true if user.staff?
+    allowed = SiteSetting.taper_reviewer_groups.to_s.split("|").map(&:to_i).reject(&:zero?)
+    allowed.any? && GroupUser.exists?(group_id: allowed, user_id: user.id)
+  end
 end
 
 require_relative "lib/discourse_taper/engine"
@@ -31,6 +41,7 @@ require_relative "lib/discourse_taper/engine"
 after_initialize do
   require_relative "lib/discourse_taper/errors"
   require_relative "app/models/discourse_taper/band"
+  require_relative "app/models/discourse_taper/venue"
   require_relative "app/models/discourse_taper/show"
   require_relative "app/models/discourse_taper/source"
   require_relative "app/models/discourse_taper/suggestion"
@@ -38,6 +49,7 @@ after_initialize do
   require_relative "app/serializers/discourse_taper/source_serializer"
   require_relative "app/serializers/discourse_taper/show_serializer"
   require_relative "app/serializers/discourse_taper/suggestion_serializer"
+  require_relative "lib/discourse_taper/venue_resolver"
   require_relative "lib/discourse_taper/show_matcher"
   require_relative "lib/discourse_taper/show_creator"
   require_relative "lib/discourse_taper/suggestion_reviewer"
@@ -57,6 +69,12 @@ after_initialize do
   end
 
   Discourse::Application.routes.append { mount ::DiscourseTaper::Engine, at: "/taper" }
+
+  add_to_serializer(
+    :current_user,
+    :taper_reviewer,
+    include_condition: -> { SiteSetting.taper_enabled },
+  ) { DiscourseTaper.reviewer?(object) }
 
   # A show topic carries its record so the topic page can render the show
   # card (setlist, sources) without a second request.

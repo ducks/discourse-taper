@@ -24,6 +24,7 @@ module DiscourseTaper
           end
         suggestion.update!(
           status: "accepted",
+          show: show,
           reviewed_by: @reviewer,
           reviewed_at: Time.zone.now,
           review_note: note,
@@ -59,8 +60,26 @@ module DiscourseTaper
           setlist: Array(p["setlist"]),
           notes: p["notes"],
         )
+      link_venue!(
+        show,
+        p["venue"],
+        city: p["city"],
+        region: p["region"],
+        country: p["country"],
+        spellings: (p["venue_spellings"] || {}).keys,
+      )
       sources_in(suggestion).each { |attrs| attach_source(show, attrs, suggestion) }
       show
+    end
+
+    # Every spelling seen for an accepted show becomes an alias, so the
+    # reviewer answers the venue question once per venue.
+    def link_venue!(show, name, city: nil, region: nil, country: nil, spellings: [])
+      return if name.blank?
+      venue =
+        Venue.find_or_create_canonical!(name: name, city: city, region: region, country: country)
+      venue.learn!([name, *spellings])
+      show.update!(venue_id: venue.id, venue: venue.name)
     end
 
     def add_sources(suggestion)
@@ -120,6 +139,15 @@ module DiscourseTaper
       changes["date"] = Date.parse(changes["date"]) if changes["date"]
       show = suggestion.show
       show.update!(changes)
+      if changes["venue"]
+        link_venue!(
+          show,
+          changes["venue"],
+          city: show.city,
+          region: show.region,
+          country: show.country,
+        )
+      end
       show
     end
   end

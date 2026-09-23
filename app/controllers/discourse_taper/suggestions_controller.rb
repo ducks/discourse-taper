@@ -16,6 +16,21 @@ module DiscourseTaper
 
     def accept
       suggestion = Suggestion.find(params[:id])
+      # A reviewer may correct the proposed venue name before accepting; the
+      # name they type becomes the canonical one.
+      if params[:venue].present? && suggestion.kind == "new_show"
+        corrected = params[:venue].to_s.strip[0, 200]
+        original = suggestion.payload["venue"]
+        if original.present? && original != corrected
+          # The spelling being corrected is exactly the alias worth learning.
+          spellings = suggestion.payload["venue_spellings"] || {}
+          suggestion.payload["venue_spellings"] = spellings.merge(
+            original => spellings[original] || 1,
+          )
+        end
+        suggestion.payload["venue"] = corrected
+        suggestion.save!
+      end
       show = SuggestionReviewer.new(reviewer: current_user).accept!(suggestion, note: params[:note])
       render json: {
                suggestion: SuggestionSerializer.new(suggestion.reload, root: false).as_json,
@@ -49,11 +64,7 @@ module DiscourseTaper
     private
 
     def ensure_reviewer
-      allowed = SiteSetting.taper_reviewer_groups.to_s.split("|").map(&:to_i)
-      ok =
-        current_user.staff? ||
-          (allowed.any? && GroupUser.exists?(group_id: allowed, user_id: current_user.id))
-      raise Discourse::InvalidAccess if !ok
+      raise Discourse::InvalidAccess if !DiscourseTaper.reviewer?(current_user)
     end
   end
 end

@@ -43,3 +43,8 @@ en:
         view_show: "View show"
         run_importer: "Run %{importer} for %{band}"
         import_queued: "Queued %{importer} import for %{band}. Results appear here when it finishes."
+        venue: "Venue"
+        venue_match:
+          alias: "Venue matched a known spelling."
+          abbreviation: "Venue expanded from a standard abbreviation."
+          fuzzy: "Venue looks like a known one (similarity %{score}). Check it."

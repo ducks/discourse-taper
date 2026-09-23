@@ -10,6 +10,10 @@ module DiscourseTaper
     belongs_to :band, class_name: "DiscourseTaper::Band"
     belongs_to :topic
     belongs_to :created_by, class_name: "User", optional: true
+    belongs_to :venue_record,
+               class_name: "DiscourseTaper::Venue",
+               foreign_key: :venue_id,
+               optional: true
     has_many :sources,
              class_name: "DiscourseTaper::Source",
              foreign_key: :show_id,
@@ -83,10 +87,12 @@ end
 #  band_id       :bigint           not null
 #  created_by_id :bigint
 #  topic_id      :bigint           not null
+#  venue_id      :bigint
 #
 # Indexes
 #
 #  index_taper_shows_on_band_id_and_date               (band_id,date)
 #  index_taper_shows_on_band_id_and_date_and_sequence  (band_id,date,sequence) UNIQUE
 #  index_taper_shows_on_topic_id                       (topic_id) UNIQUE
+#  index_taper_shows_on_venue_id                       (venue_id)
 #

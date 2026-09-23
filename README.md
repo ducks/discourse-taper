@@ -24,6 +24,17 @@ did.
   append newly found recordings to the pending suggestion instead of
   proposing the show again, and a transient network fault retries the
   page rather than discarding the run.
+- **Venues resolve themselves, without a model.** Every spelling an
+  importer sees for an accepted show is learned as an alias of that
+  venue, so a reviewer answers "what is this venue" once, ever. An
+  importer resolves a night's spellings by learned alias first, then the
+  abbreviations every taper uses (MSG, SPAC, Red Rocks), then a trigram
+  near-match through PostgreSQL's `pg_trgm`, which must also agree on the
+  venue's first word so "Mann Center" never becomes "Saratoga Performing
+  Arts Center" on a shared word. Anything unresolved falls back to the
+  most common spelling, and the queue shows how a venue was matched and
+  lets the reviewer correct the name before accepting; the corrected
+  spelling is learned too.
 - **Matching.** An importer hit or a suggestion resolves to an existing
   show by band and date, with venue breaking ties when there were two
   shows that night. That is what lets a taper's upload and an archive.org

@@ -11,6 +11,7 @@ export default class TaperSuggestionRow extends Component {
   @tracked note = "";
   @tracked busy = false;
   @tracked showRecordings = false;
+  @tracked venue = this.args.suggestion.payload?.venue ?? "";
 
   get suggestion() {
     return this.args.suggestion;
@@ -34,6 +35,22 @@ export default class TaperSuggestionRow extends Component {
 
   get location() {
     return [this.payload.city, this.payload.region].filter(Boolean).join(", ");
+  }
+
+  get isNewShow() {
+    return this.suggestion.kind === "new_show";
+  }
+
+  // How the importer resolved the venue, if it did: a learned alias, a
+  // standard abbreviation, or a trigram near-match with its score.
+  get venueMatch() {
+    const match = this.payload.venue_match;
+    if (!match) {
+      return null;
+    }
+    return i18n(`taper.review.venue_match.`, {
+      score: match.score,
+    });
   }
 
   get bandName() {
@@ -93,6 +110,11 @@ export default class TaperSuggestionRow extends Component {
   }
 
   @action
+  updateVenue(event) {
+    this.venue = event.target.value;
+  }
+
+  @action
   toggleRecordings() {
     this.showRecordings = !this.showRecordings;
   }
@@ -115,9 +137,15 @@ export default class TaperSuggestionRow extends Component {
   async decide(verb, describe) {
     this.busy = true;
     try {
-      const result = await ajax(`/taper/suggestions/${this.suggestion.id}/${verb}.json`, {
+      const data = { note: this.note };
+      if (verb === "accept" && this.isNewShow) {
+        data.venue = this.venue;
+      }
+      const result = await ajax(
+        `/taper/suggestions/${this.suggestion.id}/${verb}.json`,
+        {
         type: "POST",
-        data: { note: this.note },
+        data,
       });
       this.args.onDecided(this.suggestion, describe(result));
     } catch (e) {
@@ -136,6 +164,10 @@ export default class TaperSuggestionRow extends Component {
         {{#if this.bandName}}<span class="taper-suggestion__band">{{this.bandName}}</span>{{/if}}
         <span class="taper-suggestion__origin">{{this.origin}}</span>
       </header>
+
+      {{#if this.venueMatch}}
+        <p class="taper-suggestion__venue-match">{{this.venueMatch}}</p>
+      {{/if}}
 
       {{#if this.otherSpellings.length}}
         <p class="taper-suggestion__spellings">
@@ -184,6 +216,17 @@ export default class TaperSuggestionRow extends Component {
       {{/if}}
 
       <footer class="taper-suggestion__actions">
+        {{#if this.isNewShow}}
+          <label class="taper-suggestion__venue">
+            {{i18n "taper.review.venue"}}
+            <input
+              class="taper-suggestion__venue-input"
+              type="text"
+              value={{this.venue}}
+              {{on "input" this.updateVenue}}
+            />
+          </label>
+        {{/if}}
         <input
           class="taper-suggestion__review-note"
           placeholder={{i18n "taper.review.note_placeholder"}}

@@ -601,3 +601,25 @@ body.taper {
     margin: 0;
   }
 }
+
+.taper-suggestion {
+  &__venue-match {
+    margin: 0.5em 0 0;
+    font-size: var(--font-down-1);
+    color: var(--success);
+  }
+
+  &__venue {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    flex: 1 1 100%;
+    font-size: var(--font-down-1);
+    color: var(--primary-medium);
+
+    input {
+      flex: 1;
+      margin: 0;
+    }
+  }
+}

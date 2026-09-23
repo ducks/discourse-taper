@@ -70,9 +70,9 @@ describe DiscourseTaper::Importers::ArchiveOrg do
   it "groups every recording of one date into a single suggestion, choosing the majority venue" do
     stub_search(
       [
-        doc("gd77.sbd", venue: "MSG"),
-        doc("gd77.aud1", venue: "MSG", source: "dpa4021 > sd722", taper: nil),
-        doc("gd77.aud2", venue: "Madison Square Garden", source: "schoeps mk4 > v3", taper: "Jim"),
+        doc("gd77.sbd", venue: "Utica Memorial Auditorium"),
+        doc("gd77.aud1", venue: "Utica Memorial Auditorium", source: "dpa4021 > sd722", taper: nil),
+        doc("gd77.aud2", venue: "Utica Auditorium", source: "schoeps mk4 > v3", taper: "Jim"),
       ],
     )
 
@@ -80,8 +80,12 @@ describe DiscourseTaper::Importers::ArchiveOrg do
 
     expect(stats).to eq(proposed: 1, matched: 0, appended: 0, skipped: 0)
     suggestion = DiscourseTaper::Suggestion.last
-    expect(suggestion.payload["venue"]).to eq("MSG")
-    expect(suggestion.payload["venue_spellings"]).to eq("MSG" => 2, "Madison Square Garden" => 1)
+    expect(suggestion.payload["venue"]).to eq("Utica Memorial Auditorium")
+    expect(suggestion.payload["venue_match"]).to be_nil
+    expect(suggestion.payload["venue_spellings"]).to eq(
+      "Utica Memorial Auditorium" => 2,
+      "Utica Auditorium" => 1,
+    )
     expect(suggestion.payload["sources"].map { |s| s["external_id"] }).to eq(
       %w[gd77.sbd gd77.aud1 gd77.aud2],
     )
@@ -89,6 +93,41 @@ describe DiscourseTaper::Importers::ArchiveOrg do
     expect(suggestion.payload["sources"].map { |s| s["kind"] }).to eq(
       %w[soundboard audience audience],
     )
+  end
+
+  it "expands a standard abbreviation before any venue exists" do
+    stub_search([doc("gd77.sbd", venue: "MSG"), doc("gd77.aud", venue: "Madison Square Garden")])
+
+    described_class.new(band: band).run
+
+    payload = DiscourseTaper::Suggestion.last.payload
+    expect(payload["venue"]).to eq("Madison Square Garden")
+    expect(payload["venue_match"]).to include("method" => "abbreviation", "id" => nil)
+  end
+
+  it "resolves a known venue from any spelling and records how" do
+    venue =
+      DiscourseTaper::Venue.create!(
+        name: "Bethel Woods Center for the Arts",
+        city: "Bethel",
+        region: "NY",
+      )
+    venue.learn!(["Bethel Woods"])
+    stub_search(
+      [
+        doc("f1.sbd", venue: "Bethel Woods").merge("coverage" => nil),
+        doc("f1.aud", venue: "bethel woods").merge("coverage" => nil),
+      ],
+    )
+
+    described_class.new(band: band).run
+
+    payload = DiscourseTaper::Suggestion.last.payload
+    expect(payload["venue"]).to eq("Bethel Woods Center for the Arts")
+    expect(payload["venue_match"]).to include("id" => venue.id, "method" => "alias", "score" => 1.0)
+    expect(payload["venue_spellings"]).to eq("Bethel Woods" => 1, "bethel woods" => 1)
+    # City and region come from the venue when the items lack them.
+    expect(payload).to include("city" => "Bethel", "region" => "NY")
   end
 
   it "appends newly found recordings to the pending suggestion for that date" do
