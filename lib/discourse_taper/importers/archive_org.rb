@@ -60,11 +60,18 @@ module DiscourseTaper
           taper_name: doc["taper"].presence,
           lineage: lineage,
           duration_seconds: runtime_seconds(doc["runtime"]),
-          kind: classify_kind("#{doc["identifier"]} #{doc["source"]}"),
+          kind: etree_kind("#{doc["identifier"]} #{doc["source"]}"),
           format: classify_format(doc["identifier"]),
         }
       rescue Date::Error
         { external_id: doc["identifier"], title: doc["title"] }
+      end
+
+      # On etree the unmarked default is an audience tape: identifiers name
+      # the microphones (dpa4021, gefell, schoeps) rather than say "aud".
+      def etree_kind(text)
+        kind = classify_kind(text)
+        kind == "unknown" ? "audience" : kind
       end
 
       def runtime_seconds(value)

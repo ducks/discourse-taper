@@ -25,14 +25,22 @@ describe DiscourseTaper::SuggestionReviewer do
           "city" => "Ithaca",
           "external_id" => "gd1977-05-08.sbd",
           "setlist" => [{ "title" => "New Minglewood Blues" }, { "title" => "Loser" }],
-          "source" => {
-            "provider" => "archive_org",
-            "external_id" => "gd1977-05-08.sbd",
-            "url" => "https://archive.org/details/gd1977-05-08.sbd",
-            "kind" => "soundboard",
-            "format" => "flac",
-            "taper_name" => "Betty Cantor",
-          },
+          "sources" => [
+            {
+              "provider" => "archive_org",
+              "external_id" => "gd1977-05-08.sbd",
+              "url" => "https://archive.org/details/gd1977-05-08.sbd",
+              "kind" => "soundboard",
+              "format" => "flac",
+              "taper_name" => "Betty Cantor",
+            },
+            {
+              "provider" => "archive_org",
+              "external_id" => "gd1977-05-08.aud",
+              "url" => "https://archive.org/details/gd1977-05-08.aud",
+              "kind" => "audience",
+            },
+          ],
         },
       )
 
@@ -43,7 +51,7 @@ describe DiscourseTaper::SuggestionReviewer do
     expect(show.topic.title).to include("Barton Hall")
     expect(show.topic.first_post.raw).to include("New Minglewood Blues")
     expect(show.setlist_titles).to eq(["New Minglewood Blues", "Loser"])
-    expect(show.sources.count).to eq(1)
+    expect(show.sources.count).to eq(2)
     expect(show.sources.first).to have_attributes(
       kind: "soundboard",
       format: "flac",
@@ -72,8 +80,8 @@ describe DiscourseTaper::SuggestionReviewer do
         },
       )
 
-    source = reviewer_service.accept!(suggestion)
-    expect(source.show).to eq(show)
+    expect(reviewer_service.accept!(suggestion)).to eq(show)
+    source = show.sources.last
     expect(source.submitted_by).to eq(member)
     expect(source.kind).to eq("video")
 
@@ -91,6 +99,30 @@ describe DiscourseTaper::SuggestionReviewer do
       expect(e.key).to eq("show_not_found")
     }
     expect(orphan.reload).to be_pending
+  end
+
+  it "accepts the missing-show form's single source and an importer's sources array alike" do
+    from_form =
+      DiscourseTaper::Suggestion.create!(
+        kind: "new_show",
+        band: band,
+        origin: "user",
+        submitted_by: member,
+        payload: {
+          "date" => "1972-08-27",
+          "venue" => "Old Renaissance Faire Grounds",
+          "source" => {
+            "url" => "https://archive.org/details/gd72",
+          },
+        },
+      )
+    show = reviewer_service.accept!(from_form)
+    expect(show.sources.count).to eq(1)
+    expect(show.sources.first).to have_attributes(
+      provider: "link",
+      url: "https://archive.org/details/gd72",
+      submitted_by: member,
+    )
   end
 
   it "applies only allowed correction fields" do

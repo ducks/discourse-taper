@@ -44,7 +44,10 @@ module DiscourseTaper
           errors.add(:payload, :invalid)
         end
       when "new_source"
-        errors.add(:payload, :invalid) if payload["url"].blank? && payload["upload_id"].blank?
+        has_sources = payload["sources"].is_a?(Array) && payload["sources"].any?
+        if !has_sources && payload["url"].blank? && payload["upload_id"].blank?
+          errors.add(:payload, :invalid)
+        end
         errors.add(:payload, :invalid) if show_id.nil? && (band_id.nil? || payload["date"].blank?)
       when "correction"
         errors.add(:payload, :invalid) if show_id.nil? || payload["changes"].blank?

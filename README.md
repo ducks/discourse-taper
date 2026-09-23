@@ -16,6 +16,14 @@ did.
   suggest shows, sources, and corrections through the same queue.
   Nothing becomes a record until a reviewer accepts it, so the archive
   is trustworthy whether a bot or a human found the item.
+- **One suggestion per show.** Everything an importer finds for a date
+  is filed as a single suggestion carrying every recording, with the
+  venue chosen by majority spelling. A real archive.org collection has
+  about five recordings per night and a dozen spellings of each venue,
+  so proposing per item would flood the queue with duplicates. Re-runs
+  append newly found recordings to the pending suggestion instead of
+  proposing the show again, and a transient network fault retries the
+  page rather than discarding the run.
 - **Matching.** An importer hit or a suggestion resolves to an existing
   show by band and date, with venue breaking ties when there were two
   shows that night. That is what lets a taper's upload and an archive.org
