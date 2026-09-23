@@ -19,3 +19,27 @@ en:
         youtube: "YouTube"
         upload: "Upload"
         link: "Link"
+      review:
+        title: "Review queue"
+        sidebar: "Review queue"
+        empty: "Nothing to review. Run an importer or wait for suggestions."
+        pending_count:
+          one: "%{count} suggestion waiting"
+          other: "%{count} suggestions waiting"
+        kinds:
+          new_show: "New show"
+          new_source: "Recordings"
+          correction: "Correction"
+        from_importer: "found by %{name}"
+        also_seen_as: "Also seen as:"
+        recordings_count:
+          one: "%{count} recording"
+          other: "%{count} recordings"
+        note_placeholder: "Note for the record (optional)"
+        accept: "Accept"
+        reject: "Reject"
+        accepted: "Accepted %{label}."
+        rejected: "Rejected %{label}."
+        view_show: "View show"
+        run_importer: "Run %{importer} for %{band}"
+        import_queued: "Queued %{importer} import for %{band}. Results appear here when it finishes."

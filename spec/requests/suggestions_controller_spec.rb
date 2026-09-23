@@ -59,6 +59,14 @@ describe DiscourseTaper::SuggestionsController do
     expect(suggestion.reload).to have_attributes(status: "rejected", reviewed_by: reviewer)
   end
 
+  it "serves the review page as the app shell to a browser" do
+    sign_in(reviewer)
+    get "/taper/review"
+    expect(response.status).to eq(200)
+    expect(response.media_type).to eq("text/html")
+    expect(response.body).to include("discourse/plugins/discourse-taper")
+  end
+
   it "queues an importer run for a band" do
     sign_in(reviewer)
     expect_enqueued_with(

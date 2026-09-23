@@ -50,6 +50,12 @@ after_initialize do
   require_relative "app/controllers/discourse_taper/suggestions_controller"
   require_relative "app/controllers/discourse_taper/bands_controller"
 
+  # The reviewer queue is an Ember page. An HTML GET reaches the app shell
+  # through check_xhr; prepended so it wins over the engine's /:band route.
+  Discourse::Application.routes.prepend do
+    get "/taper/review" => "discourse_taper/suggestions#index", :constraints => { format: :html }
+  end
+
   Discourse::Application.routes.append { mount ::DiscourseTaper::Engine, at: "/taper" }
 
   # A show topic carries its record so the topic page can render the show
