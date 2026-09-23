@@ -80,9 +80,9 @@ end
 #  venue         :string           not null
 #  created_at    :datetime         not null
 #  updated_at    :datetime         not null
-#  band_id       :integer          not null
-#  created_by_id :integer
-#  topic_id      :integer          not null
+#  band_id       :bigint           not null
+#  created_by_id :bigint
+#  topic_id      :bigint           not null
 #
 # Indexes
 #

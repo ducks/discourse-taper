@@ -70,10 +70,10 @@ end
 #  status          :string           default("pending"), not null
 #  created_at      :datetime         not null
 #  updated_at      :datetime         not null
-#  band_id         :integer
-#  reviewed_by_id  :integer
-#  show_id         :integer
-#  submitted_by_id :integer
+#  band_id         :bigint
+#  reviewed_by_id  :bigint
+#  show_id         :bigint
+#  submitted_by_id :bigint
 #
 # Indexes
 #
