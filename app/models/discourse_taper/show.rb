@@ -63,3 +63,30 @@ module DiscourseTaper
     end
   end
 end
+
+# == Schema Information
+#
+# Table name: taper_shows
+#
+#  id            :bigint           not null, primary key
+#  city          :string
+#  country       :string
+#  date          :date             not null
+#  notes         :text
+#  region        :string
+#  sequence      :integer          default(1), not null
+#  setlist       :jsonb            not null
+#  tour          :string
+#  venue         :string           not null
+#  created_at    :datetime         not null
+#  updated_at    :datetime         not null
+#  band_id       :integer          not null
+#  created_by_id :integer
+#  topic_id      :integer          not null
+#
+# Indexes
+#
+#  index_taper_shows_on_band_id_and_date               (band_id,date)
+#  index_taper_shows_on_band_id_and_date_and_sequence  (band_id,date,sequence) UNIQUE
+#  index_taper_shows_on_topic_id                       (topic_id) UNIQUE
+#

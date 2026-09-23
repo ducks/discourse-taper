@@ -52,3 +52,23 @@ module DiscourseTaper
     end
   end
 end
+
+# == Schema Information
+#
+# Table name: taper_bands
+#
+#  id                     :bigint           not null, primary key
+#  archive_org_collection :string
+#  description            :text
+#  name                   :string           not null
+#  primary                :boolean          default(FALSE), not null
+#  slug                   :string           not null
+#  created_at             :datetime         not null
+#  updated_at             :datetime         not null
+#  youtube_channel_id     :string
+#
+# Indexes
+#
+#  index_taper_bands_on_primary  (primary) UNIQUE WHERE "primary"
+#  index_taper_bands_on_slug     (slug) UNIQUE
+#

@@ -39,3 +39,30 @@ module DiscourseTaper
     end
   end
 end
+
+# == Schema Information
+#
+# Table name: taper_sources
+#
+#  id               :bigint           not null, primary key
+#  duration_seconds :integer
+#  format           :string           default("unknown"), not null
+#  kind             :string           default("unknown"), not null
+#  lineage          :text
+#  provider         :string           not null
+#  taper_name       :string
+#  title            :string
+#  url              :string
+#  created_at       :datetime         not null
+#  updated_at       :datetime         not null
+#  external_id      :string
+#  show_id          :integer          not null
+#  submitted_by_id  :integer
+#  taper_id         :integer
+#  upload_id        :integer
+#
+# Indexes
+#
+#  index_taper_sources_on_provider_and_external_id  (provider,external_id) UNIQUE WHERE (external_id IS NOT NULL)
+#  index_taper_sources_on_show_id                   (show_id)
+#
