@@ -60,6 +60,7 @@ end
 #  id                     :bigint           not null, primary key
 #  archive_org_collection :string
 #  description            :text
+#  footer                 :text
 #  name                   :string           not null
 #  primary                :boolean          default(FALSE), not null
 #  setlistfm_artist_name  :string

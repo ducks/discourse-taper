@@ -1,0 +1,37 @@
+<%- @page_title = [@listing_title, (@band.primary? ? nil : @band.name)].compact.join(" - ") %>
+<div class="taper-wrap taper-listing">
+  <header class="taper-yearhead">
+    <h1 class="taper-display taper-yearhead__year"><%= @listing_title %></h1>
+    <div class="taper-yearhead__facts">
+      <div class="taper-mono"><%= [t("taper.shows_count", count: @listing_stats[:shows]), t("taper.recordings_count", count: @listing_stats[:recordings]), t("taper.venues_count", count: @listing_stats[:venues])].join(" · ") %></div>
+      <%- if @listing_stats[:tours].any? %>
+        <div><%= @listing_stats[:tours].join(" · ") %></div>
+      <%- end %>
+    </div>
+  </header>
+  <nav class="taper-yearnav" aria-label="<%= t("taper.years") %>">
+    <a href="<%= @band.url %>"><%= t("taper.all_years") %></a>
+    <%- @years.reverse.each do |year, _count| %>
+      <a href="<%= @band.url %>?year=<%= year %>"<%- if @year == year %> aria-current="true"<%- end %>><%= year %></a>
+    <%- end %>
+  </nav>
+
+  <%- if @shows.empty? %>
+    <p class="taper-empty"><%= t("taper.no_shows") %></p>
+  <%- else %>
+    <%- @shows.group_by { |s| [s.date.year, s.date.month] }.each do |(year, month), shows| %>
+      <div class="taper-month">
+        <div class="taper-month__name"><%= month_name(shows.first.date) %><%- if !@year %> <%= year %><%- end %></div>
+        <ul class="taper-showlist">
+          <%- shows.each do |show| %>
+            <%= render partial: "discourse_taper/shows/show_row", locals: { show: show, short_date: true } %>
+          <%- end %>
+        </ul>
+      </div>
+    <%- end %>
+    <p class="taper-more">
+      <%- if @truncated %><%= t("taper.showing_of", shown: @shows.size, total: @listing_stats[:shows]) %><%- end %>
+      <%- if @shows.any? { |s| festival?(s) } %><%= t("taper.festival_legend") %><%- end %>
+    </p>
+  <%- end %>
+</div>

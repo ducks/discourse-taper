@@ -6,6 +6,7 @@ module DiscourseTaper
                :name,
                :slug,
                :description,
+               :footer,
                :url,
                :primary,
                :show_count,

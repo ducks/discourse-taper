@@ -90,10 +90,31 @@ concept. Its shows live at `/taper/1977-05-08`; any other band's at
 
 ## Reader surface
 
-`/taper` is a server-rendered site: the show list by year, and a show
-page with setlist, recordings, previous/next, a link into the
-discussion, and MusicEvent structured data. Every path also answers
-with `.json`. Anonymous readers go through the anonymous cache.
+`/taper` is a server-rendered site in the band's own look (ink on
+paper, a mono face for every date, the three shapes), with no Ember app
+underneath, so it is fast, cacheable, and indexable:
+
+- **Front door**: the band name, one line of tagline (the band's
+  description), headline counts, a bar per year from the first show to
+  the latest with gap years shown as gaps, the latest shows, the newest
+  recordings, and the band's `footer` (site policy, how to claim a
+  tape) as paragraphs.
+- **Year** (`?year=`), **venue** (`?venue=`), **tour** (`?tour=`): a
+  monumental heading, counts, and the shows grouped by month with
+  weekday dates. A venue or tour containing the word "festival" is
+  marked as one.
+- **Show**: the date as the headline, venue and city, runtime and tour,
+  the numbered setlist with per-song notes, an embedded player for the
+  first YouTube or archive.org recording, every recording with its
+  taper (or "taper unclaimed"), previous and next, the two newest
+  replies from the show's topic with a button into the forum, and
+  MusicEvent structured data.
+
+The layout loads Bricolage Grotesque and IBM Plex from Google Fonts,
+with system fallbacks. Every path also answers with `.json`. Anonymous
+readers go through the anonymous cache. The reader strings are
+translated to French (`server.fr.yml`); Discourse picks the locale
+from the user or the browser.
 
 Bands are managed at `/taper/admin/bands` (reviewers): name,
 description, and the archive.org collection, YouTube channel id and

@@ -45,6 +45,7 @@ module DiscourseTaper
         :name,
         :slug,
         :description,
+        :footer,
         :archive_org_collection,
         :youtube_channel_id,
         :youtube_search_query,

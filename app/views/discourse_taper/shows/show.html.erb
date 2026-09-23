@@ -1,83 +1,97 @@
 <%- @page_title = @show.title %>
 <%- @page_description = [@show.location, @show.setlist_titles.first(6).join(", ").presence].compact.join(". ") %>
 <%- @body_class = "taper-show-#{@show.id}" %>
-<article class="taper-show">
-  <nav class="taper-breadcrumbs" aria-label="Breadcrumb">
-    <a href="<%= DiscourseTaper.root_path %>"><%= t("taper.shows") %></a>
-    <%- if !@band.primary? %><span aria-hidden="true">/</span><a href="<%= @band.url %>"><%= @band.name %></a><%- end %>
-    <span aria-hidden="true">/</span>
-    <a href="<%= @band.url %>?year=<%= @show.date.year %>"><%= @show.date.year %></a>
-  </nav>
-
-  <header class="taper-show__header">
-    <h1 class="taper-show__title"><%= @show.label %></h1>
-    <p class="taper-show__where">
-      <strong><%= @show.venue %></strong>
-      <%- if @show.city || @show.region || @show.country %>
-        <span><%= [@show.city, @show.region, @show.country].compact.join(", ") %></span>
-      <%- end %>
-      <%- if @show.tour %><span class="taper-show__tour"><%= @show.tour %></span><%- end %>
-    </p>
+<%- suggest_url = "#{@band.primary? ? DiscourseTaper.root_path : @band.url}/suggest?date=#{@show.slug}" %>
+<article class="taper-wrap taper-show">
+  <header class="taper-showhead">
+    <nav class="taper-crumbs" aria-label="Breadcrumb">
+      <a href="<%= DiscourseTaper.root_path %>"><%= t("taper.shows") %></a>
+      <%- if !@band.primary? %><span aria-hidden="true">/</span><a href="<%= @band.url %>"><%= @band.name %></a><%- end %>
+      <span aria-hidden="true">/</span>
+      <a href="<%= @band.url %>?year=<%= @show.date.year %>"><%= @show.date.year %></a>
+      <%- if @show.tour.present? %><span aria-hidden="true">/</span><a href="<%= @band.url %>?tour=<%= ERB::Util.url_encode(@show.tour) %>"><%= @show.tour %></a><%- end %>
+    </nav>
+    <h1 class="taper-display taper-showhead__date"><%= @show.label %></h1>
+    <p class="taper-showhead__venue"><%= @show.venue %> <span><%= [@show.city, @show.region, @show.country].compact.join(", ") %></span></p>
+    <div class="taper-facts">
+      <%- if @runtime %><span><%= t("taper.runtime") %> <b><%= duration(@runtime) %></b></span><%- end %>
+      <%- if @show.tour.present? %><span><%= t("taper.tour") %> <b><%= @show.tour %></b></span><%- end %>
+      <span><%= t("taper.recordings").downcase %> <b><%= @sources.size %></b></span>
+    </div>
   </header>
 
-  <div class="taper-show__body">
-    <section class="taper-show__setlist">
-      <h2><%= t("taper.setlist") %></h2>
+  <div class="taper-showbody">
+    <section>
+      <div class="taper-section-title"><h2><%= t("taper.setlist") %></h2><a href="<%= suggest_url %>"><%= t("taper.suggest_correction") %></a></div>
       <%- if @show.setlist.any? %>
-        <ol>
+        <ol class="taper-setlist">
           <%- @show.setlist.each do |song| %>
-            <li><%= song["title"] %><%- if song["notes"].present? %> <span class="taper-song-notes"><%= song["notes"] %></span><%- end %></li>
+            <li class="<%= "is-tape" if song["notes"].to_s.include?("tape") %>">
+              <span>
+                <span class="taper-setlist__song"><%= song["title"] %></span>
+                <%- if song["notes"].present? %><span class="taper-setlist__note"><%= song["notes"] %></span><%- end %>
+              </span>
+            </li>
           <%- end %>
         </ol>
       <%- else %>
         <p class="taper-empty"><%= t("taper.no_setlist") %></p>
       <%- end %>
       <%- if @show.notes.present? %>
-        <p class="taper-show__notes"><%= @show.notes %></p>
+        <p class="taper-show-notes"><%= @show.notes %></p>
       <%- end %>
     </section>
 
-    <section class="taper-show__sources">
-      <h2><%= t("taper.recordings") %></h2>
+    <section>
+      <div class="taper-section-title"><h2><%= t("taper.recordings") %></h2><a href="<%= suggest_url %>"><%= t("taper.suggest.recording_heading") %></a></div>
+      <%- if @player %>
+        <div class="taper-player">
+          <iframe src="<%= embed_url(@player) %>" title="<%= @player.title.presence || t("taper.provider.#{@player.provider}") %>" allow="accelerometer; encrypted-media; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+        </div>
+      <%- end %>
       <%- if @sources.any? %>
-        <ul>
+        <div class="taper-sources">
           <%- @sources.each do |source| %>
-            <li class="taper-source taper-source--<%= source.kind %>">
-              <span class="taper-source__kind"><%= t("taper.kind.#{source.kind}") %></span>
-              <div>
-                <a class="taper-source__title" href="<%= source.display_url %>" rel="noopener"><%= source.title.presence || t("taper.provider.#{source.provider}") %></a>
-                <div class="taper-source__meta">
-                  <%= t("taper.provider.#{source.provider}") %>
-                  <%- if source.format != "unknown" %> · <%= source.format %><%- end %>
-                  <%- if source.duration_seconds %> · <%= duration(source.duration_seconds) %><%- end %>
-                  <%- if source.credited_taper %> · <%= t("taper.taped_by", name: source.credited_taper) %><%- end %>
-                </div>
+            <div class="taper-source"<%- if source == @player %> aria-current="true"<%- end %>>
+              <span class="taper-cube" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span>
+                <a class="taper-source__title" href="<%= source.display_url %>" rel="noopener"><%= source.title.presence || t("taper.provider.#{source.provider}") %></a><br>
+                <span class="taper-source__meta"><%= [t("taper.kind.#{source.kind}"), (%w[unknown video].include?(source.format) ? nil : source.format), duration(source.duration_seconds), t("taper.provider.#{source.provider}"), (source.credited_taper ? t("taper.taped_by", name: source.credited_taper) : t("taper.taper_unclaimed"))].compact.join(" · ") %></span>
                 <%- if source.lineage.present? %>
                   <details class="taper-source__lineage"><summary><%= t("taper.lineage") %></summary><%= source.lineage %></details>
                 <%- end %>
-              </div>
-            </li>
+              </span>
+              <span class="taper-source__kind"><%= t("taper.kind.#{source.kind}") %></span>
+            </div>
           <%- end %>
-        </ul>
+        </div>
       <%- else %>
         <p class="taper-empty"><%= t("taper.no_recordings_yet") %></p>
       <%- end %>
     </section>
   </div>
 
-  <nav class="taper-show__neighbours">
+  <nav class="taper-neighbours" aria-label="<%= t("taper.neighbours") %>">
     <%- if @previous_show %>
-      <a class="taper-show__previous" href="<%= @previous_show.url %>" rel="prev"><span><%= t("taper.previous") %></span><%= @previous_show.label %> · <%= @previous_show.venue %></a>
+      <a href="<%= @previous_show.url %>" rel="prev"><span class="taper-eyebrow"><%= t("taper.previous") %></span><span class="taper-mono"><%= @previous_show.label %></span><span><%= [@previous_show.venue, @previous_show.city].compact.join(", ") %></span></a>
     <%- end %>
     <%- if @next_show %>
-      <a class="taper-show__next" href="<%= @next_show.url %>" rel="next"><span><%= t("taper.next") %></span><%= @next_show.label %> · <%= @next_show.venue %></a>
+      <a class="taper-neighbours__next" href="<%= @next_show.url %>" rel="next"><span class="taper-eyebrow"><%= t("taper.next") %></span><span class="taper-mono"><%= @next_show.label %></span><span><%= [@next_show.venue, @next_show.city].compact.join(", ") %></span></a>
     <%- end %>
   </nav>
 
-  <section class="taper-show__discuss">
-    <%- replies = [@show.topic.posts_count - 1, 0].max %>
-    <a class="btn btn-primary" href="<%= @show.topic.url %>"><%= replies.zero? ? t("taper.discuss") : t("taper.discussion", count: replies) %></a>
-    <a class="btn btn-default" href="<%= (@band.primary? ? DiscourseTaper.root_path : @band.url) %>/suggest?date=<%= @show.slug %>"><%= t("taper.suggest_correction") %></a>
+  <section class="taper-discuss">
+    <div class="taper-discuss__head"><h2><%= t("taper.from_the_community") %></h2><span class="taper-eyebrow"><%= @reply_count.zero? ? t("taper.no_replies") : t("taper.replies_count", count: @reply_count) %></span></div>
+    <%- @replies.each do |post| %>
+      <div class="taper-comment">
+        <span class="taper-comment__avatar" aria-hidden="true"><%= post.user&.username.to_s.first(2) %></span>
+        <div>
+          <div class="taper-comment__who"><%= post.user&.username %> · <%= time_ago_in_words(post.created_at) %></div>
+          <p><%= post.excerpt(220, strip_links: true, text_entities: true) %></p>
+        </div>
+      </div>
+    <%- end %>
+    <a class="taper-btn" href="<%= @show.topic.url %>"><span class="taper-tri" aria-hidden="true"></span> <%= @reply_count.zero? ? t("taper.discuss") : t("taper.join_discussion") %></a>
   </section>
 </article>
 
