@@ -9,6 +9,12 @@ DiscourseTaper::Engine.routes.draw do
   post "/suggestions/:id/accept" => "suggestions#accept", :constraints => { id: /\d+/ }
   post "/suggestions/:id/reject" => "suggestions#reject", :constraints => { id: /\d+/ }
 
+  # Band management (reviewers).
+  get "/admin/bands" => "bands#index"
+  post "/admin/bands" => "bands#create"
+  put "/admin/bands/:id" => "bands#update", :constraints => { id: /\d+/ }
+  delete "/admin/bands/:id" => "bands#destroy", :constraints => { id: /\d+/ }
+
   # Primary band: no band segment. Declared before the band forms so a
   # date is never read as a band slug.
   get "/(.:format)" => "shows#band"

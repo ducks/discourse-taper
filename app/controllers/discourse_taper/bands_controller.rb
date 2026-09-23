@@ -1,0 +1,55 @@
+# frozen_string_literal: true
+
+module DiscourseTaper
+  # Band management for reviewers, so an archive is settable without a
+  # console: name, description, and the identifiers the importers use.
+  class BandsController < ::ApplicationController
+    requires_plugin PLUGIN_NAME
+
+    before_action :ensure_logged_in
+    before_action :ensure_reviewer
+
+    def index
+      render json: { bands: serialize_data(Band.order(:name), BandSerializer, root: false) }
+    end
+
+    def create
+      band = Band.create!(band_params)
+      render json: { band: BandSerializer.new(band, root: false).as_json }
+    rescue ActiveRecord::RecordInvalid => e
+      render_json_error(e.record.errors.full_messages.join(", "), status: 422)
+    end
+
+    def update
+      band = Band.find(params[:id])
+      band.update!(band_params)
+      band.make_primary! if params[:primary].to_s == "true" && !band.primary?
+      render json: { band: BandSerializer.new(band.reload, root: false).as_json }
+    rescue ActiveRecord::RecordInvalid => e
+      render_json_error(e.record.errors.full_messages.join(", "), status: 422)
+    end
+
+    def destroy
+      band = Band.find(params[:id])
+      if band.shows.exists?
+        return render_json_error(I18n.t("taper.errors.band_has_shows"), status: 422)
+      end
+      band.destroy!
+      render json: success_json
+    end
+
+    private
+
+    def band_params
+      params.permit(:name, :slug, :description, :archive_org_collection, :youtube_channel_id)
+    end
+
+    def ensure_reviewer
+      allowed = SiteSetting.taper_reviewer_groups.to_s.split("|").map(&:to_i)
+      ok =
+        current_user.staff? ||
+          (allowed.any? && GroupUser.exists?(group_id: allowed, user_id: current_user.id))
+      raise Discourse::InvalidAccess if !ok
+    end
+  end
+end

@@ -131,3 +131,253 @@
     }
   }
 }
+
+// Reader surface (/taper). Loaded through the publish stylesheet
+// pipeline, so Discourse color variables apply and no Ember chrome exists.
+body.taper {
+  margin: 0;
+  background: var(--secondary);
+  color: var(--primary);
+  font-family: var(--font-family);
+  line-height: 1.5;
+}
+
+.taper-header {
+  border-bottom: 1px solid var(--primary-low);
+
+  &__inner {
+    max-width: 60em;
+    margin: 0 auto;
+    padding: 0.75em 1em;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5em 1.5em;
+  }
+
+  &__title {
+    font-weight: bold;
+    font-size: var(--font-up-2);
+    color: var(--primary);
+    text-decoration: none;
+  }
+
+  &__bands {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1em;
+    flex: 1;
+
+    a {
+      color: var(--primary-high);
+      text-decoration: none;
+
+      &.is-active {
+        color: var(--tertiary);
+        font-weight: bold;
+      }
+    }
+  }
+
+  &__forum {
+    margin-left: auto;
+    color: var(--primary-medium);
+    font-size: var(--font-down-1);
+    text-decoration: none;
+  }
+}
+
+.taper-main {
+  max-width: 48em;
+  margin: 0 auto;
+  padding: 1.5em 1em 3em;
+
+  h1 {
+    font-size: var(--font-up-5);
+    line-height: 1.2;
+    margin: 0.25em 0 0.5em;
+  }
+
+  h2 {
+    font-size: var(--font-up-1);
+    margin: 1.5em 0 0.5em;
+  }
+}
+
+.taper-empty {
+  color: var(--primary-medium);
+}
+
+.taper-breadcrumbs {
+  font-size: var(--font-down-1);
+  color: var(--primary-medium);
+  display: flex;
+  gap: 0.5em;
+
+  a {
+    color: var(--primary-medium);
+  }
+}
+
+.taper-band {
+  &__description {
+    color: var(--primary-medium);
+  }
+
+  &__years {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25em 0.75em;
+    margin: 1em 0;
+    font-size: var(--font-down-1);
+
+    a {
+      color: var(--primary-high);
+      text-decoration: none;
+
+      small {
+        color: var(--primary-medium);
+      }
+
+      &.is-active {
+        color: var(--tertiary);
+        font-weight: bold;
+      }
+    }
+  }
+
+  &__year {
+    margin-top: 1.5em;
+    color: var(--primary-medium);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: var(--font-down-1);
+  }
+}
+
+.taper-show-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  &__item {
+    display: grid;
+    grid-template-columns: 8em minmax(0, 1fr) auto;
+    column-gap: 1em;
+    align-items: baseline;
+    padding: 0.5em 0;
+    border-bottom: 1px solid var(--primary-low);
+
+    @media (width <= 40em) {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  &__date {
+    font-weight: bold;
+    color: var(--primary);
+    text-decoration: none;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__tour {
+    grid-column: 2;
+    color: var(--primary-medium);
+    font-size: var(--font-down-1);
+  }
+
+  &__meta {
+    color: var(--primary-medium);
+    font-size: var(--font-down-1);
+    white-space: nowrap;
+  }
+}
+
+.taper-show {
+  &__where {
+    color: var(--primary-medium);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5em;
+    margin: 0 0 1em;
+
+    strong {
+      color: var(--primary);
+    }
+  }
+
+  &__body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+    gap: 2em;
+
+    @media (width <= 40em) {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  &__setlist ol {
+    margin: 0;
+    padding-left: 1.5em;
+  }
+
+  &__sources ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  &__notes {
+    color: var(--primary-medium);
+    font-size: var(--font-down-1);
+  }
+
+  &__neighbours {
+    display: flex;
+    justify-content: space-between;
+    gap: 1em;
+    margin-top: 2.5em;
+    padding-top: 1em;
+    border-top: 1px solid var(--primary-low);
+
+    a {
+      display: flex;
+      flex-direction: column;
+      text-decoration: none;
+      color: var(--primary);
+      font-weight: bold;
+
+      span {
+        font-weight: normal;
+        font-size: var(--font-down-1);
+        color: var(--primary-medium);
+      }
+    }
+  }
+
+  &__next {
+    margin-left: auto;
+    text-align: right;
+  }
+
+  &__discuss {
+    display: flex;
+    gap: 0.5em;
+    margin-top: 2em;
+  }
+}
+
+.taper-song-notes {
+  color: var(--primary-medium);
+  font-size: var(--font-down-1);
+  margin-left: 0.5em;
+}
+
+.taper-footer {
+  max-width: 60em;
+  margin: 0 auto;
+  padding: 1em;
+  border-top: 1px solid var(--primary-low);
+  font-size: var(--font-down-1);
+  color: var(--primary-medium);
+}

@@ -52,13 +52,24 @@ concept. Its shows live at `/taper/1977-05-08`; any other band's at
 | `POST /taper/suggestions/:id/accept` and `/reject` | Review |
 | `POST /taper/suggestions/import` | Run an importer for a band now |
 
+## Reader surface
+
+`/taper` is a server-rendered site: the show list by year, and a show
+page with setlist, recordings, previous/next, a link into the
+discussion, and MusicEvent structured data. Every path also answers
+with `.json`. Anonymous readers go through the anonymous cache.
+
+Bands are managed at `/taper/admin/bands` (reviewers): name,
+description, and the archive.org collection or YouTube channel id the
+importers use. Setting `primary` moves the primary band.
+
 ## Not yet
 
-- Direct audio upload for tapers (goes through UploadCreator; needs a
-  decision on size limits and storage).
-- A band admin UI; bands are console-created for now.
-- A reader surface for browsing by year, venue, and tour outside the
-  topic list.
+- Direct audio upload. Sources come from archive.org and YouTube, which
+  is where tapers already put recordings; hosting audio here is a
+  storage decision deferred on purpose.
+- A suggestion form on the reader surface; suggestions go through the
+  topic discussion or the JSON API for now.
 
 ## Development
 

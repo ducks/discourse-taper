@@ -144,6 +144,56 @@ describe DiscourseTaper::ShowsController do
     expect(DiscourseTaper::Suggestion.last.show).to eq(show)
   end
 
+  describe "reader surface" do
+    it "renders the primary band listing as html without the app" do
+      get "/taper"
+
+      expect(response.status).to eq(200)
+      expect(response.media_type).to eq("text/html")
+      expect(response.body).to include("1977-05-08")
+      expect(response.body).to include("Barton Hall")
+      expect(response.body).to include(%(href="/taper?year=1977"))
+      expect(response.body).not_to include("discourse-data-preloaded")
+    end
+
+    it "renders a show page with setlist, sources, neighbours, and structured data" do
+      later =
+        Fabricate(
+          :taper_show,
+          band: band,
+          date: Date.new(1977, 5, 9),
+          venue: "Buffalo",
+          topic: Fabricate(:topic, category: category),
+        )
+
+      get "/taper/1977-05-08"
+
+      expect(response.status).to eq(200)
+      expect(response.media_type).to eq("text/html")
+      expect(response.body).to include("Scarlet Begonias")
+      expect(response.body).to include("SBD")
+      expect(response.body).to include(%(rel="canonical"))
+      expect(response.body).to include("MusicEvent")
+      expect(response.body).to include(later.url)
+      expect(response.body).to include(show.topic.url)
+    end
+
+    it "caches anonymous readers and never signed-in ones" do
+      get "/taper/1977-05-08"
+      expect(response.headers["Cache-Control"]).to eq("max-age=60, public")
+
+      sign_in(member)
+      get "/taper/1977-05-08"
+      expect(response.headers["Cache-Control"]).to eq("private, no-store")
+    end
+
+    it "404s a show the reader cannot see" do
+      SiteSetting.taper_category_id = private_category.id
+      get "/taper/1977-05-08"
+      expect(response.status).to eq(404)
+    end
+  end
+
   it "requires login to suggest" do
     post "/taper/grateful-dead/suggest.json",
          params: {

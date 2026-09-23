@@ -1,0 +1,94 @@
+<%- @page_title = @show.title %>
+<%- @page_description = [@show.location, @show.setlist_titles.first(6).join(", ").presence].compact.join(". ") %>
+<%- @body_class = "taper-show-#{@show.id}" %>
+<article class="taper-show">
+  <nav class="taper-breadcrumbs" aria-label="Breadcrumb">
+    <a href="<%= DiscourseTaper.root_path %>"><%= t("taper.shows") %></a>
+    <%- if !@band.primary? %><span aria-hidden="true">/</span><a href="<%= @band.url %>"><%= @band.name %></a><%- end %>
+    <span aria-hidden="true">/</span>
+    <a href="<%= @band.url %>?year=<%= @show.date.year %>"><%= @show.date.year %></a>
+  </nav>
+
+  <header class="taper-show__header">
+    <h1 class="taper-show__title"><%= @show.label %></h1>
+    <p class="taper-show__where">
+      <strong><%= @show.venue %></strong>
+      <%- if @show.city || @show.region || @show.country %>
+        <span><%= [@show.city, @show.region, @show.country].compact.join(", ") %></span>
+      <%- end %>
+      <%- if @show.tour %><span class="taper-show__tour"><%= @show.tour %></span><%- end %>
+    </p>
+  </header>
+
+  <div class="taper-show__body">
+    <section class="taper-show__setlist">
+      <h2><%= t("taper.setlist") %></h2>
+      <%- if @show.setlist.any? %>
+        <ol>
+          <%- @show.setlist.each do |song| %>
+            <li><%= song["title"] %><%- if song["notes"].present? %> <span class="taper-song-notes"><%= song["notes"] %></span><%- end %></li>
+          <%- end %>
+        </ol>
+      <%- else %>
+        <p class="taper-empty"><%= t("taper.no_setlist") %></p>
+      <%- end %>
+      <%- if @show.notes.present? %>
+        <p class="taper-show__notes"><%= @show.notes %></p>
+      <%- end %>
+    </section>
+
+    <section class="taper-show__sources">
+      <h2><%= t("taper.recordings") %></h2>
+      <%- if @sources.any? %>
+        <ul>
+          <%- @sources.each do |source| %>
+            <li class="taper-source taper-source--<%= source.kind %>">
+              <span class="taper-source__kind"><%= t("taper.kind.#{source.kind}") %></span>
+              <div>
+                <a class="taper-source__title" href="<%= source.display_url %>" rel="noopener"><%= source.title.presence || t("taper.provider.#{source.provider}") %></a>
+                <div class="taper-source__meta">
+                  <%= t("taper.provider.#{source.provider}") %>
+                  <%- if source.format != "unknown" %> · <%= source.format %><%- end %>
+                  <%- if source.duration_seconds %> · <%= duration(source.duration_seconds) %><%- end %>
+                  <%- if source.credited_taper %> · <%= t("taper.taped_by", name: source.credited_taper) %><%- end %>
+                </div>
+                <%- if source.lineage.present? %>
+                  <details class="taper-source__lineage"><summary><%= t("taper.lineage") %></summary><%= source.lineage %></details>
+                <%- end %>
+              </div>
+            </li>
+          <%- end %>
+        </ul>
+      <%- else %>
+        <p class="taper-empty"><%= t("taper.no_recordings_yet") %></p>
+      <%- end %>
+    </section>
+  </div>
+
+  <nav class="taper-show__neighbours">
+    <%- if @previous_show %>
+      <a class="taper-show__previous" href="<%= @previous_show.url %>" rel="prev"><span><%= t("taper.previous") %></span><%= @previous_show.label %> · <%= @previous_show.venue %></a>
+    <%- end %>
+    <%- if @next_show %>
+      <a class="taper-show__next" href="<%= @next_show.url %>" rel="next"><span><%= t("taper.next") %></span><%= @next_show.label %> · <%= @next_show.venue %></a>
+    <%- end %>
+  </nav>
+
+  <section class="taper-show__discuss">
+    <a class="btn btn-primary" href="<%= @show.topic.url %>"><%= t("taper.discussion", count: [@show.topic.posts_count - 1, 0].max) %></a>
+    <a class="btn btn-default" href="<%= @show.topic.url %>"><%= t("taper.suggest_correction") %></a>
+  </section>
+</article>
+
+<script type="application/ld+json">
+<%= raw({
+  "@context" => "https://schema.org",
+  "@type" => "MusicEvent",
+  "name" => @show.title,
+  "startDate" => @show.date.iso8601,
+  "performer" => { "@type" => "MusicGroup", "name" => @band.name },
+  "location" => { "@type" => "Place", "name" => @show.venue, "address" => [@show.city, @show.region, @show.country].compact.join(", ").presence }.compact,
+  "url" => "#{Discourse.base_url_no_prefix}#{@show.url}",
+  "recordedIn" => @sources.map { |s| { "@type" => "MusicRecording", "name" => s.title.presence || s.provider, "url" => s.display_url }.compact },
+}.compact.to_json) %>
+</script>

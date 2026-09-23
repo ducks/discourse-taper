@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="<%= html_lang %>">
+  <head>
+    <meta charset="utf-8">
+    <title><%= [@page_title, SiteSetting.title].compact.join(" - ") %></title>
+    <%= render partial: "layouts/head" %>
+    <%= render partial: "common/discourse_publish_stylesheet" %>
+    <%- if @canonical_url.present? %>
+      <link rel="canonical" href="<%= Discourse.base_url_no_prefix %><%= @canonical_url %>">
+    <%- end %>
+    <link rel="alternate" type="application/json" href="<%= request.path %>.json">
+    <%- if @page_description.present? %>
+      <meta name="description" content="<%= @page_description %>">
+    <%- end %>
+    <%= render_google_tag_manager_head_code %>
+    <%= render_google_universal_analytics_code %>
+    <%= preload_script 'js/pageview' %>
+  </head>
+  <body class="taper <%= @body_class %>">
+    <header class="taper-header">
+      <div class="taper-header__inner">
+        <a class="taper-header__title" href="<%= DiscourseTaper.root_path %>"><%= @primary_band&.name || SiteSetting.title %></a>
+        <%- if @bands.size > 1 %>
+          <nav class="taper-header__bands" aria-label="<%= t("taper.bands") %>">
+            <%- @bands.each do |b| %>
+              <a href="<%= b.url %>" class="<%= "is-active" if @band&.id == b.id %>"><%= b.name %></a>
+            <%- end %>
+          </nav>
+        <%- end %>
+        <a class="taper-header__forum" href="<%= Discourse.base_path %>/"><%= SiteSetting.title %></a>
+      </div>
+    </header>
+    <main class="taper-main">
+      <%= yield %>
+    </main>
+    <footer class="taper-footer">
+      <a href="<%= Discourse.base_path %>/"><%= SiteSetting.title %></a>
+    </footer>
+  </body>
+</html>

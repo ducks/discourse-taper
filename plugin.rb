@@ -48,6 +48,7 @@ after_initialize do
   require_relative "app/jobs/regular/taper_import_feed"
   require_relative "app/controllers/discourse_taper/shows_controller"
   require_relative "app/controllers/discourse_taper/suggestions_controller"
+  require_relative "app/controllers/discourse_taper/bands_controller"
 
   Discourse::Application.routes.append { mount ::DiscourseTaper::Engine, at: "/taper" }
 
