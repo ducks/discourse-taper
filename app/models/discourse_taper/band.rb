@@ -64,6 +64,7 @@ end
 #  primary                :boolean          default(FALSE), not null
 #  setlistfm_artist_name  :string
 #  slug                   :string           not null
+#  youtube_search_query   :string
 #  created_at             :datetime         not null
 #  updated_at             :datetime         not null
 #  youtube_channel_id     :string

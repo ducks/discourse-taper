@@ -95,14 +95,16 @@ module DiscourseTaper
         return true if Source.exists?(provider: self.class.key, external_id: external_id)
 
         Suggestion
-          .where(origin: self.class.key, status: "pending")
+          .where(status: "pending")
           .where("payload->'sources' @> ?", [{ "external_id" => external_id }].to_json)
           .exists?
       end
 
       # Files one date's items: appended to the pending suggestion for that
-      # date if there is one, else recordings for an existing show, else a
-      # setlist for an existing show that has none, else a new show.
+      # date if there is one, whichever importer opened it (setlist.fm
+      # proposes the show, YouTube adds the tape to that same row), else
+      # recordings for an existing show, else a setlist for an existing
+      # show that has none, else a new show.
       # Returns the stats key for what happened.
       def file_group(date, items)
         recordings = items.select { |item| item[:url].present? }
@@ -114,9 +116,9 @@ module DiscourseTaper
         setlist = items.map { |item| item[:setlist] }.compact_blank.max_by(&:size) || []
         tour = majority(items.map { |item| item[:tour] }.compact_blank.tally)
 
-        pending = pending_for(date, show)
+        pending = pending_for(date, show, kind: pending_kind(show, sources))
         if pending && sources.any?
-          pending.payload["sources"] = pending.payload["sources"] + sources
+          pending.payload["sources"] = Array(pending.payload["sources"]) + sources
           pending.save!
           return :appended
         end
@@ -188,13 +190,17 @@ module DiscourseTaper
         {}
       end
 
-      def pending_for(date, show)
-        scope =
-          Suggestion.where(origin: self.class.key, status: "pending", band_id: band.id).reorder(nil)
+      def pending_kind(show, sources)
+        return "new_show" if show.nil?
+        sources.any? ? "new_source" : "correction"
+      end
+
+      def pending_for(date, show, kind:)
+        scope = Suggestion.where(status: "pending", band_id: band.id, kind: kind).reorder(nil)
         if show
-          scope.where(kind: %w[new_source correction]).find_by(show_id: show.id)
+          scope.find_by(show_id: show.id)
         else
-          scope.where(kind: "new_show").find_by("payload->>'date' = ?", date.iso8601)
+          scope.find_by("payload->>'date' = ?", date.iso8601)
         end
       end
 

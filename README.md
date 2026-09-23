@@ -31,6 +31,12 @@ did.
   recording importer created first it proposes the setlist as a
   correction. A show keeps its setlist.fm id so it is never proposed
   twice.
+- **Undated videos find their show.** YouTube titles carry dates in
+  every format (5/8/77, 16/09/2026, September 16th, 16 septembre) or
+  none at all. A video with no date is matched to a known or pending
+  show whose venue or city it names, within the month before it was
+  published; two candidates leave it undated rather than guessed. The
+  search takes long videos only, so full sets rather than phone clips.
 - **Venues resolve themselves, without a model.** Every spelling an
   importer sees for an accepted show is learned as an alias of that
   venue, so a reviewer answers "what is this venue" once, ever. An
@@ -61,8 +67,9 @@ concept. Its shows live at `/taper/1977-05-08`; any other band's at
    that holds show topics.
 2. Add reviewer groups to `taper_reviewer_groups`. Staff always can.
 3. Create bands (for now, from the Rails console) with an
-   `archive_org_collection`, a `youtube_channel_id`, and/or a
-   `setlistfm_artist_name` (defaults to the band name). Set
+   `archive_org_collection`, a `youtube_channel_id`, a
+   `youtube_search_query` (for tapes scattered across fans' channels),
+   and/or a `setlistfm_artist_name` (defaults to the band name). Set
    `taper_youtube_api_key` to enable the YouTube importer and
    `taper_setlistfm_api_key` (free at setlist.fm/settings/api) to enable
    the setlist.fm one.
@@ -89,8 +96,8 @@ discussion, and MusicEvent structured data. Every path also answers
 with `.json`. Anonymous readers go through the anonymous cache.
 
 Bands are managed at `/taper/admin/bands` (reviewers): name,
-description, and the archive.org collection, YouTube channel id, or
-setlist.fm artist name the importers use. Setting `primary` moves the primary band.
+description, and the archive.org collection, YouTube channel id and
+search query, or setlist.fm artist name the importers use. Setting `primary` moves the primary band.
 
 Every show page links to a suggestion form (`/taper/suggest?date=…`)
 with a recording form and a correction form; the listing links to a
