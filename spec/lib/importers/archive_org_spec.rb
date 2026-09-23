@@ -15,25 +15,33 @@ describe DiscourseTaper::Importers::ArchiveOrg do
     )
   end
 
-  let(:doc) do
+  def doc(
+    identifier,
+    venue: "Barton Hall",
+    source: "SBD > reel > DAT",
+    taper: "Betty Cantor",
+    date: "1977-05-08"
+  )
     {
-      "identifier" => "gd1977-05-08.sbd.hicks",
-      "title" => "Grateful Dead Live at Barton Hall on 1977-05-08",
-      "date" => "1977-05-08T00:00:00Z",
-      "venue" => "Barton Hall",
+      "identifier" => identifier,
+      "title" => "Live at #{venue} on #{date}",
+      "date" => "#{date}T00:00:00Z",
+      "venue" => venue,
       "coverage" => "Ithaca, NY",
-      "source" => "SBD > reel > DAT",
-      "taper" => "Betty Cantor",
+      "source" => source,
+      "taper" => taper,
       "runtime" => "146:50.000",
     }
   end
 
-  it "files an unknown show as a new_show suggestion carrying its source" do
-    stub_search([doc])
+  let(:sbd) { doc("gd1977-05-08.sbd.hicks") }
+
+  it "files an unknown show as one new_show suggestion carrying its recordings" do
+    stub_search([sbd])
 
     stats = described_class.new(band: band).run
 
-    expect(stats).to eq(proposed: 1, matched: 0, skipped: 0)
+    expect(stats).to eq(proposed: 1, matched: 0, appended: 0, skipped: 0)
     suggestion = DiscourseTaper::Suggestion.last
     expect(suggestion).to have_attributes(
       kind: "new_show",
@@ -47,7 +55,8 @@ describe DiscourseTaper::Importers::ArchiveOrg do
       "city" => "Ithaca",
       "region" => "NY",
     )
-    expect(suggestion.payload["source"]).to include(
+    expect(suggestion.payload["sources"].size).to eq(1)
+    expect(suggestion.payload["sources"].first).to include(
       "provider" => "archive_org",
       "external_id" => "gd1977-05-08.sbd.hicks",
       "url" => "https://archive.org/details/gd1977-05-08.sbd.hicks",
@@ -58,14 +67,54 @@ describe DiscourseTaper::Importers::ArchiveOrg do
     expect(DiscourseTaper::Show.count).to eq(0)
   end
 
-  it "files a known show's recording as a new_source suggestion" do
-    show = Fabricate(:taper_show, band: band, date: Date.new(1977, 5, 8), venue: "Barton Hall")
-    stub_search([doc])
+  it "groups every recording of one date into a single suggestion, choosing the majority venue" do
+    stub_search(
+      [
+        doc("gd77.sbd", venue: "MSG"),
+        doc("gd77.aud1", venue: "MSG", source: "dpa4021 > sd722", taper: nil),
+        doc("gd77.aud2", venue: "Madison Square Garden", source: "schoeps mk4 > v3", taper: "Jim"),
+      ],
+    )
 
     stats = described_class.new(band: band).run
 
-    expect(stats).to eq(proposed: 0, matched: 1, skipped: 0)
-    expect(DiscourseTaper::Suggestion.last).to have_attributes(kind: "new_source", show: show)
+    expect(stats).to eq(proposed: 1, matched: 0, appended: 0, skipped: 0)
+    suggestion = DiscourseTaper::Suggestion.last
+    expect(suggestion.payload["venue"]).to eq("MSG")
+    expect(suggestion.payload["venue_spellings"]).to eq("MSG" => 2, "Madison Square Garden" => 1)
+    expect(suggestion.payload["sources"].map { |s| s["external_id"] }).to eq(
+      %w[gd77.sbd gd77.aud1 gd77.aud2],
+    )
+    # On etree an unmarked recording is an audience tape.
+    expect(suggestion.payload["sources"].map { |s| s["kind"] }).to eq(
+      %w[soundboard audience audience],
+    )
+  end
+
+  it "appends newly found recordings to the pending suggestion for that date" do
+    stub_search([sbd])
+    described_class.new(band: band).run
+    stub_search([sbd, doc("gd1977-05-08.aud.cooper", source: "aud cassette", taper: "Jim Cooper")])
+
+    stats = described_class.new(band: band).run
+
+    expect(stats).to eq(proposed: 0, matched: 0, appended: 1, skipped: 1)
+    expect(DiscourseTaper::Suggestion.count).to eq(1)
+    expect(DiscourseTaper::Suggestion.last.payload["sources"].map { |s| s["external_id"] }).to eq(
+      %w[gd1977-05-08.sbd.hicks gd1977-05-08.aud.cooper],
+    )
+  end
+
+  it "files a known show's recordings as one new_source suggestion" do
+    show = Fabricate(:taper_show, band: band, date: Date.new(1977, 5, 8), venue: "Barton Hall")
+    stub_search([sbd, doc("gd1977-05-08.aud.cooper", source: "aud", taper: "Jim Cooper")])
+
+    stats = described_class.new(band: band).run
+
+    expect(stats).to eq(proposed: 0, matched: 1, appended: 0, skipped: 0)
+    suggestion = DiscourseTaper::Suggestion.last
+    expect(suggestion).to have_attributes(kind: "new_source", show: show)
+    expect(suggestion.payload["sources"].size).to eq(2)
   end
 
   it "skips items already attached or already proposed, and items without a date" do
@@ -76,19 +125,47 @@ describe DiscourseTaper::Importers::ArchiveOrg do
       provider: "archive_org",
       external_id: "gd1977-05-08.sbd.hicks",
     )
-    undated = doc.merge("identifier" => "mystery-tape", "title" => "A tape", "date" => nil)
-    stub_search([doc, undated])
+    undated = sbd.merge("identifier" => "mystery-tape", "title" => "A tape", "date" => nil)
+    stub_search([sbd, undated])
 
     expect { described_class.new(band: band).run }.not_to change {
       DiscourseTaper::Suggestion.count
     }
   end
 
+  it "retries a page after a transient network fault instead of losing the run" do
+    calls = 0
+    stub_request(:get, %r{https://archive\.org/advancedsearch\.php}).to_return do
+      calls += 1
+      raise Timeout::Error, "DNS lookup timed out" if calls == 1
+      {
+        status: 200,
+        headers: {
+          "Content-Type" => "application/json",
+        },
+        body: { response: { docs: [sbd] } }.to_json,
+      }
+    end
+    allow_any_instance_of(described_class).to receive(:sleep)
+
+    stats = described_class.new(band: band).run
+
+    expect(calls).to eq(2)
+    expect(stats).to eq(proposed: 1, matched: 0, appended: 0, skipped: 0)
+  end
+
+  it "gives up after repeated faults" do
+    stub_request(:get, %r{https://archive\.org/advancedsearch\.php}).to_raise(Timeout::Error)
+    allow_any_instance_of(described_class).to receive(:sleep)
+
+    expect { described_class.new(band: band).run }.to raise_error(Timeout::Error)
+  end
+
   it "does not re-propose the same item on the next run" do
-    stub_search([doc])
+    stub_search([sbd])
     described_class.new(band: band).run
-    expect { described_class.new(band: band).run }.not_to change {
-      DiscourseTaper::Suggestion.count
-    }
+    stats = described_class.new(band: band).run
+    expect(stats).to eq(proposed: 0, matched: 0, appended: 0, skipped: 1)
+    expect(DiscourseTaper::Suggestion.count).to eq(1)
   end
 end

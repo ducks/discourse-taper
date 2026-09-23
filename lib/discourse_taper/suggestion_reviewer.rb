@@ -3,6 +3,7 @@
 module DiscourseTaper
   # Turns an accepted suggestion into records. Rejection just records who
   # said no and why, so an importer will not re-propose the same item.
+  # accept! always returns the show the suggestion ended up on.
   class SuggestionReviewer
     def initialize(reviewer:)
       @reviewer = reviewer
@@ -11,27 +12,24 @@ module DiscourseTaper
     def accept!(suggestion, note: nil)
       raise Error.new("not_pending") if !suggestion.pending?
 
-      result =
-        Suggestion.transaction do
-          created =
-            case suggestion.kind
-            when "new_show"
-              create_show(suggestion)
-            when "new_source"
-              create_source(suggestion)
-            when "correction"
-              apply_correction(suggestion)
-            end
-          suggestion.update!(
-            status: "accepted",
-            reviewed_by: @reviewer,
-            reviewed_at: Time.zone.now,
-            review_note: note,
-          )
-          created
-        end
-
-      result
+      Suggestion.transaction do
+        show =
+          case suggestion.kind
+          when "new_show"
+            create_show(suggestion)
+          when "new_source"
+            add_sources(suggestion)
+          when "correction"
+            apply_correction(suggestion)
+          end
+        suggestion.update!(
+          status: "accepted",
+          reviewed_by: @reviewer,
+          reviewed_at: Time.zone.now,
+          review_note: note,
+        )
+        show
+      end
     end
 
     def reject!(suggestion, note: nil)
@@ -61,13 +59,11 @@ module DiscourseTaper
           setlist: Array(p["setlist"]),
           notes: p["notes"],
         )
-      # An importer's new-show suggestion usually carries the source it
-      # found; attach it in the same acceptance.
-      attach_source(show, p["source"], suggestion) if p["source"].is_a?(Hash)
+      sources_in(suggestion).each { |attrs| attach_source(show, attrs, suggestion) }
       show
     end
 
-    def create_source(suggestion)
+    def add_sources(suggestion)
       show = suggestion.show
       if show.nil?
         show =
@@ -77,10 +73,29 @@ module DiscourseTaper
           )
         raise Error.new("show_not_found") if show.nil?
       end
-      attach_source(show, suggestion.payload, suggestion)
+      sources_in(suggestion).each { |attrs| attach_source(show, attrs, suggestion) }
+      show
+    end
+
+    # A suggestion carries recordings in one of three shapes: an importer's
+    # `sources` array, the missing-show form's single `source`, or the
+    # recording form's fields at the top level of the payload.
+    def sources_in(suggestion)
+      p = suggestion.payload
+      return p["sources"] if p["sources"].is_a?(Array) && p["sources"].any?
+      return [p["source"]] if p["source"].is_a?(Hash) && p["source"]["url"].present?
+      return [p] if p["url"].present? || p["upload_id"].present?
+      []
     end
 
     def attach_source(show, attrs, suggestion)
+      # An importer may have appended a recording that a reviewer attached
+      # by hand in the meantime; never attach the same external id twice.
+      if attrs["external_id"].present? &&
+           Source.exists?(provider: attrs["provider"], external_id: attrs["external_id"])
+        return
+      end
+
       Source.create!(
         show: show,
         kind: attrs["kind"].presence || "unknown",

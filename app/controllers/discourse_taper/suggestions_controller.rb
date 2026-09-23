@@ -16,11 +16,10 @@ module DiscourseTaper
 
     def accept
       suggestion = Suggestion.find(params[:id])
-      created =
-        SuggestionReviewer.new(reviewer: current_user).accept!(suggestion, note: params[:note])
+      show = SuggestionReviewer.new(reviewer: current_user).accept!(suggestion, note: params[:note])
       render json: {
                suggestion: SuggestionSerializer.new(suggestion.reload, root: false).as_json,
-               show_url: created.respond_to?(:url) ? created.url : created.show.url,
+               show_url: show.url,
              }
     rescue DiscourseTaper::Error => e
       render_json_error(e.message, status: 422)

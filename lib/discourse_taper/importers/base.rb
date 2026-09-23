@@ -7,6 +7,13 @@ module DiscourseTaper
     # date, and files what it finds as suggestions. It never creates a
     # show or source itself; a person accepts them, which is what keeps
     # the archive trustworthy whether a bot or a human found the item.
+    #
+    # Everything found for one date is filed as ONE suggestion carrying
+    # every recording. A real archive.org collection has five recordings
+    # per night on average and a dozen spellings of each venue, so
+    # proposing per item would flood the queue with duplicates of the
+    # same show. Re-runs append newly found recordings to the pending
+    # suggestion for that date rather than proposing it again.
     class Base
       MAX_BODY_BYTES = 4.megabytes
       USER_AGENT = "Discourse Taper (+https://github.com/ducks/discourse-taper)"
@@ -25,13 +32,28 @@ module DiscourseTaper
         raise NotImplementedError
       end
 
-      # Returns counts: { proposed:, matched:, skipped: }.
+      # Returns counts: { proposed:, matched:, appended:, skipped: }.
+      #   proposed  new_show suggestions created
+      #   matched   new_source suggestions created for shows that exist
+      #   appended  recordings added to an already pending suggestion
+      #   skipped   items with no id, no recoverable date, or already known
       def run
-        stats = { proposed: 0, matched: 0, skipped: 0 }
+        stats = { proposed: 0, matched: 0, appended: 0, skipped: 0 }
+        fresh = []
+
         each_item do |item|
-          outcome = propose(item)
-          stats[outcome] += 1
+          date = resolve_date(item)
+          if item[:external_id].blank? || date.nil? || known?(item[:external_id])
+            stats[:skipped] += 1
+            next
+          end
+          fresh << item.merge(date: date)
         end
+
+        fresh
+          .group_by { |item| item[:date] }
+          .each { |date, items| stats[file_group(date, items)] += 1 }
+
         stats
       end
 
@@ -41,26 +63,45 @@ module DiscourseTaper
         raise NotImplementedError
       end
 
-      # Files one item as a suggestion. Already-known external ids and
-      # items with no recoverable date are skipped.
-      def propose(item)
-        external_id = item[:external_id]
-        return :skipped if external_id.blank?
-        return :skipped if Source.exists?(provider: self.class.key, external_id: external_id)
-        if Suggestion
-             .where(origin: self.class.key)
-             .where("payload->>'external_id' = ?", external_id)
-             .exists?
-          return :skipped
+      def resolve_date(item)
+        item[:date] || ShowMatcher.extract_date(item[:title]) ||
+          ShowMatcher.extract_date(item[:external_id])
+      end
+
+      # Already attached as a source, or already inside a pending
+      # suggestion's recordings.
+      def known?(external_id)
+        return true if Source.exists?(provider: self.class.key, external_id: external_id)
+
+        Suggestion
+          .where(origin: self.class.key, status: "pending")
+          .where("payload->'sources' @> ?", [{ "external_id" => external_id }].to_json)
+          .exists?
+      end
+
+      # Files one date's recordings: appended to the pending suggestion
+      # for that date if there is one, else a new_source for an existing
+      # show, else a new_show. Returns the stats key for what happened.
+      def file_group(date, items)
+        sources = items.map { |item| source_payload(item, date) }
+        venues = items.map { |item| item[:venue] }.compact_blank.tally
+        venue = majority(venues)
+        show = ShowMatcher.new(band: band).find(date: date, venue: venue)
+
+        pending = pending_for(date, show)
+        if pending
+          pending.payload["sources"] = pending.payload["sources"] + sources
+          pending.save!
+          return :appended
         end
 
-        date =
-          item[:date] || ShowMatcher.extract_date(item[:title]) ||
-            ShowMatcher.extract_date(external_id)
-        return :skipped if date.nil?
-
-        show = ShowMatcher.new(band: band).find(date: date, venue: item[:venue])
-        source = source_payload(item, date)
+        common = {
+          "date" => date.iso8601,
+          "venue" => venue.presence || I18n.t("taper.unknown_venue"),
+          "venue_spellings" => venues,
+          "sources" => sources,
+          "external_id" => sources.first["external_id"],
+        }
 
         if show
           Suggestion.create!(
@@ -68,7 +109,7 @@ module DiscourseTaper
             band: band,
             show: show,
             origin: self.class.key,
-            payload: source,
+            payload: common,
           )
           :matched
         else
@@ -76,17 +117,31 @@ module DiscourseTaper
             kind: "new_show",
             band: band,
             origin: self.class.key,
-            payload: {
-              "date" => date.iso8601,
-              "venue" => item[:venue].presence || I18n.t("taper.unknown_venue"),
-              "city" => item[:city],
-              "region" => item[:region],
-              "source" => source,
-              "external_id" => external_id,
-            },
+            payload:
+              common.merge(
+                "city" => majority(items.map { |item| item[:city] }.compact_blank.tally),
+                "region" => majority(items.map { |item| item[:region] }.compact_blank.tally),
+              ),
           )
           :proposed
         end
+      end
+
+      def pending_for(date, show)
+        scope =
+          Suggestion.where(origin: self.class.key, status: "pending", band_id: band.id).reorder(nil)
+        if show
+          scope.find_by(kind: "new_source", show_id: show.id)
+        else
+          scope.where(kind: "new_show").find_by("payload->>'date' = ?", date.iso8601)
+        end
+      end
+
+      # Most common spelling; the longer one on a tie, since "Madison
+      # Square Garden" beats "MSG" when nothing else separates them.
+      def majority(tally)
+        return nil if tally.blank?
+        tally.max_by { |value, count| [count, value.length] }.first
       end
 
       def source_payload(item, date)
@@ -105,8 +160,38 @@ module DiscourseTaper
         }.compact
       end
 
-      # GET JSON through Discourse's SSRF-aware client, with a body cap.
+      # Transient network faults (a DNS lookup timing out, a dropped
+      # connection) are common across a long paged walk. Retry a page a
+      # few times before giving up on the run, so one hiccup does not
+      # discard everything gathered so far.
+      RETRYABLE = [
+        Timeout::Error,
+        Errno::ECONNRESET,
+        Errno::ECONNREFUSED,
+        SocketError,
+        Net::OpenTimeout,
+        Net::ReadTimeout,
+        OpenSSL::SSL::SSLError,
+      ].freeze
+      RETRIES = 3
+
       def get_json(url)
+        attempt = 0
+        begin
+          attempt += 1
+          fetch_json(url)
+        rescue *RETRYABLE => e
+          raise if attempt >= RETRIES
+          Rails.logger.info(
+            "#{PLUGIN_NAME}: #{self.class.key} retrying after #{e.class} (attempt #{attempt} of #{RETRIES})",
+          )
+          sleep(attempt)
+          retry
+        end
+      end
+
+      # GET JSON through Discourse's SSRF-aware client, with a body cap.
+      def fetch_json(url)
         uri = URI.parse(url)
         request = Net::HTTP::Get.new(uri)
         request["User-Agent"] = USER_AGENT
