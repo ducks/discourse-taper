@@ -56,10 +56,10 @@ end
 #  created_at       :datetime         not null
 #  updated_at       :datetime         not null
 #  external_id      :string
-#  show_id          :integer          not null
-#  submitted_by_id  :integer
-#  taper_id         :integer
-#  upload_id        :integer
+#  show_id          :bigint           not null
+#  submitted_by_id  :bigint
+#  taper_id         :bigint
+#  upload_id        :bigint
 #
 # Indexes
 #
