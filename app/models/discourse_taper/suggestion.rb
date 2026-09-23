@@ -55,3 +55,30 @@ module DiscourseTaper
     end
   end
 end
+
+# == Schema Information
+#
+# Table name: taper_suggestions
+#
+#  id              :bigint           not null, primary key
+#  kind            :string           not null
+#  note            :text
+#  origin          :string           default("user"), not null
+#  payload         :jsonb            not null
+#  review_note     :text
+#  reviewed_at     :datetime
+#  status          :string           default("pending"), not null
+#  created_at      :datetime         not null
+#  updated_at      :datetime         not null
+#  band_id         :integer
+#  reviewed_by_id  :integer
+#  show_id         :integer
+#  submitted_by_id :integer
+#
+# Indexes
+#
+#  index_taper_suggestions_on_origin_kind_band       (origin,kind,band_id)
+#  index_taper_suggestions_on_show_id                (show_id)
+#  index_taper_suggestions_on_status_and_created_at  (status,created_at)
+#  index_taper_suggestions_pending_external          (origin, ((payload ->> 'external_id'::text))) UNIQUE WHERE (((payload ->> 'external_id'::text) IS NOT NULL) AND ((status)::text = 'pending'::text))
+#

@@ -40,7 +40,7 @@ module DiscourseTaper
     # the schedule.
     def import
       band = Band.find(params[:band_id])
-      importer = Jobs::TaperImportFeed::IMPORTERS[params[:importer].to_s]
+      importer = Jobs::TaperImportFeed.importers[params[:importer].to_s]
       raise Discourse::InvalidParameters.new(:importer) if importer.nil? || !importer.available?
       Jobs.enqueue(:taper_import_feed, band_id: band.id, importer: importer.key)
       render json: success_json

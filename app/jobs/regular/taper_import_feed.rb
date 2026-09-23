@@ -4,14 +4,19 @@ module Jobs
   class TaperImportFeed < ::Jobs::Base
     sidekiq_options retry: false
 
-    IMPORTERS = {
-      "archive_org" => DiscourseTaper::Importers::ArchiveOrg,
-      "youtube" => DiscourseTaper::Importers::Youtube,
-    }.freeze
+    # Resolved at call time, not class load. The importers live in lib/ and
+    # are required from after_initialize, so a class-level constant here
+    # is evaluated before they exist under eager loading and breaks boot.
+    def self.importers
+      {
+        "archive_org" => DiscourseTaper::Importers::ArchiveOrg,
+        "youtube" => DiscourseTaper::Importers::Youtube,
+      }
+    end
 
     def execute(args)
       band = DiscourseTaper::Band.find_by(id: args[:band_id])
-      importer = IMPORTERS[args[:importer].to_s]
+      importer = self.class.importers[args[:importer].to_s]
       return if band.nil? || importer.nil? || !importer.available?
 
       stats = importer.new(band: band).run
