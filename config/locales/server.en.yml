@@ -30,6 +30,36 @@ en:
     no_shows: "No shows yet."
     no_setlist: "No setlist recorded yet."
     no_recordings: "no recordings"
+    no_tape_yet: "no tape yet"
+    taper_unclaimed: "taper unclaimed"
+    shows_count:
+      one: "%{count} show"
+      other: "%{count} shows"
+    years_count:
+      one: "%{count} year"
+      other: "%{count} years"
+    venues_count:
+      one: "%{count} venue"
+      other: "%{count} venues"
+    replies_count:
+      one: "%{count} reply"
+      other: "%{count} replies"
+    no_replies: "no replies yet"
+    from_the_community: "From the community"
+    join_discussion: "Join the discussion on the forum"
+    runtime: "runtime"
+    tour: "tour"
+    neighbours: "Neighbouring shows"
+    showing_of: "Showing %{shown} of %{total}."
+    festival_legend: "◼ marks a festival."
+    front:
+      tagline: "Every show. Setlists, recordings, and the people who were there."
+      forum_link: "The forum: ask, argue, correct"
+      by_year: "Shows by year"
+      none: "none"
+      latest_shows: "Latest shows"
+      all_of_year: "All of %{year}"
+      new_recordings: "New recordings"
     no_recordings_yet: "No recordings yet. Know of one? Suggest it in the discussion."
     recordings: "Recordings"
     recordings_count:

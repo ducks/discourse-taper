@@ -145,7 +145,16 @@ describe DiscourseTaper::ShowsController do
   end
 
   describe "reader surface" do
-    it "renders the primary band listing as html without the app" do
+    it "renders the front door as html without the app: spines, latest shows, new recordings" do
+      band.update!(footer: "Anonymous by design.\n\nTaped it? Claim it.")
+      Fabricate(
+        :taper_show,
+        band: band,
+        date: Date.new(1979, 1, 1),
+        venue: "Oakland Auditorium",
+        topic: Fabricate(:topic, category: category),
+      )
+
       get "/taper"
 
       expect(response.status).to eq(200)
@@ -153,7 +162,24 @@ describe DiscourseTaper::ShowsController do
       expect(response.body).to include("1977-05-08")
       expect(response.body).to include("Barton Hall")
       expect(response.body).to include(%(href="/taper?year=1977"))
+      expect(response.body).to include(%(href="/taper?year=1979"))
+      expect(response.body).to include("1978</span><span class=\"taper-spine__count\">none")
+      expect(response.body).to include("2 shows")
+      expect(response.body).to include("Latest shows")
+      expect(response.body).to include("taper-tape__title")
+      expect(response.body).to include("Taped it? Claim it.")
       expect(response.body).not_to include("discourse-data-preloaded")
+    end
+
+    it "renders a year as a month-grouped listing" do
+      get "/taper", params: { year: 1977 }
+
+      expect(response.status).to eq(200)
+      expect(response.body).to include("taper-yearhead__year")
+      expect(response.body).to include("May")
+      expect(response.body).to include("05-08")
+      expect(response.body).to include(%(href="/taper?year=1977" aria-current="true"))
+      expect(response.body).to include("1 venue")
     end
 
     it "renders a show page with setlist, sources, neighbours, and structured data" do
@@ -166,6 +192,24 @@ describe DiscourseTaper::ShowsController do
           topic: Fabricate(:topic, category: category),
         )
 
+      Fabricate(
+        :taper_source,
+        show: show,
+        provider: "youtube",
+        external_id: "Wk_PLQuICx8",
+        url: "https://www.youtube.com/watch?v=Wk_PLQuICx8",
+        kind: "video",
+        format: "video",
+        duration_seconds: 4500,
+        created_at: 1.day.ago,
+      )
+      Fabricate(:post, topic: show.topic, raw: "The show card lives above this post.")
+      Fabricate(
+        :post,
+        topic: show.topic,
+        raw: "The intro tape is North American Scum, same as Chicago.",
+      )
+
       get "/taper/1977-05-08"
 
       expect(response.status).to eq(200)
@@ -176,6 +220,10 @@ describe DiscourseTaper::ShowsController do
       expect(response.body).to include("MusicEvent")
       expect(response.body).to include(later.url)
       expect(response.body).to include(show.topic.url)
+      expect(response.body).to include("https://www.youtube-nocookie.com/embed/Wk_PLQuICx8")
+      expect(response.body).to include("1h 15m")
+      expect(response.body).to include("The intro tape is North American Scum")
+      expect(response.body).to include("1 reply")
     end
 
     it "caches anonymous readers and never signed-in ones" do

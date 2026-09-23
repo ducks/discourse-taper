@@ -1,0 +1,13 @@
+<%- n = show.sources.size %>
+<li class="taper-show-row <%= "taper-show-row--festival" if festival?(show) %>">
+  <span class="taper-show-row__date"><%= short_date ? "#{show.date.strftime("%m-%d")} · #{weekday_name(show.date)}" : show.date.iso8601 %></span>
+  <span>
+    <a class="taper-show-row__venue" href="<%= show.url %>"><%= show.venue %></a>
+    <span class="taper-show-row__place"><%= [[show.city, show.region].compact.join(", ").presence, show.tour.presence, (show.sequence > 1 ? t("taper.show.sequence", n: show.sequence) : nil)].compact.join(" · ") %></span>
+  </span>
+  <%- if n > 0 %>
+    <span class="taper-show-row__tape"><span class="taper-tri" aria-hidden="true"></span> <%= t("taper.recordings_count", count: n) %></span>
+  <%- else %>
+    <span class="taper-show-row__tape taper-show-row__tape--none"><%= t("taper.no_tape_yet") %></span>
+  <%- end %>
+</li>

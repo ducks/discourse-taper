@@ -15,7 +15,7 @@ module DiscourseTaper
 
     prepend_view_path File.expand_path("../../views", __dir__)
     layout "taper"
-    helper_method :duration
+    helper_method :duration, :festival?, :embed_url, :month_name, :weekday_name
 
     def bands
       bands =
@@ -43,8 +43,13 @@ module DiscourseTaper
                  years: @years.map { |year, count| { year: year, count: count } },
                  shows: @shows.map { |show| show_summary(show) },
                }
+      elsif @year || params[:venue].present? || params[:tour].present?
+        cache_for_anonymous
+        prepare_listing(shows)
+        render_page(:listing)
       else
         cache_for_anonymous
+        prepare_front_door
         render_page(:band)
       end
     end
@@ -60,6 +65,9 @@ module DiscourseTaper
         render json: { show: ShowSerializer.new(@show, root: false, scope: guardian).as_json }
       else
         cache_for_anonymous
+        @player = @sources.find { |source| embed_url(source) }
+        @runtime = @sources.filter_map(&:duration_seconds).max
+        @reply_count, @replies = latest_replies(@show.topic)
         render_page(:show)
       end
     end
@@ -121,6 +129,100 @@ module DiscourseTaper
       h, rem = seconds.to_i.divmod(3600)
       m = rem / 60
       h.positive? ? format("%dh %02dm", h, m) : "#{m}m"
+    end
+
+    # Localised names where the locale has them, strftime where it does
+    # not (the test locale ships no day names).
+    def month_name(date)
+      names = I18n.t("date.month_names", default: nil)
+      names.is_a?(Array) && names[date.month] ? names[date.month] : date.strftime("%B")
+    end
+
+    def weekday_name(date)
+      names = I18n.t("date.abbr_day_names", default: nil)
+      names.is_a?(Array) && names[date.wday] ? names[date.wday] : date.strftime("%a")
+    end
+
+    # The archive has no festival field; the word in the venue or tour
+    # is what marks one in the listing.
+    def festival?(show)
+      "#{show.venue} #{show.tour}".match?(/\bfest(ival)?\b/i)
+    end
+
+    # An embeddable player for a source, or nil. YouTube through the
+    # cookieless host; archive.org through its own embed.
+    def embed_url(source)
+      case source.provider
+      when "youtube"
+        id = source.external_id.presence || youtube_id(source.url)
+        id && "https://www.youtube-nocookie.com/embed/#{ERB::Util.url_encode(id)}"
+      when "archive_org"
+        id = source.external_id.presence || source.url.to_s[%r{archive\.org/details/([^/?#]+)}, 1]
+        id && "https://archive.org/embed/#{ERB::Util.url_encode(id)}"
+      end
+    end
+
+    def youtube_id(url)
+      url.to_s[%r{(?:youtu\.be/|[?&]v=|/embed/|/shorts/)([A-Za-z0-9_-]{6,})}, 1]
+    end
+
+    # Front door: every year from the first show to the latest (gap years
+    # included, so a hiatus shows as a gap), the latest recordings, and
+    # the headline counts.
+    def prepare_front_door
+      counts = @years.to_h
+      if counts.any?
+        first, last = counts.keys.minmax
+        peak = counts.values.max.to_f
+        @spines =
+          (first..last).map do |year|
+            count = counts.fetch(year, 0)
+            [year, count, count.zero? ? 2 : [(count / peak * 100).round, 6].max]
+          end
+      else
+        @spines = []
+      end
+      @latest_sources =
+        Source
+          .joins(:show)
+          .where(taper_shows: { band_id: @band.id })
+          .includes(:taper, show: :band)
+          .order(created_at: :desc)
+          .limit(6)
+          .to_a
+      @stats = {
+        shows: @band.shows.count,
+        recordings: Source.joins(:show).where(taper_shows: { band_id: @band.id }).count,
+        years: counts.size,
+      }
+    end
+
+    # A year, a venue, or a tour: the same month-grouped listing under a
+    # monumental heading.
+    def prepare_listing(scope)
+      @listing_title = @year&.to_s || params[:venue].presence || params[:tour].presence
+      total = scope.count
+      @truncated = total > @shows.size
+      @listing_stats = {
+        shows: total,
+        recordings: @shows.sum { |show| show.sources.size },
+        venues: @shows.map(&:venue).uniq.size,
+        tours: @year ? @shows.filter_map(&:tour).uniq : [],
+      }
+    end
+
+    # How many replies the show's topic has and the two newest, for the
+    # reader who has not stepped into the forum yet. Whispers and hidden
+    # posts stay out.
+    def latest_replies(topic)
+      replies =
+        Post.where(
+          topic_id: topic.id,
+          post_type: Post.types[:regular],
+          hidden: false,
+          deleted_at: nil,
+        ).where("post_number > 1")
+      [replies.count, replies.includes(:user).order(created_at: :desc).limit(2).to_a.reverse]
     end
 
     def json_request?

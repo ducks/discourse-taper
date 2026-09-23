@@ -1,38 +1,69 @@
-<%- @page_title = @band.primary? ? t("taper.shows") : @band.name %>
+<%- @page_title = @band.primary? ? nil : @band.name %>
 <%- @page_description = @band.description.presence %>
-<div class="taper-band">
-  <h1><%= @band.primary? ? t("taper.shows") : @band.name %></h1>
-  <%- if @band.description.present? %>
-    <p class="taper-band__description"><%= @band.description %></p>
+<div class="taper-wrap taper-front">
+  <header class="taper-masthead">
+    <div class="taper-masthead__field taper-dots" aria-hidden="true"></div>
+    <h1 class="taper-display taper-masthead__name"><%= @band.name %>
+      <small><%= @band.description.presence || t("taper.front.tagline") %></small>
+    </h1>
+    <div class="taper-masthead__aside">
+      <div class="taper-mono"><%= [t("taper.shows_count", count: @stats[:shows]), t("taper.recordings_count", count: @stats[:recordings]), t("taper.years_count", count: @stats[:years])].join(" · ") %></div>
+      <a class="taper-masthead__forum" href="<%= Discourse.base_path %>/"><span class="taper-tri" aria-hidden="true"></span> <%= t("taper.front.forum_link", title: SiteSetting.title) %></a>
+    </div>
+  </header>
+
+  <%- if @spines.any? %>
+    <nav class="taper-spines" aria-label="<%= t("taper.front.by_year") %>">
+      <div class="taper-spines__row">
+        <%- @spines.each do |year, count, height| %>
+          <%- if count.zero? %>
+            <span class="taper-spine taper-spine--empty" style="--h: <%= height %>"><span class="taper-spine__bar"></span><span class="taper-spine__year"><%= year %></span><span class="taper-spine__count"><%= t("taper.front.none") %></span></span>
+          <%- else %>
+            <a class="taper-spine <%= "taper-spine--now" if year == @spines.last[0] %>" href="<%= @band.url %>?year=<%= year %>" style="--h: <%= height %>"><span class="taper-spine__bar"></span><span class="taper-spine__year"><%= year %></span><span class="taper-spine__count"><%= t("taper.shows_count", count: count) %></span></a>
+          <%- end %>
+        <%- end %>
+      </div>
+    </nav>
   <%- end %>
 
-  <nav class="taper-band__years" aria-label="<%= t("taper.years") %>">
-    <a href="<%= @band.url %>" class="<%= "is-active" if @year.nil? %>"><%= t("taper.all_years") %></a>
-    <%- @years.each do |year, count| %>
-      <a href="<%= @band.url %>?year=<%= year %>" class="<%= "is-active" if @year == year %>"><%= year %> <small><%= count %></small></a>
-    <%- end %>
-  </nav>
-
-  <p class="taper-band__suggest"><a href="<%= (@band.primary? ? DiscourseTaper.root_path : @band.url) %>/suggest"><%= t("taper.suggest.missing_show") %></a></p>
-
   <%- if @shows.empty? %>
-    <p class="taper-empty"><%= t("taper.no_shows") %></p>
+    <p class="taper-empty"><%= t("taper.no_shows") %> <a href="<%= (@band.primary? ? DiscourseTaper.root_path : @band.url) %>/suggest"><%= t("taper.suggest.missing_show") %></a></p>
   <%- else %>
-    <%- @shows.group_by { |s| s.date.year }.each do |year, shows| %>
-      <h2 class="taper-band__year"><%= year %></h2>
-      <ul class="taper-show-list">
-        <%- shows.each do |show| %>
-          <li class="taper-show-list__item">
-            <a class="taper-show-list__date" href="<%= show.url %>"><%= show.label %></a>
-            <span class="taper-show-list__venue"><%= show.venue %><%- if show.city %>, <%= show.city %><%- end %></span>
-            <%- if show.tour %><span class="taper-show-list__tour"><%= show.tour %></span><%- end %>
-            <span class="taper-show-list__meta">
-              <%- n = show.sources.size %>
-              <%- if n > 0 %><%= t("taper.recordings_count", count: n) %><%- else %><%= t("taper.no_recordings") %><%- end %>
-            </span>
-          </li>
+    <div class="taper-two">
+      <section>
+        <div class="taper-section-title"><h2><%= t("taper.front.latest_shows") %></h2><a href="<%= @band.url %>?year=<%= @shows.first.date.year %>"><%= t("taper.front.all_of_year", year: @shows.first.date.year) %></a></div>
+        <ul class="taper-showlist">
+          <%- @shows.first(8).each do |show| %>
+            <%= render partial: "discourse_taper/shows/show_row", locals: { show: show, short_date: false } %>
+          <%- end %>
+        </ul>
+      </section>
+      <section>
+        <div class="taper-section-title"><h2><%= t("taper.front.new_recordings") %></h2></div>
+        <%- if @latest_sources.any? %>
+          <div class="taper-tapes">
+            <%- @latest_sources.each do |source| %>
+              <a class="taper-tape" href="<%= source.show.url %>">
+                <span class="taper-cube" aria-hidden="true"><i></i><i></i><i></i></span>
+                <span>
+                  <span class="taper-tape__title"><%= source.title.presence || "#{t("taper.kind.#{source.kind}")}, #{source.show.venue}" %></span><br>
+                  <span class="taper-tape__meta"><b><%= source.show.date.iso8601 %></b> · <%= [t("taper.kind.#{source.kind}"), duration(source.duration_seconds), t("taper.provider.#{source.provider}"), (source.credited_taper ? t("taper.taped_by", name: source.credited_taper) : t("taper.taper_unclaimed"))].compact.join(" · ") %></span>
+                </span>
+              </a>
+            <%- end %>
+          </div>
+        <%- else %>
+          <p class="taper-empty"><%= t("taper.no_recordings_yet") %></p>
         <%- end %>
-      </ul>
-    <%- end %>
+      </section>
+    </div>
+  <%- end %>
+
+  <%- if @band.footer.present? %>
+    <footer class="taper-policy">
+      <%- @band.footer.split(/\n\s*\n/).each do |paragraph| %>
+        <p><%= paragraph.strip %></p>
+      <%- end %>
+    </footer>
   <%- end %>
 </div>

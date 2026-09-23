@@ -2,9 +2,12 @@
 <html lang="<%= html_lang %>">
   <head>
     <meta charset="utf-8">
-    <title><%= [@page_title, SiteSetting.title].compact.join(" - ") %></title>
+    <title><%= [@page_title, @primary_band&.name || SiteSetting.title].compact.join(" - ") %></title>
     <%= render partial: "layouts/head" %>
     <%= render partial: "common/discourse_publish_stylesheet" %>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
     <%- if @canonical_url.present? %>
       <link rel="canonical" href="<%= Discourse.base_url_no_prefix %><%= @canonical_url %>">
     <%- end %>
@@ -17,24 +20,27 @@
     <%= preload_script 'js/pageview' %>
   </head>
   <body class="taper <%= @body_class %>">
-    <header class="taper-header">
-      <div class="taper-header__inner">
-        <a class="taper-header__title" href="<%= DiscourseTaper.root_path %>"><%= @primary_band&.name || SiteSetting.title %></a>
+    <header class="taper-top">
+      <div class="taper-wrap taper-top__inner">
+        <a class="taper-top__name" href="<%= DiscourseTaper.root_path %>"><span class="taper-tri" aria-hidden="true"></span><%= @primary_band&.name || SiteSetting.title %></a>
         <%- if @bands.size > 1 %>
-          <nav class="taper-header__bands" aria-label="<%= t("taper.bands") %>">
+          <nav class="taper-top__bands" aria-label="<%= t("taper.bands") %>">
             <%- @bands.each do |b| %>
               <a href="<%= b.url %>" class="<%= "is-active" if @band&.id == b.id %>"><%= b.name %></a>
             <%- end %>
           </nav>
         <%- end %>
-        <a class="taper-header__forum" href="<%= Discourse.base_path %>/"><%= SiteSetting.title %></a>
+        <a class="taper-top__forum" href="<%= Discourse.base_path %>/"><%= SiteSetting.title %></a>
       </div>
     </header>
     <main class="taper-main">
       <%= yield %>
     </main>
     <footer class="taper-footer">
-      <a href="<%= Discourse.base_path %>/"><%= SiteSetting.title %></a>
+      <div class="taper-wrap">
+        <a href="<%= Discourse.base_path %>/"><%= SiteSetting.title %></a>
+        <a href="<%= (@band&.primary? || @band.nil?) ? "#{DiscourseTaper.root_path}/suggest" : "#{@band.url}/suggest" %>"><%= t("taper.suggest.missing_show") %></a>
+      </div>
     </footer>
   </body>
 </html>
