@@ -64,7 +64,7 @@ describe DiscourseTaper::SuggestionsController do
     get "/taper/review"
     expect(response.status).to eq(200)
     expect(response.media_type).to eq("text/html")
-    expect(response.body).to include("discourse/plugins/discourse-taper")
+    expect(response.body).to include(%(rel="canonical" href="http://test.localhost/taper/review"))
   end
 
   it "queues an importer run for a band" do
