@@ -38,8 +38,8 @@ en:
     lineage: "lineage"
     previous: "Previous show"
     next: "Next show"
+    discuss: "Discuss this show"
     discussion:
-      zero: "Discuss this show"
       one: "Discussion (%{count} post)"
       other: "Discussion (%{count} posts)"
     suggest_correction: "Suggest a correction"
