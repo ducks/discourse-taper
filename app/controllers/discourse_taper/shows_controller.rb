@@ -8,10 +8,10 @@ module DiscourseTaper
   class ShowsController < ::ApplicationController
     requires_plugin PLUGIN_NAME
 
-    skip_before_action :preload_json, :check_xhr, only: %i[band show bands]
+    skip_before_action :preload_json, :check_xhr, only: %i[band show bands suggest_form suggest]
     before_action :ensure_logged_in, only: %i[suggest]
     before_action :ensure_can_see_archive
-    before_action :load_bands, only: %i[band show bands]
+    before_action :load_bands, only: %i[band show bands suggest_form suggest]
 
     prepend_view_path File.expand_path("../../views", __dir__)
     layout "taper"
@@ -64,9 +64,20 @@ module DiscourseTaper
       end
     end
 
-    # POST /taper(/:band)/suggest.json
-    # The manual channel. Members propose a show, a source for a show, or a
-    # correction; reviewers accept or reject in the queue.
+    # GET /taper(/:band)/suggest(?date=...)
+    # The manual channel's form. With a date it offers a recording and a
+    # correction for that show; without one, a missing show.
+    def suggest_form
+      @band = find_band!
+      @show = params[:date].present? ? find_show!(@band, params[:date]) : nil
+      response.headers["Cache-Control"] = "private, no-store"
+      render_page(:suggest)
+    end
+
+    # POST /taper(/:band)/suggest
+    # Members propose a show, a source for a show, or a correction;
+    # reviewers accept or reject in the queue. Answers JSON to API and
+    # XHR callers and a confirmation page to the browser form.
     def suggest
       band = find_band!
       kind = params[:kind].to_s
@@ -79,6 +90,7 @@ module DiscourseTaper
       raise Discourse::NotFound if kind == "correction" && show.nil?
 
       payload = params.require(:payload).permit!.to_h
+      payload = with_setlist_text(payload, kind)
       suggestion =
         Suggestion.create!(
           kind: kind,
@@ -89,7 +101,14 @@ module DiscourseTaper
           origin: "user",
           note: params[:note].to_s.presence,
         )
-      render json: { suggestion: SuggestionSerializer.new(suggestion, root: false).as_json }
+      if json_request?
+        render json: { suggestion: SuggestionSerializer.new(suggestion, root: false).as_json }
+      else
+        @band = band
+        @back_url = show&.url || band.url
+        response.headers["Cache-Control"] = "private, no-store"
+        render_page(:suggested)
+      end
     rescue ActiveRecord::RecordInvalid => e
       render_json_error(e.record.errors.full_messages.join(", "), status: 422)
     end
@@ -106,6 +125,31 @@ module DiscourseTaper
 
     def json_request?
       params[:format].to_s == "json" || request.xhr?
+    end
+
+    # The browser forms take the setlist as one song per line; the API
+    # sends it structured. Normalise to the structured form the reviewer
+    # applies. A line like "Scarlet Begonias >" keeps the segue as notes.
+    def with_setlist_text(payload, kind)
+      text = params[:setlist_text].to_s
+      return payload if text.blank?
+
+      songs =
+        text
+          .lines
+          .map(&:strip)
+          .reject(&:blank?)
+          .map do |line|
+            title, notes = line.split(/\s+(?=[>-]\s*\z)/, 2)
+            { "title" => title.to_s.strip, "notes" => notes&.strip }.compact
+          end
+      if kind == "correction"
+        payload["changes"] ||= {}
+        payload["changes"]["setlist"] = songs
+      else
+        payload["setlist"] = songs
+      end
+      payload
     end
 
     # Readers get HTML whatever the app layer infers from headers.

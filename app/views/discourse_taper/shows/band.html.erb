@@ -13,6 +13,8 @@
     <%- end %>
   </nav>
 
+  <p class="taper-band__suggest"><a href="<%= (@band.primary? ? DiscourseTaper.root_path : @band.url) %>/suggest"><%= t("taper.suggest.missing_show") %></a></p>
+
   <%- if @shows.empty? %>
     <p class="taper-empty"><%= t("taper.no_shows") %></p>
   <%- else %>

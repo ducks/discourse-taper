@@ -76,7 +76,7 @@
 
   <section class="taper-show__discuss">
     <a class="btn btn-primary" href="<%= @show.topic.url %>"><%= t("taper.discussion", count: [@show.topic.posts_count - 1, 0].max) %></a>
-    <a class="btn btn-default" href="<%= @show.topic.url %>"><%= t("taper.suggest_correction") %></a>
+    <a class="btn btn-default" href="<%= (@band.primary? ? DiscourseTaper.root_path : @band.url) %>/suggest?date=<%= @show.slug %>"><%= t("taper.suggest_correction") %></a>
   </section>
 </article>
 

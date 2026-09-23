@@ -18,10 +18,12 @@ DiscourseTaper::Engine.routes.draw do
   # Primary band: no band segment. Declared before the band forms so a
   # date is never read as a band slug.
   get "/(.:format)" => "shows#band"
+  get "/suggest" => "shows#suggest_form"
   get "/:date" => "shows#show", :constraints => { date: date }
   post "/suggest" => "shows#suggest"
 
   # Any band, including the primary one, by slug.
+  get "/:band/suggest" => "shows#suggest_form"
   post "/:band/suggest" => "shows#suggest"
   get "/:band" => "shows#band"
   get "/:band/:date" => "shows#show", :constraints => { date: date }

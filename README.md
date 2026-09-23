@@ -63,13 +63,16 @@ Bands are managed at `/taper/admin/bands` (reviewers): name,
 description, and the archive.org collection or YouTube channel id the
 importers use. Setting `primary` moves the primary band.
 
+Every show page links to a suggestion form (`/taper/suggest?date=…`)
+with a recording form and a correction form; the listing links to a
+missing-show form. Plain HTML forms, no JavaScript, logged-in members
+only; submissions land in the review queue.
+
 ## Not yet
 
 - Direct audio upload. Sources come from archive.org and YouTube, which
   is where tapers already put recordings; hosting audio here is a
   storage decision deferred on purpose.
-- A suggestion form on the reader surface; suggestions go through the
-  topic discussion or the JSON API for now.
 
 ## Development
 

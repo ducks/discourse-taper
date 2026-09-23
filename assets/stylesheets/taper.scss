@@ -381,3 +381,61 @@ body.taper {
   font-size: var(--font-down-1);
   color: var(--primary-medium);
 }
+
+.taper-band__suggest {
+  font-size: var(--font-down-1);
+  margin: 0.5em 0 1em;
+}
+
+.taper-suggest {
+  &__context,
+  &__login {
+    color: var(--primary-medium);
+  }
+
+  &__login .btn {
+    margin-left: 0.5em;
+  }
+}
+
+.taper-form {
+  margin: 1.5em 0 2.5em;
+  padding: 1em 1.25em;
+  border: 1px solid var(--primary-low);
+  border-radius: var(--d-border-radius);
+
+  h2 {
+    margin-top: 0;
+  }
+
+  label {
+    display: block;
+    margin: 0.75em 0;
+    font-size: var(--font-down-1);
+    color: var(--primary-high);
+  }
+
+  input,
+  select,
+  textarea {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 0.25em;
+    font-size: var(--font-0);
+  }
+
+  &__row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 0 1em;
+
+    @media (width <= 40em) {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  .btn {
+    margin-top: 0.5em;
+  }
+}

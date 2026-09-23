@@ -1,0 +1,87 @@
+<%- @page_title = t("taper.suggest.title") %>
+<div class="taper-suggest">
+  <nav class="taper-breadcrumbs" aria-label="Breadcrumb">
+    <a href="<%= @band.url %>"><%= @band.primary? ? t("taper.shows") : @band.name %></a>
+    <%- if @show %><span aria-hidden="true">/</span><a href="<%= @show.url %>"><%= @show.label %></a><%- end %>
+  </nav>
+  <h1><%= t("taper.suggest.title") %></h1>
+
+  <%- if @show %>
+    <p class="taper-suggest__context"><%= t("taper.suggest.for_show", show: "#{@show.label} #{@show.venue}") %></p>
+  <%- else %>
+    <p class="taper-suggest__context"><%= t("taper.suggest.for_band", band: @band.name) %></p>
+  <%- end %>
+
+  <%- if current_user.nil? %>
+    <p class="taper-suggest__login">
+      <%= t("taper.suggest.login_needed") %>
+      <a class="btn btn-primary" href="<%= Discourse.base_path %>/login?redirect=<%= ERB::Util.url_encode(request.fullpath) %>"><%= t("taper.suggest.log_in") %></a>
+    </p>
+  <%- else %>
+    <%- if @show %>
+      <form class="taper-form" method="post" action="<%= @band.primary? ? "#{DiscourseTaper.root_path}/suggest" : "#{@band.url}/suggest" %>">
+        <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+        <input type="hidden" name="kind" value="new_source">
+        <input type="hidden" name="date" value="<%= @show.date.iso8601 %>">
+        <input type="hidden" name="venue" value="<%= @show.venue %>">
+        <h2><%= t("taper.suggest.recording_heading") %></h2>
+        <label><%= t("taper.suggest.url") %><input type="url" name="payload[url]" required placeholder="https://archive.org/details/… or https://youtube.com/watch?v=…"></label>
+        <label><%= t("taper.suggest.recording_title") %><input type="text" name="payload[title]" maxlength="200"></label>
+        <div class="taper-form__row">
+          <label><%= t("taper.suggest.kind") %>
+            <select name="payload[kind]">
+              <%- DiscourseTaper::Source::KINDS.each do |k| %><option value="<%= k %>"><%= t("taper.kind.#{k}") %></option><%- end %>
+            </select>
+          </label>
+          <label><%= t("taper.suggest.format") %>
+            <select name="payload[format]">
+              <%- DiscourseTaper::Source::FORMATS.each do |f| %><option value="<%= f %>"><%= f %></option><%- end %>
+            </select>
+          </label>
+        </div>
+        <label><%= t("taper.suggest.taper") %><input type="text" name="payload[taper_name]" maxlength="200"></label>
+        <label><%= t("taper.suggest.lineage") %><textarea name="payload[lineage]" rows="2"></textarea></label>
+        <label><%= t("taper.suggest.note") %><textarea name="note" rows="2"></textarea></label>
+        <button class="btn btn-primary" type="submit"><%= t("taper.suggest.submit_recording") %></button>
+      </form>
+
+      <form class="taper-form" method="post" action="<%= @band.primary? ? "#{DiscourseTaper.root_path}/suggest" : "#{@band.url}/suggest" %>">
+        <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+        <input type="hidden" name="kind" value="correction">
+        <input type="hidden" name="date" value="<%= @show.date.iso8601 %>">
+        <input type="hidden" name="venue" value="<%= @show.venue %>">
+        <h2><%= t("taper.suggest.correction_heading") %></h2>
+        <div class="taper-form__row">
+          <label><%= t("taper.suggest.venue") %><input type="text" name="payload[changes][venue]" value="<%= @show.venue %>" maxlength="200"></label>
+          <label><%= t("taper.suggest.city") %><input type="text" name="payload[changes][city]" value="<%= @show.city %>" maxlength="100"></label>
+        </div>
+        <div class="taper-form__row">
+          <label><%= t("taper.suggest.region") %><input type="text" name="payload[changes][region]" value="<%= @show.region %>" maxlength="100"></label>
+          <label><%= t("taper.suggest.tour") %><input type="text" name="payload[changes][tour]" value="<%= @show.tour %>" maxlength="200"></label>
+        </div>
+        <label><%= t("taper.suggest.setlist") %><textarea name="setlist_text" rows="8" placeholder="<%= t("taper.suggest.setlist_placeholder") %>"><%= @show.setlist.map { |s| [s["title"], s["notes"]].compact.join(" ") }.join("\n") %></textarea></label>
+        <label><%= t("taper.suggest.note") %><textarea name="note" rows="2"></textarea></label>
+        <button class="btn btn-default" type="submit"><%= t("taper.suggest.submit_correction") %></button>
+      </form>
+    <%- else %>
+      <form class="taper-form" method="post" action="<%= @band.primary? ? "#{DiscourseTaper.root_path}/suggest" : "#{@band.url}/suggest" %>">
+        <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+        <input type="hidden" name="kind" value="new_show">
+        <h2><%= t("taper.suggest.show_heading") %></h2>
+        <div class="taper-form__row">
+          <label><%= t("taper.suggest.date") %><input type="date" name="payload[date]" required></label>
+          <label><%= t("taper.suggest.venue") %><input type="text" name="payload[venue]" required maxlength="200"></label>
+        </div>
+        <div class="taper-form__row">
+          <label><%= t("taper.suggest.city") %><input type="text" name="payload[city]" maxlength="100"></label>
+          <label><%= t("taper.suggest.region") %><input type="text" name="payload[region]" maxlength="100"></label>
+        </div>
+        <label><%= t("taper.suggest.tour") %><input type="text" name="payload[tour]" maxlength="200"></label>
+        <label><%= t("taper.suggest.setlist") %><textarea name="setlist_text" rows="8" placeholder="<%= t("taper.suggest.setlist_placeholder") %>"></textarea></label>
+        <label><%= t("taper.suggest.url") %><input type="url" name="payload[source][url]" placeholder="<%= t("taper.suggest.source_optional") %>"></label>
+        <label><%= t("taper.suggest.note") %><textarea name="note" rows="2"></textarea></label>
+        <button class="btn btn-primary" type="submit"><%= t("taper.suggest.submit_show") %></button>
+      </form>
+    <%- end %>
+  <%- end %>
+</div>

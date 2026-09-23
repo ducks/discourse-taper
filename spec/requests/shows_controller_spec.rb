@@ -194,6 +194,82 @@ describe DiscourseTaper::ShowsController do
     end
   end
 
+  describe "suggestion form" do
+    it "asks anonymous readers to log in and shows the forms to members" do
+      get "/taper/suggest?date=1977-05-08"
+      expect(response.status).to eq(200)
+      expect(response.media_type).to eq("text/html")
+      expect(response.body).to include("Log in")
+      expect(response.body).not_to include(%(name="kind" value="new_source"))
+
+      sign_in(member)
+      get "/taper/suggest?date=1977-05-08"
+      expect(response.body).to include(%(name="kind" value="new_source"))
+      expect(response.body).to include(%(name="kind" value="correction"))
+      expect(response.body).to include("Scarlet Begonias")
+      expect(response.headers["Cache-Control"]).to eq("private, no-store")
+
+      get "/taper/suggest"
+      expect(response.body).to include(%(name="kind" value="new_show"))
+    end
+
+    it "accepts a browser form post, parses the setlist, and confirms" do
+      sign_in(member)
+      post "/taper/suggest",
+           params: {
+             authenticity_token: "ignored-in-test",
+             kind: "new_show",
+             payload: {
+               date: "1972-08-27",
+               venue: "Old Renaissance Faire Grounds",
+               city: "Veneta",
+               source: {
+                 url: "https://archive.org/details/gd72",
+               },
+             },
+             setlist_text: "Playing in the Band\nScarlet Begonias >\nFire on the Mountain\n\n",
+             note: "the sunshine daydream show",
+           }
+
+      expect(response.status).to eq(200)
+      expect(response.media_type).to eq("text/html")
+      expect(response.body).to include("review queue")
+      suggestion = DiscourseTaper::Suggestion.last
+      expect(suggestion).to have_attributes(
+        kind: "new_show",
+        submitted_by: member,
+        note: "the sunshine daydream show",
+      )
+      expect(suggestion.payload["setlist"]).to eq(
+        [
+          { "title" => "Playing in the Band" },
+          { "title" => "Scarlet Begonias", "notes" => ">" },
+          { "title" => "Fire on the Mountain" },
+        ],
+      )
+      expect(suggestion.payload.dig("source", "url")).to eq("https://archive.org/details/gd72")
+    end
+
+    it "turns a correction form's setlist into changes" do
+      sign_in(member)
+      post "/taper/suggest",
+           params: {
+             kind: "correction",
+             date: "1977-05-08",
+             payload: {
+               changes: {
+                 venue: "Barton Hall",
+               },
+             },
+             setlist_text: "Minglewood\nLoser",
+           }
+      expect(response.status).to eq(200)
+      changes = DiscourseTaper::Suggestion.last.payload["changes"]
+      expect(changes["venue"]).to eq("Barton Hall")
+      expect(changes["setlist"].map { |s| s["title"] }).to eq(%w[Minglewood Loser])
+    end
+  end
+
   it "requires login to suggest" do
     post "/taper/grateful-dead/suggest.json",
          params: {
