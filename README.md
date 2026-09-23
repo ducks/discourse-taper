@@ -21,6 +21,14 @@ did.
   shows that night. That is what lets a taper's upload and an archive.org
   item for the same night land on the same show.
 
+## Bands
+
+A site is usually "the X archive" with side projects alongside it. The
+first band created becomes the **primary** band: it drops out of URLs,
+show titles, and the topic card, so a single-band site never sees the
+concept. Its shows live at `/taper/1977-05-08`; any other band's at
+`/taper/<slug>/1977-05-08`. Move the primary with `band.make_primary!`.
+
 ## Setup
 
 1. Enable `taper_enabled` and set `taper_category_id` to the category
@@ -37,9 +45,9 @@ did.
 | Route | Purpose |
 | --- | --- |
 | `GET /taper/bands` | Bands with show counts |
-| `GET /taper/:band` | A band's shows, with year facets; filter by `year`, `venue`, `tour` |
-| `GET /taper/:band/:date` | One show: setlist and sources. `-2` suffix for a second show that night |
-| `POST /taper/:band/suggest` | Propose a `new_show`, `new_source`, or `correction` |
+| `GET /taper` and `GET /taper/:band` | A band's shows, with year facets; filter by `year`, `venue`, `tour`. The short form is the primary band |
+| `GET /taper/:date` and `GET /taper/:band/:date` | One show: setlist and sources. `-2` suffix for a second show that night |
+| `POST /taper/suggest` and `POST /taper/:band/suggest` | Propose a `new_show`, `new_source`, or `correction` |
 | `GET /taper/suggestions` | Pending queue (reviewers) |
 | `POST /taper/suggestions/:id/accept` and `/reject` | Review |
 | `POST /taper/suggestions/import` | Run an importer for a band now |

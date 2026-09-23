@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 module DiscourseTaper
+  # A site is usually "the X archive" with side projects alongside. The
+  # primary band is the one the site is about: it drops out of URLs, show
+  # titles, and the card, so a single-band site never sees the concept.
   class Band < ActiveRecord::Base
     self.table_name = "taper_bands"
 
@@ -11,17 +14,41 @@ module DiscourseTaper
 
     validates :name, presence: true, length: { maximum: 200 }
     validates :slug, presence: true, uniqueness: true, format: { with: /\A[a-z0-9-]+\z/ }
+    validates :primary, uniqueness: true, if: :primary?
 
     before_validation :derive_slug
+    before_create :become_primary_if_first
+
+    scope :primary, -> { where(primary: true) }
+
+    def self.primary_band
+      primary.first
+    end
 
     def url
-      "#{DiscourseTaper.root_path}/#{slug}"
+      primary? ? DiscourseTaper.root_path : "#{DiscourseTaper.root_path}/#{slug}"
+    end
+
+    # Segment shows use in their URL: nothing for the primary band.
+    def path_prefix
+      primary? ? "" : "/#{slug}"
+    end
+
+    def make_primary!
+      Band.transaction do
+        Band.primary.where.not(id: id).update_all(primary: false)
+        update!(primary: true)
+      end
     end
 
     private
 
     def derive_slug
       self.slug = name.to_s.parameterize if slug.blank? && name.present?
+    end
+
+    def become_primary_if_first
+      self.primary = true if !Band.exists?
     end
   end
 end

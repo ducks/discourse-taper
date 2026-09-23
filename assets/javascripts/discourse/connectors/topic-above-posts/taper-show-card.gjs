@@ -30,7 +30,9 @@ export default class TaperShowCard extends Component {
       <header class="taper-show-card__header">
         <span class="taper-show-card__icon">{{dIcon "record-vinyl"}}</span>
         <div class="taper-show-card__heading">
-          <a class="taper-show-card__band" href={{this.show.band.url}}>{{this.show.band.name}}</a>
+          {{#unless this.show.band.primary}}
+            <a class="taper-show-card__band" href={{this.show.band.url}}>{{this.show.band.name}}</a>
+          {{/unless}}
           <div class="taper-show-card__where">
             <strong>{{this.show.label}}</strong>
             <span>{{this.show.location}}</span>

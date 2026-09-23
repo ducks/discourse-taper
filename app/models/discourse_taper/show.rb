@@ -33,8 +33,10 @@ module DiscourseTaper
       base
     end
 
+    # "1977-05-08 Barton Hall, Ithaca" for the primary band; other bands
+    # keep their name so a side project is identifiable in topic lists.
     def title
-      "#{band.name} #{label} #{[venue, city].compact.join(", ")}"
+      [band.primary? ? nil : band.name, label, [venue, city].compact.join(", ")].compact.join(" ")
     end
 
     def location
@@ -42,7 +44,7 @@ module DiscourseTaper
     end
 
     def url
-      "#{band.url}/#{date.iso8601}#{sequence > 1 ? "-#{sequence}" : ""}"
+      "#{DiscourseTaper.root_path}#{band.path_prefix}/#{slug}"
     end
 
     def slug

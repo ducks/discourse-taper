@@ -38,7 +38,11 @@ describe DiscourseTaper::ShowsController do
     )
   end
 
-  it "lists a band's shows with year facets" do
+  it "lists a band's shows with year facets, at the short url for the primary band" do
+    get "/taper.json"
+    expect(response.status).to eq(200)
+    expect(response.parsed_body["band"]).to include("slug" => "grateful-dead", "primary" => true)
+
     get "/taper/grateful-dead.json"
     expect(response.status).to eq(200)
     expect(response.parsed_body["years"]).to eq([{ "year" => 1977, "count" => 1 }])
@@ -51,7 +55,11 @@ describe DiscourseTaper::ShowsController do
     expect(response.parsed_body["shows"]).to eq([])
   end
 
-  it "shows one show with setlist and sources" do
+  it "shows one show with setlist and sources, at both url forms" do
+    get "/taper/1977-05-08.json"
+    expect(response.status).to eq(200)
+    expect(response.parsed_body["show"]["url"]).to eq("/taper/1977-05-08")
+
     get "/taper/grateful-dead/1977-05-08.json"
     expect(response.status).to eq(200)
     json = response.parsed_body["show"]
@@ -60,6 +68,30 @@ describe DiscourseTaper::ShowsController do
     )
     expect(json["sources"].first).to include("kind" => "soundboard", "provider" => "archive_org")
     expect(json["topic_url"]).to eq(show.topic.relative_url)
+  end
+
+  it "serves a non-primary band only under its slug" do
+    side = Fabricate(:taper_band, name: "Jerry Garcia Band")
+    Fabricate(
+      :taper_show,
+      band: side,
+      date: Date.new(1978, 3, 1),
+      topic: Fabricate(:topic, category: category),
+      venue: "Keystone",
+      city: nil,
+      region: nil,
+    )
+
+    get "/taper/jerry-garcia-band/1978-03-01.json"
+    expect(response.status).to eq(200)
+    expect(response.parsed_body["show"]).to include(
+      "url" => "/taper/jerry-garcia-band/1978-03-01",
+      "title" => "Jerry Garcia Band 1978-03-01 Keystone",
+    )
+    expect(response.parsed_body["show"]["band"]).to include("primary" => false)
+
+    get "/taper/1978-03-01.json"
+    expect(response.status).to eq(404)
   end
 
   it "exposes the show on the topic payload" do

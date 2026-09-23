@@ -45,7 +45,7 @@ describe DiscourseTaper::SuggestionsController do
     sign_in(reviewer)
     post "/taper/suggestions/#{suggestion.id}/accept.json", params: { note: "ok" }
     expect(response.status).to eq(200)
-    expect(response.parsed_body["show_url"]).to eq("/taper/#{band.slug}/1977-05-08")
+    expect(response.parsed_body["show_url"]).to eq("/taper/1977-05-08")
     expect(DiscourseTaper::Show.count).to eq(1)
 
     post "/taper/suggestions/#{suggestion.id}/accept.json"

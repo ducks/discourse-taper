@@ -82,8 +82,11 @@ module DiscourseTaper
       raise Discourse::NotFound if category.nil? || !guardian.can_see_category?(category)
     end
 
+    # No :band param means the primary band, which is what the short URLs
+    # (/taper, /taper/1977-05-08) resolve to.
     def find_band!
-      Band.find_by(slug: params[:band]) || raise(Discourse::NotFound)
+      band = params[:band].present? ? Band.find_by(slug: params[:band]) : Band.primary_band
+      band || raise(Discourse::NotFound)
     end
 
     def find_show!(band, slug)

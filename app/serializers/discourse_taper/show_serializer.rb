@@ -22,7 +22,13 @@ module DiscourseTaper
                :sources
 
     def band
-      { id: object.band.id, name: object.band.name, slug: object.band.slug, url: object.band.url }
+      {
+        id: object.band.id,
+        name: object.band.name,
+        slug: object.band.slug,
+        url: object.band.url,
+        primary: object.band.primary?,
+      }
     end
 
     def sources
