@@ -11,6 +11,7 @@ module DiscourseTaper
                :show_count,
                :archive_org_collection,
                :youtube_channel_id,
+               :youtube_search_query,
                :setlistfm_artist_name
 
     def show_count

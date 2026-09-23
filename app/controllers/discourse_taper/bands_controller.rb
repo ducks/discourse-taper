@@ -47,6 +47,7 @@ module DiscourseTaper
         :description,
         :archive_org_collection,
         :youtube_channel_id,
+        :youtube_search_query,
         :setlistfm_artist_name,
       )
     end

@@ -35,4 +35,34 @@ describe DiscourseTaper::ShowMatcher do
     expect(described_class.extract_date("Live in Ithaca")).to be_nil
     expect(described_class.extract_date("1977-13-40 nonsense")).to be_nil
   end
+
+  it "reads day-first, written, and French dates" do
+    expect(described_class.extract_date("Angine de Poitrine 16/09/2026 Philly")).to eq(
+      Date.new(2026, 9, 16),
+    )
+    expect(described_class.extract_date("Angine de Poitrine 16.09.26 Philly")).to eq(
+      Date.new(2026, 9, 16),
+    )
+    expect(described_class.extract_date("Full set, Underground Arts, September 16th, 2026")).to eq(
+      Date.new(2026, 9, 16),
+    )
+    expect(described_class.extract_date("Sept 16 2026 full show")).to eq(Date.new(2026, 9, 16))
+    expect(described_class.extract_date("16 September 2026")).to eq(Date.new(2026, 9, 16))
+    expect(described_class.extract_date("Angine de Poitrine au Club Soda, 1er août 2026")).to eq(
+      Date.new(2026, 8, 1),
+    )
+    expect(described_class.extract_date("16 sept. 2026 Montréal")).to eq(Date.new(2026, 9, 16))
+    expect(described_class.extract_date("Live in Montréal, 24 décembre")).to be_nil
+  end
+
+  it "resolves a month and day without a year against a publish date" do
+    hint = Date.new(2026, 9, 20)
+    expect(described_class.extract_date("Live at LPR, September 10th", year_hint: hint)).to eq(
+      Date.new(2026, 9, 10),
+    )
+    expect(described_class.extract_date("Live at LPR, December 10th", year_hint: hint)).to eq(
+      Date.new(2025, 12, 10),
+    )
+    expect(described_class.extract_date("Live at LPR", year_hint: hint)).to be_nil
+  end
 end
