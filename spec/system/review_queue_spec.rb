@@ -102,6 +102,10 @@ describe "Taper review queue" do
     expect(row).to have_css(".taper-suggestion__recordings li", count: 3)
     expect(row).to have_content("Schoeps AUD")
 
+    expect(row).to have_css(".taper-suggestion__venue-input")
+    row.find(".taper-suggestion__venue-input").fill_in(
+      with: "Bethel Woods Center for the Arts, Bethel NY",
+    )
     row.find(".taper-suggestion__review-note").fill_in(with: "looks right")
     row.find(".taper-suggestion__accept").click
 
@@ -111,7 +115,8 @@ describe "Taper review queue" do
 
     show = DiscourseTaper::Show.find_by(band: band, date: Date.new(2011, 7, 16))
     expect(show).to be_present
-    expect(show.venue).to eq("Bethel Woods Center for the Arts")
+    expect(show.venue).to eq("Bethel Woods Center for the Arts, Bethel NY")
+    expect(show.venue_record.aliases).to include("bethel woods")
     expect(show.sources.count).to eq(3)
     expect(grouped.reload).to have_attributes(
       status: "accepted",

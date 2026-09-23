@@ -125,6 +125,57 @@ describe DiscourseTaper::SuggestionReviewer do
     )
   end
 
+  it "creates the venue on accept, learns every spelling, and links the show" do
+    suggestion =
+      DiscourseTaper::Suggestion.create!(
+        kind: "new_show",
+        band: band,
+        origin: "archive_org",
+        payload: {
+          "date" => "2011-07-16",
+          "venue" => "Bethel Woods Center for the Arts",
+          "venue_spellings" => {
+            "Bethel Woods Center for the Arts" => 14,
+            "Bethel Woods" => 3,
+            "Bethel Center For The Arts" => 1,
+          },
+          "city" => "Bethel",
+          "region" => "NY",
+        },
+      )
+
+    show = reviewer_service.accept!(suggestion)
+
+    venue = DiscourseTaper::Venue.find_by!(name: "Bethel Woods Center for the Arts")
+    expect(show.venue_record).to eq(venue)
+    expect(venue).to have_attributes(city: "Bethel", region: "NY")
+    expect(venue.aliases).to include("bethel woods", "bethel center for arts")
+
+    # The next night at the same room resolves by alias, no reviewer needed.
+    expect(DiscourseTaper::VenueResolver.new.resolve("Bethel Woods" => 1).venue).to eq(venue)
+  end
+
+  it "relinks the venue when a correction changes it" do
+    show = Fabricate(:taper_show, band: band, venue: "MSG")
+    suggestion =
+      DiscourseTaper::Suggestion.create!(
+        kind: "correction",
+        band: band,
+        show: show,
+        origin: "user",
+        payload: {
+          "changes" => {
+            "venue" => "Madison Square Garden",
+          },
+        },
+      )
+
+    reviewer_service.accept!(suggestion)
+    show.reload
+    expect(show.venue).to eq("Madison Square Garden")
+    expect(show.venue_record.name).to eq("Madison Square Garden")
+  end
+
   it "applies only allowed correction fields" do
     show = Fabricate(:taper_show, band: band, venue: "Barton Hal")
     suggestion =
