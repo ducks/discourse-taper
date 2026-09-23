@@ -439,3 +439,165 @@ body.taper {
     margin-top: 0.5em;
   }
 }
+
+// Reviewer queue (Ember page in the app).
+.taper-review {
+  &__header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1em;
+    margin-bottom: 1em;
+
+    h1 {
+      margin: 0;
+    }
+  }
+
+  &__importers {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5em;
+  }
+
+  &__decisions {
+    list-style: none;
+    margin: 0 0 1em;
+    padding: 0.75em 1em;
+    border-radius: var(--d-border-radius);
+    background: var(--success-low);
+    color: var(--primary-high);
+
+    li + li {
+      margin-top: 0.25em;
+    }
+
+    a {
+      margin-left: 0.5em;
+    }
+  }
+
+  &__count,
+  &__empty {
+    color: var(--primary-medium);
+  }
+}
+
+.taper-suggestion {
+  margin-bottom: 1em;
+  padding: 1em;
+  border: 1px solid var(--primary-low);
+  border-radius: var(--d-border-radius);
+
+  &__header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.5em 0.75em;
+  }
+
+  &__kind {
+    font-size: var(--font-down-2);
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 0.15em 0.5em;
+    border-radius: var(--d-border-radius);
+    background: var(--primary-low);
+    color: var(--primary-high);
+  }
+
+  &--new_show &__kind {
+    background: var(--tertiary-low);
+    color: var(--tertiary);
+  }
+
+  &--correction &__kind {
+    background: var(--highlight-low);
+    color: var(--highlight-high);
+  }
+
+  &__headline {
+    font-size: var(--font-up-1);
+  }
+
+  &__location,
+  &__band,
+  &__origin {
+    color: var(--primary-medium);
+  }
+
+  &__origin {
+    margin-left: auto;
+    font-size: var(--font-down-1);
+  }
+
+  &__spellings {
+    margin: 0.5em 0 0;
+    font-size: var(--font-down-1);
+    color: var(--primary-medium);
+
+    span {
+      margin-left: 0.5em;
+    }
+  }
+
+  &__note {
+    margin: 0.5em 0 0;
+    font-style: italic;
+  }
+
+  &__changes {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.25em 1em;
+    margin: 0.5em 0 0;
+
+    dt {
+      color: var(--primary-medium);
+    }
+
+    dd {
+      margin: 0;
+    }
+  }
+
+  &__toggle {
+    margin-top: 0.5em;
+    padding: 0;
+    color: var(--tertiary);
+  }
+
+  &__recordings {
+    list-style: none;
+    margin: 0.5em 0 0;
+    padding: 0;
+    font-size: var(--font-down-1);
+
+    li {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5em;
+      padding: 0.25em 0;
+      border-top: 1px solid var(--primary-very-low);
+    }
+  }
+
+  &__recording-meta {
+    color: var(--primary-medium);
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5em;
+    margin-top: 1em;
+  }
+
+  &__review-note {
+    flex: 1;
+    min-width: 12em;
+    margin: 0;
+  }
+}

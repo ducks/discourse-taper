@@ -17,7 +17,13 @@ module DiscourseTaper
                :reviewed_by
 
     def band
-      object.band && { id: object.band.id, name: object.band.name, slug: object.band.slug }
+      object.band &&
+        {
+          id: object.band.id,
+          name: object.band.name,
+          slug: object.band.slug,
+          primary: object.band.primary?,
+        }
     end
 
     def show
