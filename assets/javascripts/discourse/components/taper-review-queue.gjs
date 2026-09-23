@@ -18,7 +18,7 @@ export default class TaperReviewQueue extends Component {
   decisions = trackedArray();
 
   get importers() {
-    return ["archive_org", "youtube"];
+    return ["setlist_fm", "archive_org", "youtube"];
   }
 
   @action

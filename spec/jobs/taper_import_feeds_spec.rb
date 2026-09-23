@@ -8,7 +8,7 @@ describe Jobs::TaperImportFeeds do
     Discourse.redis.del("taper:last_import_at")
   end
 
-  it "enqueues archive.org for each band and youtube only when configured" do
+  it "enqueues archive.org for each band, and youtube and setlist.fm only when configured" do
     expect_enqueued_with(
       job: :taper_import_feed,
       args: {
@@ -25,6 +25,16 @@ describe Jobs::TaperImportFeeds do
     SiteSetting.taper_youtube_api_key = "key"
     described_class.new.execute({})
     expect(Jobs::TaperImportFeed.jobs.map { |j| j["args"].first["importer"] }).to contain_exactly(
+      "archive_org",
+      "youtube",
+    )
+
+    Jobs::TaperImportFeed.jobs.clear
+    Discourse.redis.del("taper:last_import_at")
+    SiteSetting.taper_setlistfm_api_key = "key"
+    described_class.new.execute({})
+    expect(Jobs::TaperImportFeed.jobs.map { |j| j["args"].first["importer"] }).to contain_exactly(
+      "setlist_fm",
       "archive_org",
       "youtube",
     )

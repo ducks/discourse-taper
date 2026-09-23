@@ -5,6 +5,7 @@ en:
     taper_reviewer_groups: "Groups whose members can accept or reject suggestions. Staff always can."
     taper_archive_org_collections: "archive.org collection identifiers to import from (one per band is set on the band itself)."
     taper_youtube_api_key: "YouTube Data API key. Leave blank to disable the YouTube importer."
+    taper_setlistfm_api_key: "setlist.fm API key (free at setlist.fm/settings/api). Imports every show fans have logged, with setlists. Leave blank to disable."
     taper_youtube_channel_ids: "YouTube channel ids to import from (set per band on the band itself)."
     taper_import_interval_hours: "How often the importers run, in hours."
     taper_import_page_size: "Results fetched per request from each service."
@@ -52,6 +53,7 @@ en:
     provider:
       archive_org: "archive.org"
       youtube: "YouTube"
+      setlist_fm: "setlist.fm"
       upload: "Upload"
       link: "Link"
     suggest:

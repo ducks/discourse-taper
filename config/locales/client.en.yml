@@ -17,6 +17,7 @@ en:
       provider:
         archive_org: "archive.org"
         youtube: "YouTube"
+        setlist_fm: "setlist.fm"
         upload: "Upload"
         link: "Link"
       review:
