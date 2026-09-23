@@ -41,7 +41,14 @@ module DiscourseTaper
     private
 
     def band_params
-      params.permit(:name, :slug, :description, :archive_org_collection, :youtube_channel_id)
+      params.permit(
+        :name,
+        :slug,
+        :description,
+        :archive_org_collection,
+        :youtube_channel_id,
+        :setlistfm_artist_name,
+      )
     end
 
     def ensure_reviewer

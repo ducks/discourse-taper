@@ -16,7 +16,11 @@ module Jobs
       Discourse.redis.set("taper:last_import_at", Time.zone.now.iso8601)
 
       DiscourseTaper::Band.find_each do |band|
-        importers = [DiscourseTaper::Importers::ArchiveOrg, DiscourseTaper::Importers::Youtube]
+        importers = [
+          DiscourseTaper::Importers::SetlistFm,
+          DiscourseTaper::Importers::ArchiveOrg,
+          DiscourseTaper::Importers::Youtube,
+        ]
         importers.each do |importer|
           next if !importer.available?
           Jobs.enqueue(:taper_import_feed, band_id: band.id, importer: importer.key)

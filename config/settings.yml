@@ -18,6 +18,9 @@ plugins:
   taper_youtube_api_key:
     default: ""
     secret: true
+  taper_setlistfm_api_key:
+    default: ""
+    secret: true
   taper_youtube_channel_ids:
     default: ""
     type: list

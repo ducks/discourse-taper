@@ -60,6 +60,7 @@ module DiscourseTaper
           setlist: Array(p["setlist"]),
           notes: p["notes"],
         )
+      show.update!(setlistfm_id: p["setlistfm_id"]) if p["setlistfm_id"].present?
       link_venue!(
         show,
         p["venue"],
@@ -139,6 +140,9 @@ module DiscourseTaper
       changes["date"] = Date.parse(changes["date"]) if changes["date"]
       show = suggestion.show
       show.update!(changes)
+      if suggestion.payload["setlistfm_id"].present? && show.setlistfm_id.blank?
+        show.update!(setlistfm_id: suggestion.payload["setlistfm_id"])
+      end
       if changes["venue"]
         link_venue!(
           show,

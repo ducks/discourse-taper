@@ -14,9 +14,28 @@ module DiscourseTaper
     # proposing per item would flood the queue with duplicates of the
     # same show. Re-runs append newly found recordings to the pending
     # suggestion for that date rather than proposing it again.
+    #
+    # An item may also be show-only (no recording): setlist.fm knows the
+    # date, venue, tour, and songs but has no tape. Those propose the show
+    # with its setlist, or fill in the setlist of a show that lacks one.
     class Base
       MAX_BODY_BYTES = 4.megabytes
       USER_AGENT = "Discourse Taper (+https://github.com/ducks/discourse-taper)"
+
+      # Transient network faults (a DNS lookup timing out, a dropped
+      # connection) are common across a long paged walk. Retry a page a
+      # few times before giving up on the run, so one hiccup does not
+      # discard everything gathered so far.
+      RETRYABLE = [
+        Timeout::Error,
+        Errno::ECONNRESET,
+        Errno::ECONNREFUSED,
+        SocketError,
+        Net::OpenTimeout,
+        Net::ReadTimeout,
+        OpenSSL::SSL::SSLError,
+      ].freeze
+      RETRIES = 3
 
       attr_reader :band
 
@@ -32,18 +51,19 @@ module DiscourseTaper
         raise NotImplementedError
       end
 
-      # Returns counts: { proposed:, matched:, appended:, skipped: }.
+      # Returns counts:
       #   proposed  new_show suggestions created
       #   matched   new_source suggestions created for shows that exist
+      #   corrected setlist corrections proposed for shows lacking one
       #   appended  recordings added to an already pending suggestion
       #   skipped   items with no id, no recoverable date, or already known
       def run
-        stats = { proposed: 0, matched: 0, appended: 0, skipped: 0 }
+        stats = { proposed: 0, matched: 0, corrected: 0, appended: 0, skipped: 0 }
         fresh = []
 
         each_item do |item|
           date = resolve_date(item)
-          if item[:external_id].blank? || date.nil? || known?(item[:external_id])
+          if item[:external_id].blank? || date.nil? || known?(item)
             stats[:skipped] += 1
             next
           end
@@ -69,8 +89,9 @@ module DiscourseTaper
       end
 
       # Already attached as a source, or already inside a pending
-      # suggestion's recordings.
-      def known?(external_id)
+      # suggestion's recordings. Show-only importers override this.
+      def known?(item)
+        external_id = item[:external_id]
         return true if Source.exists?(provider: self.class.key, external_id: external_id)
 
         Suggestion
@@ -79,30 +100,36 @@ module DiscourseTaper
           .exists?
       end
 
-      # Files one date's recordings: appended to the pending suggestion
-      # for that date if there is one, else a new_source for an existing
-      # show, else a new_show. Returns the stats key for what happened.
+      # Files one date's items: appended to the pending suggestion for that
+      # date if there is one, else recordings for an existing show, else a
+      # setlist for an existing show that has none, else a new show.
+      # Returns the stats key for what happened.
       def file_group(date, items)
-        sources = items.map { |item| source_payload(item, date) }
+        recordings = items.select { |item| item[:url].present? }
+        sources = recordings.map { |item| source_payload(item, date) }
         venues = items.map { |item| item[:venue] }.compact_blank.tally
         match = VenueResolver.new.resolve(venues)
         venue = match ? match.name : majority(venues)
         show = ShowMatcher.new(band: band).find(date: date, venue: venue)
+        setlist = items.map { |item| item[:setlist] }.compact_blank.max_by(&:size) || []
+        tour = majority(items.map { |item| item[:tour] }.compact_blank.tally)
 
         pending = pending_for(date, show)
-        if pending
+        if pending && sources.any?
           pending.payload["sources"] = pending.payload["sources"] + sources
           pending.save!
           return :appended
         end
+        return :skipped if pending
 
         common = {
           "date" => date.iso8601,
           "venue" => venue.presence || I18n.t("taper.unknown_venue"),
           "venue_spellings" => venues,
           "sources" => sources,
-          "external_id" => sources.first["external_id"],
+          "external_id" => sources.first&.dig("external_id"),
         }
+        common.merge!(show_identity(items))
         if match
           common["venue_match"] = {
             "id" => match.venue&.id,
@@ -112,7 +139,7 @@ module DiscourseTaper
           }
         end
 
-        if show
+        if show && sources.any?
           Suggestion.create!(
             kind: "new_source",
             band: band,
@@ -121,6 +148,16 @@ module DiscourseTaper
             payload: common,
           )
           :matched
+        elsif show
+          return :skipped if setlist.empty? || show.setlist.any?
+          Suggestion.create!(
+            kind: "correction",
+            band: band,
+            show: show,
+            origin: self.class.key,
+            payload: common.merge("changes" => { "setlist" => setlist, "tour" => tour }.compact),
+          )
+          :corrected
         else
           Suggestion.create!(
             kind: "new_show",
@@ -134,17 +171,28 @@ module DiscourseTaper
                 "region" =>
                   majority(items.map { |item| item[:region] }.compact_blank.tally) ||
                     match&.venue&.region,
+                "country" =>
+                  majority(items.map { |item| item[:country] }.compact_blank.tally) ||
+                    match&.venue&.country,
+                "tour" => tour,
+                "setlist" => setlist,
               ),
           )
           :proposed
         end
       end
 
+      # Service-specific identifiers an importer wants carried onto the
+      # show when accepted, so it never proposes the same show twice.
+      def show_identity(_items)
+        {}
+      end
+
       def pending_for(date, show)
         scope =
           Suggestion.where(origin: self.class.key, status: "pending", band_id: band.id).reorder(nil)
         if show
-          scope.find_by(kind: "new_source", show_id: show.id)
+          scope.where(kind: %w[new_source correction]).find_by(show_id: show.id)
         else
           scope.where(kind: "new_show").find_by("payload->>'date' = ?", date.iso8601)
         end
@@ -173,26 +221,11 @@ module DiscourseTaper
         }.compact
       end
 
-      # Transient network faults (a DNS lookup timing out, a dropped
-      # connection) are common across a long paged walk. Retry a page a
-      # few times before giving up on the run, so one hiccup does not
-      # discard everything gathered so far.
-      RETRYABLE = [
-        Timeout::Error,
-        Errno::ECONNRESET,
-        Errno::ECONNREFUSED,
-        SocketError,
-        Net::OpenTimeout,
-        Net::ReadTimeout,
-        OpenSSL::SSL::SSLError,
-      ].freeze
-      RETRIES = 3
-
-      def get_json(url)
+      def get_json(url, headers: {})
         attempt = 0
         begin
           attempt += 1
-          fetch_json(url)
+          fetch_json(url, headers: headers)
         rescue *RETRYABLE => e
           raise if attempt >= RETRIES
           Rails.logger.info(
@@ -204,11 +237,12 @@ module DiscourseTaper
       end
 
       # GET JSON through Discourse's SSRF-aware client, with a body cap.
-      def fetch_json(url)
+      def fetch_json(url, headers: {})
         uri = URI.parse(url)
         request = Net::HTTP::Get.new(uri)
         request["User-Agent"] = USER_AGENT
         request["Accept"] = "application/json"
+        headers.each { |name, value| request[name] = value }
 
         body = +""
         FinalDestination::HTTP.start(

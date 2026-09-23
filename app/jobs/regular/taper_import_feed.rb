@@ -11,6 +11,7 @@ module Jobs
       {
         "archive_org" => DiscourseTaper::Importers::ArchiveOrg,
         "youtube" => DiscourseTaper::Importers::Youtube,
+        "setlist_fm" => DiscourseTaper::Importers::SetlistFm,
       }
     end
 

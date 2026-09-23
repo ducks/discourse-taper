@@ -11,8 +11,9 @@ did.
   source render in a card at the top of the topic. The replies are the
   community's memories and corrections. The archive category's
   permissions decide who can see the archive at all.
-- **Two channels, one queue.** Importers walk archive.org collections
-  and YouTube channels and file what they find as *suggestions*. Members
+- **Two channels, one queue.** Importers walk archive.org collections,
+  YouTube channels, and setlist.fm and file what they find as
+  *suggestions*. Members
   suggest shows, sources, and corrections through the same queue.
   Nothing becomes a record until a reviewer accepts it, so the archive
   is trustworthy whether a bot or a human found the item.
@@ -24,6 +25,12 @@ did.
   append newly found recordings to the pending suggestion instead of
   proposing the show again, and a transient network fault retries the
   page rather than discarding the run.
+- **Show-only sources.** setlist.fm knows the date, venue, city, tour,
+  and songs of every show fans have logged, and nothing about tapes. Its
+  importer proposes shows complete with setlists, and for a show a
+  recording importer created first it proposes the setlist as a
+  correction. A show keeps its setlist.fm id so it is never proposed
+  twice.
 - **Venues resolve themselves, without a model.** Every spelling an
   importer sees for an accepted show is learned as an alias of that
   venue, so a reviewer answers "what is this venue" once, ever. An
@@ -54,8 +61,11 @@ concept. Its shows live at `/taper/1977-05-08`; any other band's at
    that holds show topics.
 2. Add reviewer groups to `taper_reviewer_groups`. Staff always can.
 3. Create bands (for now, from the Rails console) with an
-   `archive_org_collection` and/or a `youtube_channel_id`. Set
-   `taper_youtube_api_key` to enable the YouTube importer.
+   `archive_org_collection`, a `youtube_channel_id`, and/or a
+   `setlistfm_artist_name` (defaults to the band name). Set
+   `taper_youtube_api_key` to enable the YouTube importer and
+   `taper_setlistfm_api_key` (free at setlist.fm/settings/api) to enable
+   the setlist.fm one.
 4. Importers run every `taper_import_interval_hours`. A reviewer can
    kick one early with `POST /taper/suggestions/import`.
 
@@ -79,8 +89,8 @@ discussion, and MusicEvent structured data. Every path also answers
 with `.json`. Anonymous readers go through the anonymous cache.
 
 Bands are managed at `/taper/admin/bands` (reviewers): name,
-description, and the archive.org collection or YouTube channel id the
-importers use. Setting `primary` moves the primary band.
+description, and the archive.org collection, YouTube channel id, or
+setlist.fm artist name the importers use. Setting `primary` moves the primary band.
 
 Every show page links to a suggestion form (`/taper/suggest?date=…`)
 with a recording form and a correction form; the listing links to a

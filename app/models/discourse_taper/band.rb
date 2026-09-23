@@ -62,6 +62,7 @@ end
 #  description            :text
 #  name                   :string           not null
 #  primary                :boolean          default(FALSE), not null
+#  setlistfm_artist_name  :string
 #  slug                   :string           not null
 #  created_at             :datetime         not null
 #  updated_at             :datetime         not null

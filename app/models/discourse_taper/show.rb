@@ -86,6 +86,7 @@ end
 #  updated_at    :datetime         not null
 #  band_id       :bigint           not null
 #  created_by_id :bigint
+#  setlistfm_id  :string
 #  topic_id      :bigint           not null
 #  venue_id      :bigint
 #
@@ -93,6 +94,7 @@ end
 #
 #  index_taper_shows_on_band_id_and_date               (band_id,date)
 #  index_taper_shows_on_band_id_and_date_and_sequence  (band_id,date,sequence) UNIQUE
+#  index_taper_shows_on_setlistfm_id                   (setlistfm_id) UNIQUE WHERE (setlistfm_id IS NOT NULL)
 #  index_taper_shows_on_topic_id                       (topic_id) UNIQUE
 #  index_taper_shows_on_venue_id                       (venue_id)
 #

@@ -56,6 +56,7 @@ after_initialize do
   require_relative "lib/discourse_taper/importers/base"
   require_relative "lib/discourse_taper/importers/archive_org"
   require_relative "lib/discourse_taper/importers/youtube"
+  require_relative "lib/discourse_taper/importers/setlist_fm"
   require_relative "app/jobs/scheduled/taper_import_feeds"
   require_relative "app/jobs/regular/taper_import_feed"
   require_relative "app/controllers/discourse_taper/shows_controller"
