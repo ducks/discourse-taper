@@ -120,7 +120,7 @@ export default class TaperReviewQueue extends Component {
           // tell the same story: the rows that vanished were accepted.
           this.bulk = { origin: bulk.origin, label: bulk.label, start: queued };
           this.pollsLeft = 60;
-          this.pollTimer = later(this, this.poll, 2000);
+          this.pollTimer = later(this, this.poll, 1000);
         } catch (e) {
           popupAjaxError(e);
           this.bulkBusy = false;
@@ -147,7 +147,8 @@ export default class TaperReviewQueue extends Component {
     } else if (--this.pollsLeft <= 0) {
       this.finishBulk(this.bulk.start - left, left);
     } else {
-      this.pollTimer = later(this, this.poll, 5000);
+      // Quick polls while a small batch is likely finishing, then settle.
+      this.pollTimer = later(this, this.poll, this.pollsLeft > 55 ? 2000 : 5000);
     }
   }
 
