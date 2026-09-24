@@ -2,13 +2,13 @@
 <%- @page_description = @band.description.presence %>
 <div class="taper-wrap taper-front">
   <header class="taper-masthead">
-    <div class="taper-masthead__field taper-dots" aria-hidden="true"></div>
+    <div class="taper-masthead__field" aria-hidden="true"></div>
     <h1 class="taper-display taper-masthead__name"><%= @band.name %>
       <small><%= @band.description.presence || t("taper.front.tagline") %></small>
     </h1>
     <div class="taper-masthead__aside">
       <div class="taper-mono"><%= [t("taper.shows_count", count: @stats[:shows]), t("taper.recordings_count", count: @stats[:recordings]), t("taper.years_count", count: @stats[:years])].join(" · ") %></div>
-      <a class="taper-masthead__forum" href="<%= Discourse.base_path %>/"><span class="taper-tri" aria-hidden="true"></span> <%= t("taper.front.forum_link", title: SiteSetting.title) %></a>
+      <a class="taper-masthead__forum" href="<%= Discourse.base_path %>/"><span class="taper-mark" aria-hidden="true"></span> <%= t("taper.front.forum_link", title: SiteSetting.title) %></a>
     </div>
   </header>
 
@@ -44,7 +44,7 @@
           <div class="taper-tapes">
             <%- @latest_sources.each do |source| %>
               <a class="taper-tape" href="<%= source.show.url %>">
-                <span class="taper-cube" aria-hidden="true"><i></i><i></i><i></i></span>
+                <span class="taper-source-mark" aria-hidden="true"><i></i><i></i><i></i></span>
                 <span>
                   <span class="taper-tape__title"><%= source.title.presence || "#{t("taper.kind.#{source.kind}")}, #{source.show.venue}" %></span><br>
                   <span class="taper-tape__meta"><b><%= source.show.date.iso8601 %></b> · <%= [t("taper.kind.#{source.kind}"), duration(source.duration_seconds), t("taper.provider.#{source.provider}"), (source.credited_taper ? t("taper.taped_by", name: source.credited_taper) : t("taper.taper_unclaimed"))].compact.join(" · ") %></span>

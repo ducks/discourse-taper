@@ -53,7 +53,7 @@
         <div class="taper-sources">
           <%- @sources.each do |source| %>
             <div class="taper-source"<%- if source == @player %> aria-current="true"<%- end %>>
-              <span class="taper-cube" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="taper-source-mark" aria-hidden="true"><i></i><i></i><i></i></span>
               <span>
                 <a class="taper-source__title" href="<%= source.display_url %>" rel="noopener"><%= source.title.presence || t("taper.provider.#{source.provider}") %></a><br>
                 <span class="taper-source__meta"><%= [t("taper.kind.#{source.kind}"), (%w[unknown video].include?(source.format) ? nil : source.format), duration(source.duration_seconds), t("taper.provider.#{source.provider}"), (source.credited_taper ? t("taper.taped_by", name: source.credited_taper) : t("taper.taper_unclaimed"))].compact.join(" · ") %></span>
@@ -91,7 +91,7 @@
         </div>
       </div>
     <%- end %>
-    <a class="taper-btn" href="<%= @show.topic.url %>"><span class="taper-tri" aria-hidden="true"></span> <%= @reply_count.zero? ? t("taper.discuss") : t("taper.join_discussion") %></a>
+    <a class="taper-btn" href="<%= @show.topic.url %>"><span class="taper-mark" aria-hidden="true"></span> <%= @reply_count.zero? ? t("taper.discuss") : t("taper.join_discussion") %></a>
   </section>
 </article>
 

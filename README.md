@@ -110,8 +110,9 @@ underneath, so it is fast, cacheable, and indexable:
   replies from the show's topic with a button into the forum, and
   MusicEvent structured data.
 
-The layout loads Bricolage Grotesque and IBM Plex from Google Fonts,
-with system fallbacks. Every path also answers with `.json`. Anonymous
+The reader renders in the site's own fonts and colours; a band's
+identity belongs in a theme component (see Theming). Every path also
+answers with `.json`. Anonymous
 readers go through the anonymous cache. The reader strings are
 translated to French (`server.fr.yml`); Discourse picks the locale
 from the user or the browser.
@@ -139,3 +140,27 @@ bundle install
 bundle exec rubocop
 bundle exec stree check $(git ls-files '*.rb') Gemfile
 ```
+
+## Theming
+
+The plugin is generic; a site's identity goes in a theme component,
+which the reader pages load through the normal theme pipeline along
+with the theme's `head_tag` and `body_tag` (that is how a component adds
+a web-font link). Everything a theme might want to change is a hook on
+`body.taper`:
+
+| Hook | Default |
+| --- | --- |
+| `--taper-display`, `--taper-display-weight` | The site heading font, 800 |
+| `--taper-body`, `--taper-mono` | The site body font, the site monospace font |
+| `--taper-paper`, `--taper-ink`, `--taper-ink-soft`, `--taper-mid`, `--taper-rule`, `--taper-well` | The colour scheme's secondary and primary shades |
+| `--taper-accent`, `--taper-accent-soft` | The scheme's tertiary |
+| `--taper-now-mark` | The glyph beside the current year's bar |
+| `.taper-masthead__field` | An empty band above the band name, hidden until a theme fills it |
+| `.taper-mark` | The inline mark before a tape count and on buttons, a dot by default |
+| `.taper-source-mark` | The mark leading every recording, a square by default, with three `<i>` children for a theme that wants a shape |
+| `.taper-player` | The embedded player's frame |
+
+[archive-de-poitrine-theme](https://github.com/ducks/archive-de-poitrine-theme)
+is the reference: polka dots, cubes, triangles, Bricolage Grotesque and
+IBM Plex, one red.
