@@ -65,6 +65,47 @@ describe DiscourseTaper::SuggestionsController do
     expect(show.venue_record.aliases).to include("barton hall")
   end
 
+  it "accepts every pending show from an importer in a job, ids fixed at request time" do
+    sign_in(reviewer)
+    other =
+      DiscourseTaper::Suggestion.create!(
+        kind: "new_show",
+        band: band,
+        origin: "setlist_fm",
+        payload: {
+          "date" => "1977-05-09",
+          "venue" => "Buffalo Memorial Auditorium",
+        },
+      )
+    DiscourseTaper::Suggestion.create!(
+      kind: "new_source",
+      band: band,
+      origin: "setlist_fm",
+      payload: {
+        "date" => "1977-05-09",
+        "url" => "https://example.com/tape",
+      },
+    )
+
+    expect_enqueued_with(
+      job: :taper_accept_suggestions,
+      args: {
+        suggestion_ids: [other.id],
+        origin: "setlist_fm",
+        reviewer_id: reviewer.id,
+      },
+    ) { post "/taper/suggestions/accept_all.json", params: { origin: "setlist_fm" } }
+    expect(response.status).to eq(200)
+    expect(response.parsed_body["queued"]).to eq(1)
+
+    post "/taper/suggestions/accept_all.json", params: { origin: "nope" }
+    expect(response.status).to eq(400)
+
+    sign_in(member)
+    post "/taper/suggestions/accept_all.json", params: { origin: "setlist_fm" }
+    expect(response.status).to eq(403)
+  end
+
   it "rejects" do
     sign_in(reviewer)
     post "/taper/suggestions/#{suggestion.id}/reject.json", params: { note: "dupe" }

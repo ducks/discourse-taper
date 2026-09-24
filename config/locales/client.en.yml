@@ -44,6 +44,11 @@ en:
         view_show: "View show"
         run_importer: "Run %{importer} for %{band}"
         import_queued: "Queued %{importer} import for %{band}. Results appear here when it finishes."
+        accept_all: "Accept all %{count} from %{origin}"
+        accept_all_confirm: "Accept all %{count} pending shows from %{origin}? Each becomes a show with its own topic. Recordings and corrections stay in the queue."
+        accept_all_queued: "Accepting %{count} shows from %{origin} in the background. The queue refreshes when it is done."
+        accept_all_done: "Accepted %{accepted} shows from %{origin}."
+        accept_all_failed: "%{count} could not be accepted; see the logs."
         venue: "Venue"
         venue_match:
           alias: "Venue matched a known spelling."

@@ -125,6 +125,29 @@ describe "Taper review queue" do
     )
   end
 
+  it "accepts every pending show from an importer at once" do
+    Jobs.run_immediately!
+    visit("/taper/review")
+
+    find(".taper-review__accept-all", text: "Accept all 1 from archive.org").click
+    find(".dialog-footer .btn-primary").click
+
+    expect(page).to have_css(".taper-review__decisions", text: "Accepting 1 shows from archive.org")
+    # The job runs deferred after the response and reports back over
+    # MessageBus on the reviewer's channel; polling is the fallback.
+    expect(page).to have_css(
+      ".taper-review__decisions",
+      text: "Accepted 1 shows from archive.org",
+      wait: 10,
+    )
+    expect(page).to have_css(".taper-suggestion", count: 1)
+    expect(page).to have_no_css(".taper-review__accept-all")
+    show = DiscourseTaper::Show.find_by(band: band, date: Date.new(2011, 7, 16))
+    expect(show).to be_present
+    expect(show.sources.count).to eq(3)
+    expect(grouped.reload).to have_attributes(status: "accepted", reviewed_by: reviewer)
+  end
+
   it "shows a correction's changes and rejects it" do
     visit("/taper/review")
 
