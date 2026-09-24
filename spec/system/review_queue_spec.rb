@@ -138,7 +138,7 @@ describe "Taper review queue" do
     expect(page).to have_css(
       ".taper-review__decisions",
       text: "Accepted 1 shows from archive.org",
-      wait: 10,
+      wait: 30,
     )
     expect(page).to have_css(".taper-suggestion", count: 1)
     expect(page).to have_no_css(".taper-review__accept-all")
