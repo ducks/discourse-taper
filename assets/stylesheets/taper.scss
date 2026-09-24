@@ -133,21 +133,32 @@
 }
 
 // Reader surface (/taper). Loaded through the publish stylesheet
-// pipeline, so Discourse color variables apply and no Ember chrome
-// exists. The look is the band's: stark ink on paper, a mono face for
-// every date, one accent, and the three shapes (dots, cubes, triangles).
-body.taper {
+// pipeline, so Discourse colour variables and the site's theme apply
+// and no Ember chrome exists. The plugin's own look is deliberately
+// plain: site fonts, site colours, a mono face for every date, a big
+// date as the headline. A band's identity belongs in a theme component,
+// which repaints the tokens and the marks below on body.taper. See
+// README "Theming".
+// Token defaults at zero specificity, so a theme component's
+// `body.taper { --taper-...: }` wins whatever order the stylesheets load in
+// (plugin CSS comes after theme CSS in the publish layout).
+:where(body.taper) {
   --taper-paper: var(--secondary);
   --taper-ink: var(--primary);
   --taper-ink-soft: var(--primary-high);
   --taper-mid: var(--primary-medium);
   --taper-rule: var(--primary-low);
   --taper-well: var(--primary-very-low);
-  --taper-accent: var(--danger);
-  --taper-accent-soft: var(--danger-low);
-  --taper-display: "Bricolage Grotesque", "Archivo Black", impact, sans-serif;
-  --taper-body: "IBM Plex Sans", var(--font-family);
-  --taper-mono: "IBM Plex Mono", var(--d-font-family--monospace, menlo, monospace);
+  --taper-accent: var(--tertiary);
+  --taper-accent-soft: var(--tertiary-low);
+  --taper-display: var(--heading-font-family);
+  --taper-display-weight: 800;
+  --taper-body: var(--font-family);
+  --taper-mono: var(--d-font-family--monospace, menlo, monospace);
+  --taper-now-mark: "\25B2";
+}
+
+body.taper {
   margin: 0;
   background: var(--taper-paper);
   color: var(--taper-ink);
@@ -188,65 +199,35 @@ body.taper {
 
 .taper-display {
   font-family: var(--taper-display);
-  font-weight: 800;
+  font-weight: var(--taper-display-weight);
   font-variation-settings: "opsz" 96;
   letter-spacing: -0.04em;
   line-height: 0.85;
   margin: 0;
 }
 
-// The band's three shapes.
-.taper-tri {
+// Marks a theme repaints. The inline mark sits before a tape count and
+// on buttons; the source mark leads every recording card; the masthead
+// field is an empty band above the name for a theme to fill.
+.taper-mark {
   display: inline-block;
-  width: 0;
-  height: 0;
-  border-left: 0.42em solid transparent;
-  border-right: 0.42em solid transparent;
-  border-bottom: 0.75em solid currentcolor;
-  vertical-align: -0.05em;
+  width: 0.55em;
+  height: 0.55em;
+  border-radius: 50%;
+  background: currentcolor;
+  vertical-align: 0.05em;
 }
 
-.taper-cube {
-  --s: 14px;
-  position: relative;
+.taper-source-mark {
   display: inline-block;
-  width: calc(var(--s) * 1.6);
-  height: calc(var(--s) * 1.7);
+  width: 12px;
+  height: 12px;
+  background: var(--taper-ink);
   flex: none;
 
   i {
-    position: absolute;
-    display: block;
-    width: var(--s);
-    height: var(--s);
-    transform-origin: top left;
+    display: none;
   }
-
-  i:nth-child(1) {
-    top: 0;
-    left: calc(var(--s) * 0.3);
-    background: var(--taper-ink);
-    transform: skewY(-30deg) scaleY(0.86);
-  }
-
-  i:nth-child(2) {
-    top: calc(var(--s) * 0.5);
-    left: 0;
-    background: var(--taper-ink-soft);
-    transform: skewY(30deg);
-  }
-
-  i:nth-child(3) {
-    top: calc(var(--s) * 0.5);
-    left: calc(var(--s) * 0.62);
-    background: var(--taper-mid);
-    transform: skewY(-30deg);
-  }
-}
-
-.taper-dots {
-  background-image: radial-gradient(var(--taper-ink) 1.6px, transparent 1.7px);
-  background-size: 14px 14px;
 }
 
 // Top bar on every reader page: where you are, the other bands, the forum.
@@ -334,9 +315,9 @@ body.taper {
   padding: 56px 0 40px;
 
   &__field {
+    display: none;
     grid-column: 1 / -1;
     height: 88px;
-    mask-image: linear-gradient(90deg, #000 0%, #000 45%, transparent 100%);
   }
 
   &__name {
@@ -420,7 +401,7 @@ body.taper {
   }
 
   &--now &__year::after {
-    content: "▲";
+    content: var(--taper-now-mark);
     color: var(--taper-accent);
     font-size: 9px;
     margin-left: 6px;
@@ -475,8 +456,9 @@ body.taper {
     color: var(--taper-ink-soft);
     white-space: nowrap;
 
-    .taper-tri {
-      font-size: 10px;
+    .taper-mark {
+      width: 8px;
+      height: 8px;
     }
 
     &--none {
