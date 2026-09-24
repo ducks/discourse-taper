@@ -1004,6 +1004,13 @@ body.taper {
     gap: 0.5em;
   }
 
+  &__bulk {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5em;
+    margin-top: 0.75em;
+  }
+
   &__decisions {
     list-style: none;
     margin: 0 0 1em;

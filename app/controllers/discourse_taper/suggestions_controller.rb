@@ -50,6 +50,33 @@ module DiscourseTaper
       render_json_error(e.message, status: 422)
     end
 
+    # POST /taper/suggestions/accept_all.json { origin, band_id?, kind? }
+    # Accepts every pending suggestion an importer filed, in a job. Meant
+    # for a trusted show source (setlist.fm) whose first import is a few
+    # hundred shows nobody wants to click through one at a time. The ids
+    # are fixed at request time so nothing filed later rides along.
+    def accept_all
+      origin = params[:origin].to_s
+      if !Jobs::TaperImportFeed.importers.key?(origin)
+        raise Discourse::InvalidParameters.new(:origin)
+      end
+      kind = params[:kind].presence || "new_show"
+      raise Discourse::InvalidParameters.new(:kind) if !Suggestion::KINDS.include?(kind)
+
+      scope = Suggestion.pending.where(origin: origin, kind: kind)
+      scope = scope.where(band_id: params[:band_id]) if params[:band_id].present?
+      ids = scope.order(:id).pluck(:id)
+      if ids.any?
+        Jobs.enqueue(
+          :taper_accept_suggestions,
+          suggestion_ids: ids,
+          origin: origin,
+          reviewer_id: current_user.id,
+        )
+      end
+      render json: { queued: ids.size }
+    end
+
     # POST /taper/suggestions/import.json { band_id, importer }
     # Lets a reviewer kick an importer for one band without waiting for
     # the schedule.
