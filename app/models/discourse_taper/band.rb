@@ -59,6 +59,7 @@ end
 #
 #  id                     :bigint           not null, primary key
 #  archive_org_collection :string
+#  archive_org_query      :string
 #  description            :text
 #  footer                 :text
 #  name                   :string           not null

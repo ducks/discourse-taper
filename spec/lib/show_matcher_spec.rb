@@ -43,6 +43,10 @@ describe DiscourseTaper::ShowMatcher do
     expect(described_class.extract_date("Angine de Poitrine 16.09.26 Philly")).to eq(
       Date.new(2026, 9, 16),
     )
+    expect(described_class.extract_date("Live At Electric Ballroom 11.05.2026")).to eq(
+      Date.new(2026, 5, 11),
+    )
+    expect(described_class.extract_date("Underground Arts 9/16/26")).to eq(Date.new(2026, 9, 16))
     expect(described_class.extract_date("Full set, Underground Arts, September 16th, 2026")).to eq(
       Date.new(2026, 9, 16),
     )
