@@ -15,7 +15,13 @@ module DiscourseTaper
 
     prepend_view_path File.expand_path("../../views", __dir__)
     layout "taper"
-    helper_method :duration, :festival?, :embed_url, :month_name, :weekday_name
+    helper_method :duration,
+                  :festival?,
+                  :embed_url,
+                  :month_name,
+                  :weekday_name,
+                  :forum_url,
+                  :json_url
 
     def bands
       bands =
@@ -36,6 +42,9 @@ module DiscourseTaper
       shows = shows.where(tour: params[:tour]) if params[:tour].present?
       @shows = shows.limit(500).to_a
       @years = @band.shows.group("EXTRACT(YEAR FROM date)::int").count.sort.reverse
+      # The same page answers at / when the archive is the site homepage;
+      # /taper stays canonical.
+      canonical(request.query_string.present? ? "#{@band.url}?#{request.query_string}" : @band.url)
 
       if json_request?
         render json: {
@@ -59,7 +68,7 @@ module DiscourseTaper
       @show = find_show!(@band, params[:date])
       @sources = @show.sources.includes(:taper, :upload).order(:created_at).to_a
       @previous_show, @next_show = neighbours(@show)
-      @canonical_url = @show.url
+      canonical(@show.url)
 
       if json_request?
         render json: { show: ShowSerializer.new(@show, root: false, scope: guardian).as_json }
@@ -129,6 +138,27 @@ module DiscourseTaper
       h, rem = seconds.to_i.divmod(3600)
       m = rem / 60
       h.positive? ? format("%dh %02dm", h, m) : "#{m}m"
+    end
+
+    # Core's head partial emits the canonical link from @canonical_url, so
+    # the reader sets it absolute there and keeps the path for its own use.
+    def canonical(path)
+      @canonical_path = path
+      @canonical_url = "#{Discourse.base_url_no_prefix}#{path}"
+    end
+
+    # Where "the forum" is. Normally the site root; when the archive is the
+    # site homepage, the root is this page, so the first topic list instead.
+    def forum_url
+      return "#{Discourse.base_path}/" if SiteSetting.default_homepage != "taper"
+      "#{Discourse.base_path}/#{SiteSetting.top_menu_items.first&.name || "latest"}"
+    end
+
+    # The JSON twin of the page being viewed, by its canonical path so it is
+    # right at / too.
+    def json_url
+      base = (@canonical_path.presence || request.path).split("?", 2)
+      "#{base[0]}.json#{"?#{base[1]}" if base[1].present?}"
     end
 
     # Localised names where the locale has them, strftime where it does

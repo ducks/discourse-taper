@@ -64,7 +64,11 @@ concept. Its shows live at `/taper/1977-05-08`; any other band's at
 ## Setup
 
 1. Enable `taper_enabled` and set `taper_category_id` to the category
-   that holds show topics.
+   that holds show topics. To make the archive the site's front page,
+   pick "Live archive" in `default_homepage`: `/` then serves the front
+   door as a full page (`/taper` stays canonical), visitors who cannot
+   see the archive category get the usual homepage, and the reader's
+   "forum" links point at the first top-menu list instead of `/`.
 2. Add reviewer groups to `taper_reviewer_groups`. Staff always can.
 3. Create bands (for now, from the Rails console) with an
    `archive_org_collection`, a `youtube_channel_id`, a

@@ -6,10 +6,7 @@
     <%= render partial: "layouts/head" %>
     <%= render partial: "common/discourse_publish_stylesheet" %>
     <%= theme_lookup("head_tag") %>
-    <%- if @canonical_url.present? %>
-      <link rel="canonical" href="<%= Discourse.base_url_no_prefix %><%= @canonical_url %>">
-    <%- end %>
-    <link rel="alternate" type="application/json" href="<%= request.path %>.json">
+    <link rel="alternate" type="application/json" href="<%= json_url %>">
     <%- if @page_description.present? %>
       <meta name="description" content="<%= @page_description %>">
     <%- end %>
@@ -29,7 +26,7 @@
             <%- end %>
           </nav>
         <%- end %>
-        <a class="taper-top__forum" href="<%= Discourse.base_path %>/"><%= SiteSetting.title %></a>
+        <a class="taper-top__forum" href="<%= forum_url %>"><%= SiteSetting.title %></a>
       </div>
     </header>
     <main class="taper-main">
@@ -37,7 +34,7 @@
     </main>
     <footer class="taper-footer">
       <div class="taper-wrap">
-        <a href="<%= Discourse.base_path %>/"><%= SiteSetting.title %></a>
+        <a href="<%= forum_url %>"><%= SiteSetting.title %></a>
         <a href="<%= (@band&.primary? || @band.nil?) ? "#{DiscourseTaper.root_path}/suggest" : "#{@band.url}/suggest" %>"><%= t("taper.suggest.missing_show") %></a>
       </div>
     </footer>

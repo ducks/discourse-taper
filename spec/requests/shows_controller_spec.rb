@@ -144,6 +144,43 @@ describe DiscourseTaper::ShowsController do
     expect(DiscourseTaper::Suggestion.last.show).to eq(show)
   end
 
+  describe "as the site homepage" do
+    before do
+      SiteSetting.has_login_hint = false
+      SiteSetting.default_homepage = "taper"
+    end
+
+    it "is offered as a homepage option while the plugin is enabled" do
+      expect(HomepageSiteSetting.values.map { |v| v[:value] }).to include("taper")
+      SiteSetting.taper_enabled = false
+      expect(HomepageSiteSetting.values.map { |v| v[:value] }).not_to include("taper")
+    end
+
+    it "serves the front door at / with /taper canonical, and points the forum link past itself" do
+      get "/"
+
+      expect(response.status).to eq(200)
+      expect(response.media_type).to eq("text/html")
+      expect(response.body).to include("taper-masthead")
+      expect(response.body).to include(%(rel="canonical" href="http://test.localhost/taper"))
+      expect(response.body).to include(%(type="application/json" href="/taper.json"))
+      expect(response.body).to include(%(class="taper-top__forum" href="/latest"))
+
+      get "/taper", params: { year: 1977 }
+      expect(response.body).to include(%(href="/taper.json?year=1977"))
+    end
+
+    it "falls back to the regular homepage for visitors who cannot see the archive" do
+      SiteSetting.taper_category_id = private_category.id
+
+      get "/"
+
+      expect(response.status).to eq(200)
+      expect(response.body).not_to include("taper-masthead")
+      expect(response.body).to include(%(discourse_current_homepage" content="latest"))
+    end
+  end
+
   describe "reader surface" do
     it "renders the front door as html without the app: spines, latest shows, new recordings" do
       band.update!(footer: "Anonymous by design.\n\nTaped it? Claim it.")
