@@ -34,10 +34,13 @@ did.
   twice.
 - **Undated videos find their show.** YouTube titles carry dates in
   every format (5/8/77, 16/09/2026, September 16th, 16 septembre) or
-  none at all. A video with no date is matched to a known or pending
-  show whose venue or city it names, within the month before it was
-  published; two candidates leave it undated rather than guessed. The
-  search takes long videos only, so full sets rather than phone clips.
+  none at all. A slash date that reads two ways (10/05/2026) is settled by
+  which reading lands on a known show. A video with no date is matched
+  to a known or pending show whose venue or city it names: the one show
+  there in the year the title gives, else the one in the month before
+  the video was published, else the one show ever at that place; two
+  candidates leave it undated rather than guessed. The search takes long
+  videos only, so full sets rather than phone clips.
 - **Venues resolve themselves, without a model.** Every spelling an
   importer sees for an accepted show is learned as an alias of that
   venue, so a reviewer answers "what is this venue" once, ever. An
@@ -78,7 +81,9 @@ concept. Its shows live at `/taper/1977-05-08`; any other band's at
    `youtube_channel_id`, a
    `youtube_search_query` (for tapes scattered across fans' channels),
    and/or a `setlistfm_artist_name` (defaults to the band name). Set
-   `taper_youtube_api_key` to enable the YouTube importer and
+   `taper_youtube_api_key` to enable the YouTube importer (or, with no
+   key, `taper_youtube_scrape_enabled` to read YouTube's search result
+   pages instead: brittle, and not something YouTube's terms allow) and
    `taper_setlistfm_api_key` (free at setlist.fm/settings/api) to enable
    the setlist.fm one.
 4. Importers run every `taper_import_interval_hours`. A reviewer can
