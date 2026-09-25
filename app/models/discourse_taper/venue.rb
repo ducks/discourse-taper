@@ -95,6 +95,6 @@ end
 # Indexes
 #
 #  index_taper_venues_on_aliases    (aliases) USING gin
-#  index_taper_venues_on_name_trgm  (name) USING gin
+#  index_taper_venues_on_name_trgm  (name gin_trgm_ops) USING gin
 #  index_taper_venues_on_slug       (slug) UNIQUE
 #
