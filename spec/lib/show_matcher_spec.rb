@@ -59,6 +59,15 @@ describe DiscourseTaper::ShowMatcher do
     expect(described_class.extract_date("Live in Montréal, 24 décembre")).to be_nil
   end
 
+  it "offers both readings of an ambiguous slash date, month first" do
+    expect(described_class.date_candidates("Leeds 10/05/2026")).to eq(
+      [Date.new(2026, 10, 5), Date.new(2026, 5, 10)],
+    )
+    expect(described_class.date_candidates("Philly 9/16/26")).to eq([Date.new(2026, 9, 16)])
+    expect(described_class.date_candidates("Cologne 2026-09-01")).to eq([Date.new(2026, 9, 1)])
+    expect(described_class.date_candidates("no date here")).to eq([])
+  end
+
   it "resolves a month and day without a year against a publish date" do
     hint = Date.new(2026, 9, 20)
     expect(described_class.extract_date("Live at LPR, September 10th", year_hint: hint)).to eq(

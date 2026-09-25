@@ -228,10 +228,18 @@ module DiscourseTaper
       end
 
       def get_json(url, headers: {})
+        JSON.parse(get_body(url, headers: headers, accept: "application/json"))
+      end
+
+      def get_html(url, headers: {})
+        get_body(url, headers: headers, accept: "text/html")
+      end
+
+      def get_body(url, headers: {}, accept: "application/json")
         attempt = 0
         begin
           attempt += 1
-          fetch_json(url, headers: headers)
+          fetch_body(url, headers: headers, accept: accept)
         rescue *RETRYABLE => e
           raise if attempt >= RETRIES
           Rails.logger.info(
@@ -242,12 +250,12 @@ module DiscourseTaper
         end
       end
 
-      # GET JSON through Discourse's SSRF-aware client, with a body cap.
-      def fetch_json(url, headers: {})
+      # GET through Discourse's SSRF-aware client, with a body cap.
+      def fetch_body(url, headers: {}, accept: "application/json")
         uri = URI.parse(url)
         request = Net::HTTP::Get.new(uri)
         request["User-Agent"] = USER_AGENT
-        request["Accept"] = "application/json"
+        request["Accept"] = accept
         headers.each { |name, value| request[name] = value }
 
         body = +""
@@ -267,7 +275,7 @@ module DiscourseTaper
           end
         end
 
-        JSON.parse(body)
+        body
       end
 
       def classify_kind(text)

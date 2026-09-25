@@ -133,9 +133,14 @@ describe DiscourseTaper::Importers::Youtube do
 
     stats = described_class.new(band: band).run
 
-    expect(stats).to eq(proposed: 0, matched: 1, corrected: 0, appended: 1, skipped: 2)
+    # "old" names Underground Arts with no date and long after the show;
+    # the one show ever at that place is still the answer.
+    expect(stats).to eq(proposed: 0, matched: 1, corrected: 0, appended: 1, skipped: 1)
     matched = DiscourseTaper::Suggestion.find_by(kind: "new_source")
-    expect(matched.payload["sources"].map { |s| s["external_id"] }).to eq(["philly"])
+    expect(matched.payload["sources"].map { |s| s["external_id"] }).to contain_exactly(
+      "philly",
+      "old",
+    )
     pending = DiscourseTaper::Suggestion.find_by(origin: "setlist_fm")
     expect(pending.reload.payload["sources"].map { |s| s["external_id"] }).to eq(["lpr"])
   end
@@ -178,8 +183,194 @@ describe DiscourseTaper::Importers::Youtube do
     expect(DiscourseTaper::Suggestion.last.payload["date"]).to eq("2026-07-26")
   end
 
+  describe "without an api key, reading result pages" do
+    before do
+      SiteSetting.taper_youtube_api_key = ""
+      SiteSetting.taper_youtube_scrape_enabled = true
+    end
+
+    def renderer(
+      id,
+      title,
+      length: "1:08:44",
+      channel: "a fan",
+      published: "2 weeks ago",
+      snippet: ""
+    )
+      {
+        "videoRenderer" => {
+          "videoId" => id,
+          "title" => {
+            "runs" => [{ "text" => title }],
+          },
+          "lengthText" => {
+            "simpleText" => length,
+          },
+          "ownerText" => {
+            "runs" => [{ "text" => channel }],
+          },
+          "publishedTimeText" => {
+            "simpleText" => published,
+          },
+          "detailedMetadataSnippets" => [
+            { "snippetText" => { "runs" => [{ "text" => snippet }] } },
+          ],
+        },
+      }
+    end
+
+    def results_page(renderers)
+      data = {
+        "contents" => {
+          "sectionListRenderer" => {
+            "contents" => [{ "itemSectionRenderer" => { "contents" => renderers } }],
+          },
+        },
+      }
+      "<html><script>var ytInitialData = #{data.to_json};</script></html>"
+    end
+
+    def stub_results(renderers)
+      stub_request(:get, %r{https://www\.youtube\.com/results}).to_return(
+        status: 200,
+        headers: {
+          "Content-Type" => "text/html",
+        },
+        body: results_page(renderers),
+      )
+    end
+
+    it "is available, searches long videos for each phrasing, and reads duration and channel off the page" do
+      expect(described_class.available?).to eq(true)
+      stub_results(
+        [
+          renderer(
+            "Wk_PLQuICx8",
+            "Angine de Poitrine - Live (FULL SET) @ Underground Arts - Philadelphia, PA 9/16/26",
+            channel: "DirtyMovies76",
+          ),
+        ],
+      )
+
+      stats = described_class.new(band: band).run
+
+      expect(stats).to eq(proposed: 1, matched: 0, corrected: 0, appended: 0, skipped: 0)
+      expect(
+        a_request(:get, %r{https://www\.youtube\.com/results}).with do |req|
+          q = CGI.parse(URI(req.uri).query)
+          q["sp"] == ["EgIYAg=="] && q["search_query"].first.include?("Angine de Poitrine live")
+        end,
+      ).to have_been_made.times(4)
+      source = DiscourseTaper::Suggestion.last.payload["sources"].first
+      expect(source).to include(
+        "external_id" => "Wk_PLQuICx8",
+        "duration_seconds" => 4124,
+        "taper_name" => "DirtyMovies76",
+        "kind" => "video",
+      )
+      expect(DiscourseTaper::Suggestion.last.payload["date"]).to eq("2026-09-16")
+    end
+
+    it "settles a date that reads two ways by the show it lands on" do
+      Fabricate(
+        :taper_show,
+        band: band,
+        date: Date.new(2026, 5, 11),
+        venue: "Electric Ballroom",
+        city: "London",
+      )
+      stub_results(
+        [
+          renderer(
+            "ballroom",
+            "Angine de Poitrine - Live at Electric Ballroom, London, 11/05/2026",
+          ),
+        ],
+      )
+
+      stats = described_class.new(band: band).run
+
+      expect(stats).to include(matched: 1, proposed: 0)
+      expect(DiscourseTaper::Suggestion.last.payload["sources"].first["date"]).to eq("2026-05-11")
+    end
+
+    it "dates a video by the one show at the place it names in the year it gives, or ever" do
+      Fabricate(
+        :taper_show,
+        band: band,
+        date: Date.new(2026, 7, 31),
+        venue: "Newport Jazz Festival",
+        city: "Newport",
+      )
+      Fabricate(
+        :taper_show,
+        band: band,
+        date: Date.new(2025, 8, 1),
+        venue: "Newport Jazz Festival",
+        city: "Newport",
+      )
+      Fabricate(
+        :taper_show,
+        band: band,
+        date: Date.new(2026, 7, 26),
+        venue: "Fuji Rock Festival",
+        city: "Naeba",
+      )
+      Fabricate(
+        :taper_show,
+        band: band,
+        date: Date.new(2026, 3, 3),
+        venue: "La Lune des Pirates",
+        city: "Amiens",
+      )
+      stub_results(
+        [
+          renderer(
+            "newport",
+            "Angine de Poitrine - Full Set - Live at Newport Jazz Festival, 2026",
+            published: "1 month ago",
+          ),
+          renderer(
+            "fuji",
+            "4K Full Show : Angine de Poitrine in Fuji Rock 2026 Day 3",
+            published: "2 months ago",
+          ),
+          renderer(
+            "amiens",
+            "Angine De Poitrine - La Lune Des Pirates - Amiens - Full Set",
+            published: "6 months ago",
+          ),
+          renderer(
+            "ambiguous",
+            "Angine de Poitrine at Newport Jazz Festival full set",
+            published: "11 months ago",
+          ),
+        ],
+      )
+
+      stats = described_class.new(band: band).run
+
+      expect(stats).to include(matched: 3, skipped: 1)
+      dates = DiscourseTaper::Suggestion.all.map { |s| s.payload["sources"].first["date"] }
+      expect(dates).to contain_exactly("2026-07-31", "2026-07-26", "2026-03-03")
+    end
+
+    it "is not available when neither a key nor scraping is enabled, and ignores a page with no data" do
+      SiteSetting.taper_youtube_scrape_enabled = false
+      expect(described_class.available?).to eq(false)
+
+      SiteSetting.taper_youtube_scrape_enabled = true
+      stub_request(:get, %r{https://www\.youtube\.com/results}).to_return(
+        status: 200,
+        body: "<html>consent</html>",
+      )
+      expect(described_class.new(band: band).run).to include(proposed: 0, skipped: 0)
+    end
+  end
+
   it "is unavailable without an api key" do
     SiteSetting.taper_youtube_api_key = ""
+    SiteSetting.taper_youtube_scrape_enabled = false
     expect(described_class.available?).to eq(false)
     expect(described_class.new(band: band).run[:proposed]).to eq(0)
   end

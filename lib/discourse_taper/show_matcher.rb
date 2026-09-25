@@ -114,6 +114,24 @@ module DiscourseTaper
       nil
     end
 
+    # Every reading of the dates in a text. A slash date with both numbers
+    # at or below twelve ("10/05/2026") is ambiguous between US and UK
+    # habits; the first candidate is the month-first reading, the second
+    # the day-first one, and a caller with a list of known shows can pick.
+    def self.date_candidates(text, year_hint: nil)
+      first = extract_date(text, year_hint: year_hint)
+      return [] if first.nil?
+      candidates = [first]
+      if (m = text.to_s.match(%r{\b(\d{1,2})/(\d{1,2})/(\d{2,4})\b}))
+        a, b = m[1].to_i, m[2].to_i
+        if a <= 12 && b <= 12 && a != b
+          alt = safe_date(expand_year(m[3].to_i), b, a)
+          candidates << alt if alt && alt != first
+        end
+      end
+      candidates
+    end
+
     def self.expand_year(year)
       return year if year >= 100
       year + (year < 40 ? 2000 : 1900)
