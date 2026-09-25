@@ -71,6 +71,30 @@ after_initialize do
 
   Discourse::Application.routes.append { mount ::DiscourseTaper::Engine, at: "/taper" }
 
+  # Offers the archive as the site's homepage (admin, default_homepage).
+  # Server-side: / is the front door itself, a full page, not the app.
+  # Visitors who cannot see the archive category get the regular homepage.
+  # The API is new (2026-09); older cores get the option without the
+  # enabled and available checks, and cores without the API get nothing.
+  if respond_to?(:register_homepage)
+    homepage = {
+      name: "taper.homepage_option",
+      path: "/taper",
+      route: "discourse_taper/shows#band",
+      anonymous: true,
+      server_side: true,
+    }
+    supported = method(:register_homepage).parameters.map(&:last)
+    homepage[:enabled] = -> { SiteSetting.taper_enabled } if supported.include?(:enabled)
+    if supported.include?(:available)
+      homepage[:available] = ->(guardian:, request:) do
+        category = DiscourseTaper.category
+        category.present? && guardian.can_see_category?(category)
+      end
+    end
+    register_homepage("taper", **homepage)
+  end
+
   add_to_serializer(
     :current_user,
     :taper_reviewer,

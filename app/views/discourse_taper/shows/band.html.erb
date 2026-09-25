@@ -8,7 +8,7 @@
     </h1>
     <div class="taper-masthead__aside">
       <div class="taper-mono"><%= [t("taper.shows_count", count: @stats[:shows]), t("taper.recordings_count", count: @stats[:recordings]), t("taper.years_count", count: @stats[:years])].join(" · ") %></div>
-      <a class="taper-masthead__forum" href="<%= Discourse.base_path %>/"><span class="taper-mark" aria-hidden="true"></span> <%= t("taper.front.forum_link", title: SiteSetting.title) %></a>
+      <a class="taper-masthead__forum" href="<%= forum_url %>"><span class="taper-mark" aria-hidden="true"></span> <%= t("taper.front.forum_link", title: SiteSetting.title) %></a>
     </div>
   </header>
 

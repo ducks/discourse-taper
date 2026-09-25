@@ -1,6 +1,7 @@
 en:
   js:
     taper:
+      homepage_option: "Live archive (discourse-taper)"
       card:
         setlist: "Setlist"
         sources: "Recordings"
