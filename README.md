@@ -11,9 +11,10 @@ did.
   source render in a card at the top of the topic. The replies are the
   community's memories and corrections. The archive category's
   permissions decide who can see the archive at all.
-- **Two channels, one queue.** Importers walk archive.org collections,
-  YouTube channels, and setlist.fm and file what they find as
-  *suggestions*. Members
+- **Two channels, one queue.** Importers walk archive.org (an etree
+  collection, or a creator/title query across the community collections
+  where the venue is read out of the title), YouTube channels and
+  searches, and setlist.fm, and file what they find as *suggestions*. Members
   suggest shows, sources, and corrections through the same queue.
   Nothing becomes a record until a reviewer accepts it, so the archive
   is trustworthy whether a bot or a human found the item.
@@ -71,7 +72,10 @@ concept. Its shows live at `/taper/1977-05-08`; any other band's at
    "forum" links point at the first top-menu list instead of `/`.
 2. Add reviewer groups to `taper_reviewer_groups`. Staff always can.
 3. Create bands (for now, from the Rails console) with an
-   `archive_org_collection`, a `youtube_channel_id`, a
+   `archive_org_collection` (an etree collection) or an
+   `archive_org_query` (for a band whose tapes sit in the community
+   collections, e.g. `creator:("Band") OR title:("Band")`), a
+   `youtube_channel_id`, a
    `youtube_search_query` (for tapes scattered across fans' channels),
    and/or a `setlistfm_artist_name` (defaults to the band name). Set
    `taper_youtube_api_key` to enable the YouTube importer and

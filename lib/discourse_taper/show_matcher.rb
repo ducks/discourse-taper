@@ -84,12 +84,14 @@ module DiscourseTaper
         return safe_date(m[1].to_i, m[2].to_i, m[3].to_i)
       end
 
-      # 5/8/77 or 16/09/2026: month first unless the first number cannot
-      # be a month.
-      if (m = text.match(%r{\b(\d{1,2})[/.](\d{1,2})[/.](\d{2,4})\b}))
-        year = expand_year(m[3].to_i)
-        a, b = m[1].to_i, m[2].to_i
-        return a > 12 ? safe_date(year, b, a) : safe_date(year, a, b)
+      # 5/8/77 or 16/09/2026: slashes are month first unless the first
+      # number cannot be a month. 11.05.2026: dots are the European habit
+      # and day first.
+      if (m = text.match(%r{\b(\d{1,2})([/.])(\d{1,2})\2(\d{2,4})\b}))
+        year = expand_year(m[4].to_i)
+        a, b = m[1].to_i, m[3].to_i
+        day_first = m[2] == "." || a > 12
+        return day_first ? safe_date(year, b, a) : safe_date(year, a, b)
       end
 
       # September 16th, 2026 / Sept 16 2026 / 16 September 2026 / 16 sept. 2026

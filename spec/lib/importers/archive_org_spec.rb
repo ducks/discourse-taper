@@ -172,6 +172,157 @@ describe DiscourseTaper::Importers::ArchiveOrg do
     }
   end
 
+  describe "a band found by query across the community collections" do
+    fab!(:band) do
+      Fabricate(
+        :taper_band,
+        name: "Angine de Poitrine",
+        archive_org_collection: nil,
+        archive_org_query: 'creator:("Angine de Poitrine") OR title:("Angine de Poitrine")',
+      )
+    end
+
+    def community(identifier, title, date: nil, mediatype: "audio", **extra)
+      {
+        "identifier" => identifier,
+        "title" => title,
+        "date" => date,
+        "mediatype" => mediatype,
+        "format" => ["Flac", "VBR MP3", "Metadata"],
+      }.merge(extra)
+    end
+
+    it "searches by the query, not by collection, across audio and video" do
+      stub_search([])
+      described_class.new(band: band).run
+      expect(
+        a_request(:get, %r{https://archive\.org/advancedsearch\.php}).with do |req|
+          q = CGI.parse(URI(req.uri).query)["q"].first
+          q.include?('creator:("Angine de Poitrine")') &&
+            q.include?("mediatype:(etree OR audio OR movies)") && !q.include?("collection:")
+        end,
+      ).to have_been_made
+    end
+
+    it "reads venue, city, and region out of the title when the item has no venue field" do
+      stub_search(
+        [
+          community(
+            "adp2026-08-19.mk4",
+            "Angine de Poitrine - 2026-08-19 - The Independent, San Francisco, CA [AUD]",
+            :date => "2026-08-19T00:00:00Z",
+            "taper" => "TJ",
+            "source" => "Schoeps MK4s > BabyNBox > Sony PCM-A10 > WAV",
+            "runtime" => "68:51",
+          ),
+        ],
+      )
+
+      described_class.new(band: band).run
+
+      payload = DiscourseTaper::Suggestion.last.payload
+      expect(payload).to include(
+        "date" => "2026-08-19",
+        "venue" => "The Independent",
+        "city" => "San Francisco",
+        "region" => "CA",
+      )
+      expect(payload["sources"].first).to include(
+        "kind" => "audience",
+        "format" => "flac",
+        "taper_name" => "TJ",
+        "duration_seconds" => 4131,
+      )
+    end
+
+    it "handles the looser title shapes tapers use" do
+      stub_search(
+        [
+          community(
+            "AngineDePoitrine2026-07-31",
+            "Angine de Poitrine 2026-07-31 Newport Jazz Festival",
+          ),
+          community(
+            "angine-de-poitrine-9-20-26",
+            "Angine De Poitrine live in Richmond at Iron Blossom Festival 9/20/26",
+            date: "2026-09-20T00:00:00Z",
+          ),
+          community(
+            "adp-electric-ballroom",
+            "Angine De Poitrine Live At Electric Ballroom 11.05.2026",
+            "format" => ["VBR MP3"],
+          ),
+          community(
+            "adp2026-09-01.dpa4061",
+            "Angine de Poitrine - 2026-09-01 - Live Music Hall, Cologne, Germany [AUD]",
+          ),
+          community(
+            "live-toronto-on-july-14-2026-rbc-amplitheatre",
+            "Angine de Poitrine - Live - Toronto ON - July 14, 2026 - RBC Amplitheatre",
+          ),
+        ],
+      )
+
+      described_class.new(band: band).run
+
+      by_date = DiscourseTaper::Suggestion.all.index_by { |s| s.payload["date"] }
+      expect(by_date.keys).to contain_exactly(
+        "2026-07-31",
+        "2026-09-20",
+        "2026-05-11",
+        "2026-09-01",
+        "2026-07-14",
+      )
+      expect(by_date["2026-09-01"].payload).to include(
+        "venue" => "Live Music Hall",
+        "city" => "Cologne",
+        "region" => "Germany",
+      )
+      expect(by_date["2026-07-14"].payload).to include(
+        "venue" => "RBC Amplitheatre",
+        "city" => "Toronto ON",
+      )
+      expect(by_date["2026-07-31"].payload["venue"]).to eq("Newport Jazz Festival")
+      expect(by_date["2026-09-20"].payload).to include(
+        "venue" => "Iron Blossom Festival",
+        "city" => "Richmond",
+      )
+      expect(by_date["2026-05-11"].payload["venue"]).to eq("Electric Ballroom")
+      expect(by_date["2026-05-11"].payload["sources"].first["format"]).to eq("mp3")
+    end
+
+    it "prefers the date in the title over an upload date, and files video as video" do
+      stub_search(
+        [
+          community(
+            "adp2026-07-31.dmczs100.vid",
+            "Angine de Poitrine - 2026-07-31 - Fort Adams State Park, Newport, RI, USA [VID]",
+            date: "2026-08-02T00:00:00Z",
+            mediatype: "movies",
+          ),
+          community(
+            "angine-de-poitrine-vol.-1-album-integral",
+            "Angine de Poitrine - Vol.1 (Full Album)",
+            date: "2026-04-29T00:00:00Z",
+            mediatype: "movies",
+          ),
+        ],
+      )
+
+      described_class.new(band: band).run
+
+      dates = DiscourseTaper::Suggestion.all.map { |s| s.payload["date"] }
+      expect(dates).to contain_exactly("2026-07-31", "2026-04-29")
+      newport = DiscourseTaper::Suggestion.find_by("payload->>'date' = '2026-07-31'")
+      expect(newport.payload).to include(
+        "venue" => "Fort Adams State Park",
+        "city" => "Newport",
+        "region" => "RI",
+      )
+      expect(newport.payload["sources"].first).to include("kind" => "video", "format" => "video")
+    end
+  end
+
   it "retries a page after a transient network fault instead of losing the run" do
     calls = 0
     stub_request(:get, %r{https://archive\.org/advancedsearch\.php}).to_return do
