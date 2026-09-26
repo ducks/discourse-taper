@@ -24,9 +24,20 @@ module DiscourseTaper
 
     LIVE_CUES = /\b(live|en direct|en concert|concert|session|set|show|fest(ival)?|tour|tournée)\b/i
 
+    # In a description, only the unmistakable patterns count: tapers write
+    # "single source" and "remastered audio" about their own recordings.
+    DESCRIPTION_PATTERNS =
+      PATTERNS
+        .slice("official video", "music video", "teaser", "album", "podcast")
+        .merge("single" => /\bsingle release\b|\breleased as a single\b/i)
+        .freeze
+
     def self.reason(title:, description: nil, channel: nil, band_name: nil, dated: false)
+      PATTERNS.each { |reason, pattern| return reason if title.to_s.match?(pattern) }
+      DESCRIPTION_PATTERNS.each do |reason, pattern|
+        return reason if description.to_s.match?(pattern)
+      end
       text = "#{title} #{description}"
-      PATTERNS.each { |reason, pattern| return reason if text.match?(pattern) }
       return "album" if !dated && text.match?(VOLUME)
       if channel.present? && band_name.present? && !dated &&
            Venue.normalize(channel).include?(Venue.normalize(band_name)) && !text.match?(LIVE_CUES)

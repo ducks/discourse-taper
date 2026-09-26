@@ -32,6 +32,25 @@ describe DiscourseTaper::ReleaseDetector do
     ).to eq("band's own channel, not a show")
   end
 
+  it "reads descriptions with a lighter touch than titles" do
+    expect(
+      reason(
+        "Angine de Poitrine - 2026-07-31 - Fort Adams State Park, Newport, RI, USA [VID]",
+        description: "single source, remastered audio, 4 channel mix",
+        dated: true,
+      ),
+    ).to be_nil
+    expect(
+      reason(
+        "SHERPA - Angine De Poitrine",
+        description: "SHERPA by Angine De Poitrine, single release.",
+      ),
+    ).to eq("single")
+    expect(
+      reason("Angine de Poitrine - Sherpa", description: "Official music video for Sherpa."),
+    ).to be_present
+  end
+
   it "lets live recordings through, dated or not, on any channel" do
     expect(
       reason("Angine de Poitrine - Full Performance (Live on KEXP)", channel: "KEXP"),
