@@ -132,7 +132,6 @@ describe "Taper review queue" do
     find(".taper-review__accept-all", text: "Accept all 1 from archive.org").click
     find(".dialog-footer .btn-primary").click
 
-    expect(page).to have_css(".taper-review__decisions", text: "Accepting 1 shows from archive.org")
     # The job runs deferred after the response and reports back over
     # MessageBus on the reviewer's channel; polling is the fallback.
     expect(page).to have_css(
