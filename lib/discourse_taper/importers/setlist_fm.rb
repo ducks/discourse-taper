@@ -103,7 +103,7 @@ module DiscourseTaper
         id = item[:setlistfm_id]
         return true if Show.exists?(setlistfm_id: id)
         Suggestion
-          .where(origin: self.class.key, status: "pending")
+          .where(origin: self.class.key, status: %w[pending rejected])
           .where("payload->>'setlistfm_id' = ?", id)
           .exists?
       end

@@ -57,9 +57,18 @@ module DiscourseTaper
       #   corrected setlist corrections proposed for shows lacking one
       #   appended  recordings added to an already pending suggestion
       #   ignored   releases (albums, music videos, teasers, podcasts)
+      #   accepted  recordings attached to a show outright (band opted in)
       #   skipped   items with no id, no recoverable date, or already known
       def run
-        stats = { proposed: 0, matched: 0, corrected: 0, ignored: 0, appended: 0, skipped: 0 }
+        stats = {
+          proposed: 0,
+          matched: 0,
+          corrected: 0,
+          ignored: 0,
+          accepted: 0,
+          appended: 0,
+          skipped: 0,
+        }
         fresh = []
 
         each_item do |item|
@@ -94,14 +103,15 @@ module DiscourseTaper
           ShowMatcher.extract_date(item[:external_id])
       end
 
-      # Already attached as a source, or already inside a pending
-      # suggestion's recordings. Show-only importers override this.
+      # Already attached as a source, already inside a pending suggestion's
+      # recordings, or rejected once: a reviewer's no is final for an
+      # importer. Show-only importers override this.
       def known?(item)
         external_id = item[:external_id]
         return true if Source.exists?(provider: self.class.key, external_id: external_id)
 
         Suggestion
-          .where(status: "pending")
+          .where(status: %w[pending rejected])
           .where("payload->'sources' @> ?", [{ "external_id" => external_id }].to_json)
           .exists?
       end
@@ -148,13 +158,21 @@ module DiscourseTaper
         end
 
         if show && sources.any?
-          Suggestion.create!(
-            kind: "new_source",
-            band: band,
-            show: show,
-            origin: self.class.key,
-            payload: common,
-          )
+          suggestion =
+            Suggestion.create!(
+              kind: "new_source",
+              band: band,
+              show: show,
+              origin: self.class.key,
+              payload: common,
+            )
+          if auto_accept?(items)
+            SuggestionReviewer.new(reviewer: Discourse.system_user).accept!(
+              suggestion,
+              note: I18n.t("taper.auto_accepted"),
+            )
+            return :accepted
+          end
           :matched
         elsif show
           return :skipped if setlist.empty? || show.setlist.any?
@@ -212,6 +230,116 @@ module DiscourseTaper
         Rails.logger.warn(
           "#{PLUGIN_NAME}: could not file media #{item[:external_id]}: #{e.message}",
         )
+      end
+
+      # A band may opt in to attaching recordings outright when every one
+      # of them carries its date in its own title or identifier and that
+      # date is a show the archive already has. Inferred dates, proposed
+      # shows, corrections, and claims always wait for a reviewer.
+      def auto_accept?(items)
+        band.auto_accept_recordings && items.all? { |item| item[:date_certain] }
+      end
+
+      # The band's shows, plus shows proposed and waiting, as the places
+      # an undated recording can be matched to.
+      def known_shows
+        @known_shows ||=
+          begin
+            shows =
+              Show
+                .where(band: band)
+                .map { |show| { date: show.date, venue: show.venue, city: show.city } }
+            pending =
+              Suggestion
+                .where(band: band, kind: "new_show", status: "pending")
+                .map do |suggestion|
+                  p = suggestion.payload
+                  { date: ShowMatcher.safe_iso(p["date"]), venue: p["venue"], city: p["city"] }
+                end
+            (shows + pending).select { |show| show[:date] }
+          end
+      end
+
+      def known_show_dates
+        @known_show_dates ||= known_shows.map { |show| show[:date] }.uniq
+      end
+
+      # A date that appears only in a description is a weaker signal
+      # (release dates, "since 2019") and counts only when it lands on a
+      # known show.
+      def date_from_description(description, year_hint: nil)
+        candidates = ShowMatcher.date_candidates(description, year_hint: year_hint)
+        (candidates & known_show_dates).first
+      end
+
+      # Undated item naming a place the band played: the one show there in
+      # the year the text gives, else in the month before it was published,
+      # else the one show ever there. Two candidates leave it undated.
+      INFERENCE_WINDOW = 31
+
+      def infer_date(text, published_at)
+        haystack = Venue.normalize(text)
+        named =
+          known_shows.select do |show|
+            [show[:venue], show[:city]].any? { |place| mentions?(haystack, place) }
+          end
+        return nil if named.empty?
+
+        if (year = year_in(text))
+          date = unique_date(named.select { |show| show[:date].year == year })
+          return date if date
+        end
+        if published_at
+          window = (published_at.to_date - INFERENCE_WINDOW)..published_at.to_date
+          date = unique_date(named.select { |show| window.cover?(show[:date]) })
+          return date if date
+        end
+        unique_date(named)
+      end
+
+      def unique_date(shows)
+        dates = shows.map { |show| show[:date] }.uniq
+        dates.size == 1 ? dates.first : nil
+      end
+
+      # "Fuji Rock 2026", "Winnipeg Folk Fest '26".
+      def year_in(text)
+        if (m = text.to_s.match(/\b(19|20)(\d{2})\b/))
+          return "#{m[1]}#{m[2]}".to_i
+        end
+        if (m = text.to_s.match(/['’](\d{2})\b/))
+          return 2000 + m[1].to_i
+        end
+        nil
+      end
+
+      # The place is named when its whole name appears, or when every
+      # distinctive word of it does ("Fuji Rock 2026" names Fuji Rock
+      # Festival; "Newport Jazz Festival, 2026" names it either way).
+      GENERIC_WORDS = %w[
+        festival
+        fest
+        theatre
+        theater
+        hall
+        club
+        arena
+        park
+        stage
+        scene
+        centre
+        center
+        music
+        live
+        the
+      ].freeze
+
+      def mentions?(haystack, place)
+        needle = Venue.normalize(place)
+        return false if needle.length < 4
+        return true if haystack.include?(needle)
+        words = needle.split(/\s+/) - GENERIC_WORDS
+        words.any? && words.all? { |w| w.length >= 4 && haystack.match?(/\b#{Regexp.escape(w)}\b/) }
       end
 
       # Service-specific identifiers an importer wants carried onto the

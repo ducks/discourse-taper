@@ -69,7 +69,15 @@ describe DiscourseTaper::Importers::Youtube do
 
     stats = described_class.new(band: band).run
 
-    expect(stats).to eq(proposed: 1, matched: 0, corrected: 0, ignored: 0, appended: 0, skipped: 0)
+    expect(stats).to eq(
+      proposed: 1,
+      matched: 0,
+      corrected: 0,
+      ignored: 0,
+      accepted: 0,
+      appended: 0,
+      skipped: 0,
+    )
     suggestion = DiscourseTaper::Suggestion.last
     expect(suggestion.payload).to include(
       "date" => "2026-09-16",
@@ -136,7 +144,15 @@ describe DiscourseTaper::Importers::Youtube do
 
     # "old" names Underground Arts with no date and long after the show;
     # the one show ever at that place is still the answer.
-    expect(stats).to eq(proposed: 0, matched: 1, corrected: 0, ignored: 0, appended: 1, skipped: 1)
+    expect(stats).to eq(
+      proposed: 0,
+      matched: 1,
+      corrected: 0,
+      ignored: 0,
+      accepted: 0,
+      appended: 1,
+      skipped: 1,
+    )
     matched = DiscourseTaper::Suggestion.find_by(kind: "new_source")
     expect(matched.payload["sources"].map { |s| s["external_id"] }).to contain_exactly(
       "philly",
@@ -280,6 +296,7 @@ describe DiscourseTaper::Importers::Youtube do
         matched: 0,
         corrected: 0,
         ignored: 0,
+        accepted: 0,
         appended: 0,
         skipped: 0,
       )

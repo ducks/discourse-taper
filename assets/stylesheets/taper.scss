@@ -1375,3 +1375,42 @@ body.taper {
     cursor: pointer;
   }
 }
+
+.taper-recording {
+  &__title {
+    font-size: clamp(32px, 5vw, 64px);
+    line-height: 1;
+  }
+
+  &__lineage {
+    font: 400 13px/1.6 var(--taper-mono);
+    color: var(--taper-ink-soft);
+  }
+
+  .taper-form h3 {
+    margin: 0 0 4px;
+    font-family: var(--taper-display);
+    font-weight: 800;
+    font-size: 18px;
+  }
+
+  .taper-form--danger {
+    border-top: 1px solid var(--taper-rule);
+  }
+}
+
+.taper-source__open {
+  margin-left: 6px;
+  color: var(--taper-mid);
+}
+
+.taper-band-form__check > span {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  font-weight: bold;
+
+  input {
+    margin: 0;
+  }
+}

@@ -51,6 +51,7 @@ module DiscourseTaper
         :youtube_channel_id,
         :youtube_search_query,
         :setlistfm_artist_name,
+        :auto_accept_recordings,
       )
     end
 

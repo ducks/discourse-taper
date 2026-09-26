@@ -1,0 +1,80 @@
+<%- @page_title = "#{@source.title.presence || t("taper.provider.#{@source.provider}")} - #{@show.title}" %>
+<%- reviewer = DiscourseTaper.reviewer?(current_user) %>
+<%- base = "#{DiscourseTaper.root_path}/recordings/#{@source.id}" %>
+<article class="taper-wrap taper-recording">
+  <header class="taper-showhead">
+    <nav class="taper-crumbs" aria-label="Breadcrumb">
+      <a href="<%= DiscourseTaper.root_path %>"><%= t("taper.shows") %></a>
+      <span aria-hidden="true">/</span>
+      <a href="<%= @band.url %>?year=<%= @show.date.year %>"><%= @show.date.year %></a>
+      <span aria-hidden="true">/</span>
+      <a href="<%= @show.url %>"><%= @show.label %> <%= @show.venue %></a>
+    </nav>
+    <h1 class="taper-display taper-recording__title"><%= @source.title.presence || t("taper.provider.#{@source.provider}") %></h1>
+    <p class="taper-showhead__venue"><a href="<%= @show.url %>"><%= @show.label %></a> <span><%= [@show.venue, @show.city].compact.join(", ") %></span></p>
+    <div class="taper-facts">
+      <span><%= t("taper.recording.kind") %> <b><%= t("taper.kind.#{@source.kind}") %></b></span>
+      <%- if !%w[unknown video].include?(@source.format) %><span><%= t("taper.recording.format") %> <b><%= @source.format %></b></span><%- end %>
+      <%- if @source.duration_seconds %><span><%= t("taper.runtime") %> <b><%= duration(@source.duration_seconds) %></b></span><%- end %>
+      <span><%= t("taper.recording.source") %> <b><%= t("taper.provider.#{@source.provider}") %></b></span>
+      <span><%= t("taper.recording.taper") %> <b><%- if @source.taper %><a href="<%= Discourse.base_path %>/u/<%= @source.taper.username %>">@<%= @source.taper.username %></a><%- elsif @source.taper_name.present? %><%= @source.taper_name %><%- else %><%= t("taper.taper_unclaimed") %><%- end %></b></span>
+    </div>
+  </header>
+
+  <div class="taper-showbody">
+    <section>
+      <div class="taper-section-title"><h2><%= t("taper.recording.listen") %></h2><a href="<%= @source.display_url %>" rel="noopener"><%= t("taper.recording.open_at", provider: t("taper.provider.#{@source.provider}")) %></a></div>
+      <%- if embed_url(@source) %>
+        <div class="taper-player"><iframe src="<%= embed_url(@source) %>" title="<%= @source.title %>" allow="accelerometer; encrypted-media; picture-in-picture" allowfullscreen loading="lazy"></iframe></div>
+      <%- end %>
+      <%- if @source.lineage.present? %>
+        <h3 class="taper-eyebrow"><%= t("taper.lineage") %></h3>
+        <p class="taper-recording__lineage"><%= @source.lineage %></p>
+      <%- end %>
+    </section>
+
+    <section>
+      <%- if reviewer %>
+        <div class="taper-section-title"><h2><%= t("taper.recording.manage") %></h2></div>
+        <form class="taper-form" method="post" action="<%= base %>">
+          <input type="hidden" name="_method" value="put">
+          <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+          <label><%= t("taper.suggest.recording_title") %><input type="text" name="title" value="<%= @source.title %>" maxlength="200"></label>
+          <div class="taper-form__row">
+            <label><%= t("taper.suggest.kind") %>
+              <select name="kind"><%- DiscourseTaper::Source::KINDS.each do |k| %><option value="<%= k %>"<%= " selected" if k == @source.kind %>><%= t("taper.kind.#{k}") %></option><%- end %></select>
+            </label>
+            <label><%= t("taper.suggest.format") %>
+              <select name="recording_format"><%- DiscourseTaper::Source::FORMATS.each do |f| %><option value="<%= f %>"<%= " selected" if f == @source.format %>><%= f %></option><%- end %></select>
+            </label>
+          </div>
+          <label><%= t("taper.suggest.taper") %><input type="text" name="taper_name" value="<%= @source.taper_name %>" maxlength="200"></label>
+          <label><%= t("taper.suggest.lineage") %><textarea name="lineage" rows="2"><%= @source.lineage %></textarea></label>
+          <label><%= t("taper.suggest.url") %><input type="url" name="url" value="<%= @source.url %>"></label>
+          <button class="btn btn-primary" type="submit"><%= t("taper.recording.save") %></button>
+        </form>
+
+        <form class="taper-form" method="post" action="<%= base %>/move">
+          <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+          <h3><%= t("taper.recording.move_heading") %></h3>
+          <p class="taper-form__help"><%= t("taper.recording.move_help") %></p>
+          <div class="taper-form__row">
+            <label><%= t("taper.suggest.date") %><input type="date" name="date" value="<%= @show.date.iso8601 %>" required></label>
+          </div>
+          <button class="btn btn-default" type="submit"><%= t("taper.recording.move") %></button>
+        </form>
+
+        <form class="taper-form taper-form--danger" method="post" action="<%= base %>" onsubmit="return confirm(<%= t("taper.recording.remove_confirm").to_json %>)">
+          <input type="hidden" name="_method" value="delete">
+          <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+          <h3><%= t("taper.recording.remove_heading") %></h3>
+          <p class="taper-form__help"><%= t("taper.recording.remove_help") %></p>
+          <button class="btn btn-danger" type="submit"><%= t("taper.recording.remove") %></button>
+        </form>
+      <%- else %>
+        <div class="taper-section-title"><h2><%= t("taper.recording.about") %></h2><a href="<%= (@band.primary? ? DiscourseTaper.root_path : @band.url) %>/suggest?date=<%= @show.slug %>"><%= t("taper.suggest_correction") %></a></div>
+        <p class="taper-show-notes"><%= t("taper.recording.about_text", show: "#{@show.label} #{@show.venue}") %></p>
+      <%- end %>
+    </section>
+  </div>
+</article>
