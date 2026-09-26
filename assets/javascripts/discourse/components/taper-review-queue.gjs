@@ -103,12 +103,18 @@ export default class TaperReviewQueue extends Component {
         origin: bulk.label,
       }),
       didConfirm: async () => {
+        // Set before the request: the job's MessageBus report can land
+        // before the response is handled on a slow connection.
+        this.bulk = { origin: bulk.origin, label: bulk.label, start: bulk.count };
         this.bulkBusy = true;
         try {
           const { queued } = await ajax("/taper/suggestions/accept_all.json", {
             type: "POST",
             data: { origin: bulk.origin },
           });
+          if (!this.bulkBusy) {
+            return;
+          }
           this.decisions.unshift({
             label: i18n("taper.review.accept_all_queued", {
               count: queued,
@@ -118,7 +124,7 @@ export default class TaperReviewQueue extends Component {
           // The job runs after the response and reports back over
           // MessageBus. Polling the queue is the fallback, and it can
           // tell the same story: the rows that vanished were accepted.
-          this.bulk = { origin: bulk.origin, label: bulk.label, start: queued };
+          this.bulk = { ...this.bulk, start: queued };
           this.pollsLeft = 60;
           this.pollTimer = later(this, this.poll, 1000);
         } catch (e) {
@@ -155,6 +161,9 @@ export default class TaperReviewQueue extends Component {
   finishBulk(accepted, failed) {
     cancel(this.pollTimer);
     this.bulkBusy = false;
+    if (!this.bulk) {
+      return;
+    }
     this.decisions.unshift({
       label: i18n("taper.review.accept_all_done", {
         accepted,

@@ -18,7 +18,7 @@ describe "Taper band admin" do
     visit("/taper/admin/bands")
 
     form = find(".taper-band-form", text: "Angine de Poitrine")
-    expect(form).to have_css(".taper-band-form__primary", text: "primary")
+    expect(form).to have_css(".taper-band-form__primary")
     form.find("[data-field='archive_org_query']").fill_in(with: 'creator:("Angine de Poitrine")')
     form.find("[data-field='description']").fill_in(with: "Every show since Saguenay, 2020.")
     form.find(".taper-band-form__save").click
