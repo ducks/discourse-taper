@@ -260,6 +260,26 @@ body.taper {
     }
   }
 
+  &__lang {
+    display: inline-flex;
+    margin-left: auto;
+    border: 1px solid var(--taper-ink);
+
+    a {
+      padding: 6px 9px;
+      color: var(--taper-mid);
+    }
+
+    a[aria-current] {
+      background: var(--taper-ink);
+      color: var(--taper-paper);
+    }
+  }
+
+  &__lang + &__forum {
+    margin-left: 0;
+  }
+
   &__forum {
     margin-left: auto;
     color: var(--taper-mid);

@@ -6,6 +6,7 @@ fr:
       sequence: "spectacle %{n}"
     shows: "Spectacles"
     bands: "Groupes"
+    language: "Langue"
     years: "Années"
     all_years: "Toutes les années"
     no_shows: "Aucun spectacle pour l'instant."

@@ -20,6 +20,16 @@ module ::DiscourseTaper
     "#{Discourse.base_path}/taper"
   end
 
+  # Locales the reader surface is translated into: one per server locale
+  # file shipped with the plugin. English is the source.
+  def self.reader_locales
+    @reader_locales ||=
+      Dir[File.join(File.dirname(__FILE__), "config", "locales", "server.*.yml")]
+        .map { |path| File.basename(path, ".yml").delete_prefix("server.") }
+        .sort
+        .freeze
+  end
+
   def self.category
     id = SiteSetting.taper_category_id.to_i
     id.positive? ? Category.find_by(id: id) : nil

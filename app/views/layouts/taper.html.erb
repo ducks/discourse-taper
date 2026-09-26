@@ -26,6 +26,13 @@
             <%- end %>
           </nav>
         <%- end %>
+        <%- if DiscourseTaper.reader_locales.size > 1 %>
+          <nav class="taper-top__lang" aria-label="<%= t("taper.language") %>">
+            <%- locale_links.each do |link| %>
+              <a href="<%= link[:url] %>" hreflang="<%= link[:locale] %>"<%- if link[:current] %> aria-current="true"<%- end %>><%= link[:locale].upcase %></a>
+            <%- end %>
+          </nav>
+        <%- end %>
         <a class="taper-top__forum" href="<%= forum_url %>"><%= SiteSetting.title %></a>
       </div>
     </header>
