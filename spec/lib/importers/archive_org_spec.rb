@@ -324,6 +324,28 @@ describe DiscourseTaper::Importers::ArchiveOrg do
       expect(DiscourseTaper::Suggestion.count).to eq(1)
     end
 
+    it "ignores an upload by the band itself that no title pattern catches" do
+      stub_search(
+        [
+          community(
+            "angine-de-poitrine-sherpa",
+            "SHERPA - Angine De Poitrine",
+            :date => "2024-06-01T00:00:00Z",
+            "creator" => "Angine De Poitrine",
+            "description" => "SHERPA by Angine De Poitrine, single release.",
+          ),
+        ],
+      )
+
+      expect(described_class.new(band: band).run).to include(ignored: 1, proposed: 0)
+      expect(
+        a_request(:get, %r{https://archive\.org/advancedsearch\.php}).with do |req|
+          q = CGI.parse(URI(req.uri).query)["fl[]"]
+          q.include?("creator") && q.include?("description")
+        end,
+      ).to have_been_made
+    end
+
     it "prefers the date in the title over an upload date, and files video as video" do
       stub_search(
         [

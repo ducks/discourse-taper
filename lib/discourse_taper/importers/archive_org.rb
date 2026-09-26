@@ -23,6 +23,8 @@ module DiscourseTaper
         runtime
         mediatype
         format
+        creator
+        description
       ].freeze
 
       def self.key

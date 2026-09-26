@@ -383,6 +383,37 @@ describe DiscourseTaper::Importers::Youtube do
       expect(dates).to contain_exactly("2026-07-31", "2026-07-26", "2026-03-03")
     end
 
+    it "trusts a date in the description only when it lands on a known show" do
+      Fabricate(
+        :taper_show,
+        band: band,
+        date: Date.new(2026, 9, 16),
+        venue: "Underground Arts",
+        city: "Philadelphia",
+      )
+      stub_results(
+        [
+          renderer(
+            "desc-known",
+            "Angine de Poitrine full set in Philly",
+            snippet: "Recorded 2026-09-16 at Underground Arts.",
+          ),
+          renderer(
+            "desc-release",
+            "Angine De Poitrine - Full Live Concert @ Québec 2025",
+            snippet: "Filmed on 2024-06-01 in Québec City.",
+          ),
+        ],
+      )
+
+      stats = described_class.new(band: band).run
+
+      expect(stats).to include(matched: 1, proposed: 0, skipped: 1)
+      expect(DiscourseTaper::Suggestion.last.payload["sources"].first["external_id"]).to eq(
+        "desc-known",
+      )
+    end
+
     it "ignores the band's own releases found by the search" do
       stub_results(
         [
