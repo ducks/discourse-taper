@@ -63,10 +63,12 @@ after_initialize do
   require_relative "app/controllers/discourse_taper/suggestions_controller"
   require_relative "app/controllers/discourse_taper/bands_controller"
 
-  # The reviewer queue is an Ember page. An HTML GET reaches the app shell
-  # through check_xhr; prepended so it wins over the engine's /:band route.
+  # The reviewer queue and band admin are Ember pages. An HTML GET reaches
+  # the app shell through check_xhr; prepended so they win over the
+  # engine's /:band route.
   Discourse::Application.routes.prepend do
     get "/taper/review" => "discourse_taper/suggestions#index", :constraints => { format: :html }
+    get "/taper/admin/bands" => "discourse_taper/bands#index", :constraints => { format: :html }
   end
 
   Discourse::Application.routes.append { mount ::DiscourseTaper::Engine, at: "/taper" }

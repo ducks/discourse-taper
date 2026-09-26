@@ -1155,3 +1155,114 @@ body.taper {
     }
   }
 }
+
+// Band admin (Ember page in the app).
+.taper-bands {
+  &__header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1em;
+
+    h1 {
+      margin: 0;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    gap: 0.5em;
+  }
+
+  &__help,
+  &__empty {
+    color: var(--primary-medium);
+  }
+}
+
+.taper-band-form {
+  margin: 1.5em 0;
+  padding: 1em 1.25em;
+  border: 1px solid var(--primary-low);
+  border-radius: var(--d-border-radius);
+  background: var(--secondary);
+
+  &__header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 1em;
+
+    h2 {
+      margin: 0;
+      font-size: var(--font-up-2);
+    }
+  }
+
+  &__primary {
+    margin-left: 0.5em;
+    padding: 0.1em 0.5em;
+    border-radius: var(--d-border-radius);
+    background: var(--tertiary-low);
+    color: var(--tertiary);
+    font-size: var(--font-down-2);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  &__meta {
+    color: var(--primary-medium);
+    font-size: var(--font-down-1);
+  }
+
+  h3 {
+    margin: 1.25em 0 0.25em;
+    font-size: var(--font-0);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--primary-medium);
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(16em, 1fr));
+    gap: 0.75em 1.25em;
+    margin-top: 0.75em;
+  }
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25em;
+
+    > span {
+      font-weight: bold;
+    }
+
+    small {
+      color: var(--primary-medium);
+    }
+
+    &--wide {
+      grid-column: 1 / -1;
+    }
+  }
+
+  &__input {
+    width: 100%;
+    margin: 0;
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5em;
+    margin-top: 1.25em;
+  }
+
+  &__saved {
+    color: var(--success);
+  }
+}

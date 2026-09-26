@@ -1,9 +1,9 @@
 import { withPluginApi } from "discourse/lib/plugin-api";
 import { i18n } from "discourse-i18n";
 
-// Puts the review queue in the sidebar's Community section for people
-// who can review. Whether they can is decided on the server and exposed
-// as taper_reviewer on the current user.
+// Puts the review queue and the band admin in the sidebar's Community
+// section for people who can review. Whether they can is decided on the
+// server and exposed as taper_reviewer on the current user.
 export default {
   name: "taper-review-sidebar",
 
@@ -21,6 +21,13 @@ export default {
         title: i18n("taper.review.sidebar"),
         text: i18n("taper.review.sidebar"),
         icon: "record-vinyl",
+      });
+      api.addCommunitySectionLink({
+        name: "taper-bands",
+        route: "taper-bands",
+        title: i18n("taper.bands.sidebar"),
+        text: i18n("taper.bands.sidebar"),
+        icon: "guitar",
       });
     });
   },
