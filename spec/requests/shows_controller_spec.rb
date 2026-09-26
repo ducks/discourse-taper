@@ -279,6 +279,33 @@ describe DiscourseTaper::ShowsController do
     end
   end
 
+  describe "language switch" do
+    it "offers every translated locale, switches with ?lang, and remembers it in a cookie" do
+      get "/taper"
+      expect(response.body).to include(%(class="taper-top__lang"))
+      expect(response.body).to include(%(href="/taper?lang=fr" hreflang="fr"))
+      expect(response.body).to include("Latest shows")
+
+      get "/taper", params: { lang: "fr" }
+      expect(response.status).to eq(200)
+      expect(response.body).to include("Derniers spectacles")
+      expect(response.body).to include(%(href="/taper?lang=fr" hreflang="fr" aria-current="true"))
+      expect(response.body).to include(%(<html lang="fr">))
+      expect(response.cookies["taper_lang"]).to eq("fr")
+      expect(response.headers["Cache-Control"]).to include("no-store")
+
+      get "/taper/1977-05-08", headers: { "Cookie" => "taper_lang=fr" }
+      expect(response.body).to include("Spectacle précédent").or include(
+             "Spectacle suivant",
+           ).or include("Setlist")
+      expect(response.body).to include("De la communauté")
+
+      get "/taper", params: { lang: "xx" }
+      expect(response.body).to include("Latest shows")
+      expect(response.cookies["taper_lang"]).to be_nil
+    end
+  end
+
   describe "suggestion form" do
     it "asks anonymous readers to log in and shows the forms to members" do
       get "/taper/suggest?date=1977-05-08"

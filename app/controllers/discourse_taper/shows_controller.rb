@@ -12,6 +12,7 @@ module DiscourseTaper
     before_action :ensure_logged_in, only: %i[suggest]
     before_action :ensure_can_see_archive
     before_action :load_bands, only: %i[band show bands suggest_form suggest]
+    before_action :set_reader_locale, only: %i[band show suggest_form suggest]
 
     prepend_view_path File.expand_path("../../views", __dir__)
     layout "taper"
@@ -21,7 +22,8 @@ module DiscourseTaper
                   :month_name,
                   :weekday_name,
                   :forum_url,
-                  :json_url
+                  :json_url,
+                  :locale_links
 
     def bands
       bands =
@@ -318,11 +320,38 @@ module DiscourseTaper
     # browser cache; signed-in readers may see restricted archives and are
     # never cached.
     def cache_for_anonymous
-      if current_user.nil?
+      if current_user.nil? && !@reader_locale_pinned
         discourse_expires_in 1.minute
         expires_in 1.minute, public: true
       else
         response.headers["Cache-Control"] = "private, no-store"
+      end
+    end
+
+    # A reader may pick the archive's language with ?lang=, remembered in
+    # a cookie for a year. Only locales the plugin is translated into
+    # count. Pages served under a pinned language are not put in the
+    # anonymous cache, whose key knows nothing about the cookie.
+    def set_reader_locale
+      locales = DiscourseTaper.reader_locales
+      return if locales.size < 2
+      wanted = params[:lang].presence || cookies[:taper_lang].presence
+      return if wanted.blank? || !locales.include?(wanted)
+      cookies[:taper_lang] = { value: wanted, expires: 1.year.from_now, same_site: :lax } if params[
+        :lang
+      ].present?
+      I18n.locale = wanted
+      @reader_locale_pinned = true
+    end
+
+    # The language switch: the same page in each reader locale.
+    def locale_links
+      # The engine mounts the front door at "/taper/"; link the canonical
+      # path without the slash.
+      path = (@canonical_path.presence || request.path).sub(/\?.*/, "").sub(%r{(?<=.)/\z}, "")
+      DiscourseTaper.reader_locales.map do |locale|
+        query = request.query_parameters.merge("lang" => locale)
+        { locale: locale, url: "#{path}?#{query.to_query}", current: I18n.locale.to_s == locale }
       end
     end
 

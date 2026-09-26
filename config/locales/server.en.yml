@@ -29,6 +29,7 @@ en:
       claim_source_missing: "That recording is no longer on this show."
     shows: "Shows"
     bands: "Bands"
+    language: "Language"
     years: "Years"
     all_years: "All years"
     no_shows: "No shows yet."

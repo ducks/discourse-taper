@@ -127,8 +127,11 @@ The reader renders in the site's own fonts and colours; a band's
 identity belongs in a theme component (see Theming). Every path also
 answers with `.json`. Anonymous
 readers go through the anonymous cache. The reader strings are
-translated to French (`server.fr.yml`); Discourse picks the locale
-from the user or the browser.
+translated to French (`server.fr.yml`). Discourse picks the locale
+from the user or the browser, and the reader's top bar offers a switch
+(`?lang=fr`, remembered in a cookie for a year) between every locale
+the plugin ships a server locale file for. Pages read under a chosen
+language skip the anonymous cache.
 
 Bands are managed at `/taper/admin/bands` (reviewers; also in the
 sidebar): name, slug, tagline, front-door footer, and the archive.org
