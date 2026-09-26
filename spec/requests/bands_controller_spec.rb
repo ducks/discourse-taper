@@ -19,6 +19,16 @@ describe DiscourseTaper::BandsController do
     expect(response.status).to eq(403)
   end
 
+  it "serves the band admin page as the app shell to a reviewer" do
+    sign_in(reviewer)
+    get "/taper/admin/bands"
+    expect(response.status).to eq(200)
+    expect(response.media_type).to eq("text/html")
+    expect(response.body).to include(
+      %(rel="canonical" href="http://test.localhost/taper/admin/bands"),
+    )
+  end
+
   it "creates, updates, moves primary, and refuses to delete a band with shows" do
     sign_in(reviewer)
 

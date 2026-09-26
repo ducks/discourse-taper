@@ -74,7 +74,7 @@ concept. Its shows live at `/taper/1977-05-08`; any other band's at
    see the archive category get the usual homepage, and the reader's
    "forum" links point at the first top-menu list instead of `/`.
 2. Add reviewer groups to `taper_reviewer_groups`. Staff always can.
-3. Create bands (for now, from the Rails console) with an
+3. Create bands at `/taper/admin/bands` with an
    `archive_org_collection` (an etree collection) or an
    `archive_org_query` (for a band whose tapes sit in the community
    collections, e.g. `creator:("Band") OR title:("Band")`), a
@@ -130,9 +130,12 @@ readers go through the anonymous cache. The reader strings are
 translated to French (`server.fr.yml`); Discourse picks the locale
 from the user or the browser.
 
-Bands are managed at `/taper/admin/bands` (reviewers): name,
-description, and the archive.org collection, YouTube channel id and
-search query, or setlist.fm artist name the importers use. Setting `primary` moves the primary band.
+Bands are managed at `/taper/admin/bands` (reviewers; also in the
+sidebar): name, slug, tagline, front-door footer, and the archive.org
+collection or query, YouTube channel id and search query, and
+setlist.fm artist name the importers use. A band can be made primary
+there, and deleted while it has no shows. The same fields are a JSON
+API under the same path.
 
 Every show page links to a suggestion form (`/taper/suggest?date=…`)
 with a recording form and a correction form; the listing links to a
