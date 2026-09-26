@@ -21,6 +21,8 @@ module DiscourseTaper
             add_sources(suggestion)
           when "correction"
             apply_correction(suggestion)
+          when "claim"
+            apply_claim(suggestion)
           end
         suggestion.update!(
           status: "accepted",
@@ -131,6 +133,16 @@ module DiscourseTaper
         duration_seconds: attrs["duration_seconds"],
         submitted_by: suggestion.submitted_by,
       )
+    end
+
+    # Puts the member's name on the recording. The credit line prefers the
+    # account over the imported taper string from then on.
+    def apply_claim(suggestion)
+      source = suggestion.show.sources.find_by(id: suggestion.payload["source_id"])
+      raise Error.new("claim_source_missing") if source.nil?
+      raise Error.new("claim_taken") if source.taper_id.present?
+      source.update!(taper: suggestion.submitted_by)
+      suggestion.show
     end
 
     ALLOWED_CORRECTIONS = %w[venue city region country tour setlist notes date].freeze

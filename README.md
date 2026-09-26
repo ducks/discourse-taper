@@ -142,6 +142,17 @@ with a recording form and a correction form; the listing links to a
 missing-show form. Plain HTML forms, no JavaScript, logged-in members
 only; submissions land in the review queue.
 
+## Claiming a tape
+
+Recordings arrive credited to whatever the source said: an archive.org
+taper field, a YouTube channel name, or nothing. A signed-in member can
+claim a recording from its show page ("Claim this tape"), say how the
+reviewers can tell it is theirs, and a reviewer accepts or rejects it
+in the queue like anything else. Accepted, the recording is credited to
+the member's account and links to their profile; the imported name is
+kept underneath. A recording credited to an account cannot be claimed
+again.
+
 ## Not yet
 
 - Direct audio upload. Sources come from archive.org and YouTube, which

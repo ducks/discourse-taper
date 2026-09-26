@@ -6,7 +6,7 @@ module DiscourseTaper
   class Suggestion < ActiveRecord::Base
     self.table_name = "taper_suggestions"
 
-    KINDS = %w[new_show new_source correction].freeze
+    KINDS = %w[new_show new_source correction claim].freeze
     STATUSES = %w[pending accepted rejected].freeze
 
     belongs_to :band, class_name: "DiscourseTaper::Band", optional: true
@@ -51,6 +51,12 @@ module DiscourseTaper
         errors.add(:payload, :invalid) if show_id.nil? && (band_id.nil? || payload["date"].blank?)
       when "correction"
         errors.add(:payload, :invalid) if show_id.nil? || payload["changes"].blank?
+      when "claim"
+        # A member saying "that recording is mine"; needs the source and
+        # the person.
+        if show_id.nil? || payload["source_id"].blank? || submitted_by_id.nil?
+          errors.add(:payload, :invalid)
+        end
       end
     end
   end

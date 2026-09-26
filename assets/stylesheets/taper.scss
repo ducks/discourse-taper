@@ -1266,3 +1266,37 @@ body.taper {
     color: var(--success);
   }
 }
+
+// Claims: the link on a recording, the form, and the queue row.
+.taper-source__claim {
+  display: inline-block;
+  margin-top: 4px;
+  font: 500 11px/1 var(--taper-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--taper-accent);
+
+  &--done {
+    color: var(--taper-mid);
+  }
+}
+
+.taper-form--claim .taper-form__help {
+  color: var(--primary-medium);
+  max-width: 60ch;
+}
+
+.taper-suggestion__claim {
+  display: grid;
+  gap: 0.25em;
+  margin: 0.5em 0;
+
+  a {
+    font-weight: bold;
+  }
+
+  span {
+    color: var(--primary-medium);
+    font-size: var(--font-down-1);
+  }
+}

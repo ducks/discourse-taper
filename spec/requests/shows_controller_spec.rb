@@ -335,6 +335,57 @@ describe DiscourseTaper::ShowsController do
       expect(suggestion.payload.dig("source", "url")).to eq("https://archive.org/details/gd72")
     end
 
+    it "lets a member claim a recording from the show page, and refuses a second claim" do
+      get "/taper/1977-05-08"
+      expect(response.body).not_to include("Claim this tape")
+
+      sign_in(member)
+      get "/taper/1977-05-08"
+      expect(response.body).to include(%(href="/taper/suggest?date=1977-05-08&claim=#{source.id}"))
+
+      get "/taper/suggest", params: { date: "1977-05-08", claim: source.id }
+      expect(response.status).to eq(200)
+      expect(response.body).to include(%(name="kind" value="claim"))
+      expect(response.body).to include(%(name="payload[source_id]" value="#{source.id}"))
+
+      post "/taper/suggest",
+           params: {
+             kind: "claim",
+             payload: {
+               source_id: source.id,
+             },
+             note: "Posted from my archive.org account, kskreider.",
+           }
+      expect(response.status).to eq(200)
+      claim = DiscourseTaper::Suggestion.last
+      expect(claim).to have_attributes(
+        kind: "claim",
+        show: show,
+        submitted_by: member,
+        origin: "user",
+      )
+      expect(claim.payload).to include("source_id" => source.id)
+
+      post "/taper/suggest.json", params: { kind: "claim", payload: { source_id: source.id } }
+      expect(response.status).to eq(422)
+      expect(response.parsed_body["errors"].first).to include("already claimed")
+
+      sign_in(Fabricate(:admin))
+      post "/taper/suggestions/#{claim.id}/accept.json"
+      expect(response.status).to eq(200)
+      expect(source.reload.taper).to eq(member)
+
+      get "/taper/1977-05-08"
+      expect(response.body).to include("claimed by @#{member.username}")
+      expect(response.body).to include(%(href="/u/#{member.username}"))
+      expect(response.body).not_to include("Claim this tape")
+
+      sign_in(Fabricate(:user))
+      post "/taper/suggest.json", params: { kind: "claim", payload: { source_id: source.id } }
+      expect(response.status).to eq(422)
+      expect(response.parsed_body["errors"].first).to include("already credited")
+    end
+
     it "turns a correction form's setlist into changes" do
       sign_in(member)
       post "/taper/suggest",

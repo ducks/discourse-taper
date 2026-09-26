@@ -201,6 +201,44 @@ describe DiscourseTaper::SuggestionReviewer do
     expect(show.band).to eq(band)
   end
 
+  it "credits a claimed recording to the member, once" do
+    show = Fabricate(:taper_show, band: band, topic: Fabricate(:topic, category: category))
+    source = Fabricate(:taper_source, show: show, provider: "youtube", taper_name: "DirtyMovies76")
+    claim =
+      DiscourseTaper::Suggestion.create!(
+        kind: "claim",
+        band: band,
+        show: show,
+        origin: "user",
+        submitted_by: member,
+        note: "That is my channel.",
+        payload: {
+          "source_id" => source.id,
+        },
+      )
+
+    expect(reviewer_service.accept!(claim)).to eq(show)
+    expect(source.reload).to have_attributes(taper: member, taper_name: "DirtyMovies76")
+    expect(source.credited_taper).to eq(member.username)
+
+    again =
+      DiscourseTaper::Suggestion.create!(
+        kind: "claim",
+        band: band,
+        show: show,
+        origin: "user",
+        submitted_by: Fabricate(:user),
+        payload: {
+          "source_id" => source.id,
+        },
+      )
+    expect { reviewer_service.accept!(again) }.to raise_error(
+      DiscourseTaper::Error,
+      /already credited/,
+    )
+    expect(again.reload.status).to eq("pending")
+  end
+
   it "rejects, and refuses to review twice" do
     suggestion =
       DiscourseTaper::Suggestion.create!(
