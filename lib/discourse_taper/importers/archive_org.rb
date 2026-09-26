@@ -76,8 +76,17 @@ module DiscourseTaper
         video = doc["mediatype"] == "movies" || title.match?(/\[(vid|webcast)\]|\bwebcast\b/i)
         lineage = [doc["source"], doc["lineage"]].flatten.compact.join(" | ").presence
         place = place_from(doc)
+        dated = ShowMatcher.extract_date("#{identifier} #{title}").present?
         {
           external_id: identifier,
+          ignore:
+            ReleaseDetector.reason(
+              title: title,
+              description: doc["description"],
+              channel: doc["creator"],
+              band_name: band.name,
+              dated: dated,
+            ),
           url: "https://archive.org/details/#{identifier}",
           title: doc["title"],
           # A date written into the identifier or title is the show; the

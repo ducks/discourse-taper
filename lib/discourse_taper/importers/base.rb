@@ -56,12 +56,20 @@ module DiscourseTaper
       #   matched   new_source suggestions created for shows that exist
       #   corrected setlist corrections proposed for shows lacking one
       #   appended  recordings added to an already pending suggestion
+      #   ignored   releases (albums, music videos, teasers, podcasts)
       #   skipped   items with no id, no recoverable date, or already known
       def run
-        stats = { proposed: 0, matched: 0, corrected: 0, appended: 0, skipped: 0 }
+        stats = { proposed: 0, matched: 0, corrected: 0, ignored: 0, appended: 0, skipped: 0 }
         fresh = []
 
         each_item do |item|
+          if item[:ignore].present?
+            Rails.logger.info(
+              "#{PLUGIN_NAME}: #{self.class.key} ignoring #{item[:external_id]} (#{item[:ignore]}): #{item[:title]}",
+            )
+            stats[:ignored] += 1
+            next
+          end
           date = resolve_date(item)
           if item[:external_id].blank? || date.nil? || known?(item)
             stats[:skipped] += 1
