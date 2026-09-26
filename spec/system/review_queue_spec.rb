@@ -163,6 +163,43 @@ describe "Taper review queue" do
     expect(existing.reload.venue).to eq("MSG")
   end
 
+  it "shows a claim with the recording it is about and accepts it" do
+    source =
+      Fabricate(
+        :taper_source,
+        show: existing,
+        provider: "youtube",
+        title: "Full set at MSG",
+        taper_name: "DirtyMovies76",
+      )
+    claimant = Fabricate(:user, username: "dirtymovies")
+    DiscourseTaper::Suggestion.create!(
+      kind: "claim",
+      band: band,
+      show: existing,
+      origin: "user",
+      submitted_by: claimant,
+      note: "It is my channel.",
+      payload: {
+        "source_id" => source.id,
+      },
+    )
+
+    visit("/taper/review")
+
+    row = find(".taper-suggestion--claim")
+    expect(row).to have_content("2010-11-21")
+    expect(row).to have_content("@dirtymovies says this recording is theirs")
+    expect(row).to have_link("Full set at MSG")
+    expect(row).to have_content("currently credited to DirtyMovies76")
+    expect(row).to have_content("It is my channel.")
+
+    row.find(".taper-suggestion__accept").click
+
+    expect(page).to have_css(".taper-review__decisions", text: "Accepted 2010-11-21")
+    expect(source.reload.taper).to eq(claimant)
+  end
+
   it "offers the queue in the sidebar to reviewers only" do
     visit("/")
     expect(page).to have_css(".sidebar-section-link[data-link-name='taper-review']", visible: :all)

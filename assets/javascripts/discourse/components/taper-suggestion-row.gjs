@@ -27,10 +27,33 @@ export default class TaperSuggestionRow extends Component {
 
   get headline() {
     const p = this.payload;
-    if (this.suggestion.kind === "correction") {
+    if (this.suggestion.kind === "correction" || this.isClaim) {
       return this.suggestion.show?.label;
     }
     return [p.date, p.venue].filter(Boolean).join(" · ");
+  }
+
+  get isClaim() {
+    return this.suggestion.kind === "claim";
+  }
+
+  // A member says a recording is theirs: who, which recording, and who
+  // it is credited to today.
+  get claim() {
+    if (!this.isClaim) {
+      return null;
+    }
+    const source = this.suggestion.source;
+    const name = this.suggestion.submitted_by?.username;
+    return {
+      by: i18n("taper.review.claim_by", { name: `@${name}` }),
+      title:
+        source?.title || i18n(`taper.provider.${source?.provider ?? "link"}`),
+      url: source?.url,
+      current: source?.taper_name
+        ? i18n("taper.review.claim_current", { name: source.taper_name })
+        : i18n("taper.review.claim_uncredited"),
+    };
   }
 
   get location() {
@@ -48,7 +71,7 @@ export default class TaperSuggestionRow extends Component {
     if (!match) {
       return null;
     }
-    return i18n(`taper.review.venue_match.`, {
+    return i18n(`taper.review.venue_match.${match.method}`, {
       score: match.score,
     });
   }
@@ -178,6 +201,14 @@ export default class TaperSuggestionRow extends Component {
 
       {{#if this.suggestion.note}}
         <p class="taper-suggestion__note">{{this.suggestion.note}}</p>
+      {{/if}}
+
+      {{#if this.claim}}
+        <div class="taper-suggestion__claim">
+          <span>{{this.claim.by}}</span>
+          <a href={{this.claim.url}} rel="noopener noreferrer" target="_blank">{{this.claim.title}}</a>
+          <span>{{this.claim.current}}</span>
+        </div>
       {{/if}}
 
       {{#if this.changes.length}}

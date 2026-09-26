@@ -14,7 +14,8 @@ module DiscourseTaper
                :band,
                :show,
                :submitted_by,
-               :reviewed_by
+               :reviewed_by,
+               :source
 
     def band
       object.band &&
@@ -28,6 +29,21 @@ module DiscourseTaper
 
     def show
       object.show && { id: object.show.id, label: object.show.label, url: object.show.url }
+    end
+
+    # The recording a claim is about, so the queue can show and link it.
+    def source
+      return nil if object.kind != "claim" || object.show.nil?
+      source = object.show.sources.find_by(id: object.payload["source_id"])
+      source &&
+        {
+          id: source.id,
+          title: source.title,
+          url: source.display_url,
+          provider: source.provider,
+          kind: source.kind,
+          taper_name: source.taper_name,
+        }
     end
 
     def submitted_by

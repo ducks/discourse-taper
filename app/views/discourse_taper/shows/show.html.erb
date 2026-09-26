@@ -57,6 +57,11 @@
               <span>
                 <a class="taper-source__title" href="<%= source.display_url %>" rel="noopener"><%= source.title.presence || t("taper.provider.#{source.provider}") %></a><br>
                 <span class="taper-source__meta"><%= [t("taper.kind.#{source.kind}"), (%w[unknown video].include?(source.format) ? nil : source.format), duration(source.duration_seconds), t("taper.provider.#{source.provider}"), (source.credited_taper ? t("taper.taped_by", name: source.credited_taper) : t("taper.taper_unclaimed"))].compact.join(" · ") %></span>
+                <%- if source.taper.nil? && current_user %>
+                  <a class="taper-source__claim" href="<%= suggest_url %>&claim=<%= source.id %>"><%= t("taper.claim.link") %></a>
+                <%- elsif source.taper %>
+                  <a class="taper-source__claim taper-source__claim--done" href="<%= Discourse.base_path %>/u/<%= source.taper.username %>"><%= t("taper.claim.by", name: source.taper.username) %></a>
+                <%- end %>
                 <%- if source.lineage.present? %>
                   <details class="taper-source__lineage"><summary><%= t("taper.lineage") %></summary><%= source.lineage %></details>
                 <%- end %>

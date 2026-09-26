@@ -81,12 +81,14 @@ module DiscourseTaper
       end
     end
 
-    # GET /taper(/:band)/suggest(?date=...)
+    # GET /taper(/:band)/suggest(?date=...&claim=...)
     # The manual channel's form. With a date it offers a recording and a
-    # correction for that show; without one, a missing show.
+    # correction for that show; with a claim, putting your name on one of
+    # its recordings; without either, a missing show.
     def suggest_form
       @band = find_band!
       @show = params[:date].present? ? find_show!(@band, params[:date]) : nil
+      @claim_source = @show && @show.sources.find_by(id: params[:claim]) if params[:claim].present?
       response.headers["Cache-Control"] = "private, no-store"
       render_page(:suggest)
     end
@@ -108,6 +110,11 @@ module DiscourseTaper
 
       payload = params.require(:payload).permit!.to_h
       payload = with_setlist_text(payload, kind)
+      if kind == "claim"
+        source = claimable_source!(band, payload["source_id"])
+        show = source.show
+        payload = { "source_id" => source.id, "source_title" => source.title }
+      end
       suggestion =
         Suggestion.create!(
           kind: kind,
@@ -128,9 +135,26 @@ module DiscourseTaper
       end
     rescue ActiveRecord::RecordInvalid => e
       render_json_error(e.record.errors.full_messages.join(", "), status: 422)
+    rescue DiscourseTaper::Error => e
+      render_json_error(e.message, status: 422)
     end
 
     private
+
+    # The recording a member is claiming: on a show of this band, not yet
+    # credited to an account, and not already claimed by this member.
+    def claimable_source!(band, source_id)
+      source = Source.joins(:show).where(taper_shows: { band_id: band.id }).find_by(id: source_id)
+      raise Discourse::NotFound if source.nil?
+      raise Error.new("claim_taken") if source.taper_id.present?
+      already =
+        Suggestion
+          .pending
+          .where(kind: "claim", submitted_by: current_user, show_id: source.show_id)
+          .any? { |s| s.payload["source_id"].to_i == source.id }
+      raise Error.new("claim_pending") if already
+      source
+    end
 
     # "2h 26m" or "48m" for the reader surface.
     def duration(seconds)

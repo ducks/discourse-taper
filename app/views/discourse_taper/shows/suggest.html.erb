@@ -18,7 +18,18 @@
       <a class="btn btn-primary" href="<%= Discourse.base_path %>/login?redirect=<%= ERB::Util.url_encode(request.fullpath) %>"><%= t("taper.suggest.log_in") %></a>
     </p>
   <%- else %>
-    <%- if @show %>
+    <%- if @claim_source %>
+      <form class="taper-form taper-form--claim" method="post" action="<%= @band.primary? ? "#{DiscourseTaper.root_path}/suggest" : "#{@band.url}/suggest" %>">
+        <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+        <input type="hidden" name="kind" value="claim">
+        <input type="hidden" name="payload[source_id]" value="<%= @claim_source.id %>">
+        <h2><%= t("taper.claim.heading") %></h2>
+        <p class="taper-form__context"><%= t("taper.claim.about", title: (@claim_source.title.presence || t("taper.provider.#{@claim_source.provider}")), show: "#{@show.label} #{@show.venue}") %></p>
+        <p class="taper-form__help"><%= t("taper.claim.help") %></p>
+        <label><%= t("taper.claim.proof") %><textarea name="note" rows="3" required></textarea></label>
+        <button class="btn btn-primary" type="submit"><%= t("taper.claim.submit") %></button>
+      </form>
+    <%- elsif @show %>
       <form class="taper-form" method="post" action="<%= @band.primary? ? "#{DiscourseTaper.root_path}/suggest" : "#{@band.url}/suggest" %>">
         <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
         <input type="hidden" name="kind" value="new_source">

@@ -71,7 +71,11 @@ en:
           new_show: "New show"
           new_source: "Recordings"
           correction: "Correction"
+          claim: "Claim"
         from_importer: "found by %{name}"
+        claim_by: "%{name} says this recording is theirs"
+        claim_current: "currently credited to %{name}"
+        claim_uncredited: "currently uncredited"
         also_seen_as: "Also seen as:"
         recordings_count:
           one: "%{count} recording"
