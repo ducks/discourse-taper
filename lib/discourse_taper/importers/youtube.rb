@@ -253,6 +253,14 @@ module DiscourseTaper
         place = TitlePlace.parse(video[:title], band_name: band.name)
         {
           external_id: video[:video_id],
+          ignore:
+            ReleaseDetector.reason(
+              title: video[:title],
+              description: video[:description],
+              channel: video[:channel_title],
+              band_name: band.name,
+              dated: ShowMatcher.extract_date(video[:title]).present?,
+            ),
           url: "https://www.youtube.com/watch?v=#{video[:video_id]}",
           title: video[:title],
           date: video_date(text, video[:published_at]),

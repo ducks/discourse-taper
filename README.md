@@ -32,6 +32,12 @@ did.
   recording importer created first it proposes the setlist as a
   correction. A show keeps its setlist.fm id so it is never proposed
   twice.
+- **Releases stay out.** Searching for a band turns up its albums,
+  singles, music videos, teasers, and podcast appearances next to the
+  tapes. Both importers run every item through a release detector
+  (title patterns in English and French, a numbered volume with no
+  date, an undated upload on the band's own channel with no live cue)
+  and drop what it flags, counted as ignored and logged with the reason.
 - **Undated videos find their show.** YouTube titles carry dates in
   every format (5/8/77, 16/09/2026, September 16th, 16 septembre) or
   none at all. A slash date that reads two ways (10/05/2026) is settled by

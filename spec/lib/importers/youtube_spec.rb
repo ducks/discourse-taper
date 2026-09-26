@@ -69,7 +69,7 @@ describe DiscourseTaper::Importers::Youtube do
 
     stats = described_class.new(band: band).run
 
-    expect(stats).to eq(proposed: 1, matched: 0, corrected: 0, appended: 0, skipped: 0)
+    expect(stats).to eq(proposed: 1, matched: 0, corrected: 0, ignored: 0, appended: 0, skipped: 0)
     suggestion = DiscourseTaper::Suggestion.last
     expect(suggestion.payload).to include(
       "date" => "2026-09-16",
@@ -136,7 +136,7 @@ describe DiscourseTaper::Importers::Youtube do
 
     # "old" names Underground Arts with no date and long after the show;
     # the one show ever at that place is still the answer.
-    expect(stats).to eq(proposed: 0, matched: 1, corrected: 0, appended: 1, skipped: 1)
+    expect(stats).to eq(proposed: 0, matched: 1, corrected: 0, ignored: 0, appended: 1, skipped: 1)
     matched = DiscourseTaper::Suggestion.find_by(kind: "new_source")
     expect(matched.payload["sources"].map { |s| s["external_id"] }).to contain_exactly(
       "philly",
@@ -275,7 +275,14 @@ describe DiscourseTaper::Importers::Youtube do
 
       stats = described_class.new(band: band).run
 
-      expect(stats).to eq(proposed: 1, matched: 0, corrected: 0, appended: 0, skipped: 0)
+      expect(stats).to eq(
+        proposed: 1,
+        matched: 0,
+        corrected: 0,
+        ignored: 0,
+        appended: 0,
+        skipped: 0,
+      )
       expect(
         a_request(:get, %r{https://www\.youtube\.com/results}).with do |req|
           q = CGI.parse(URI(req.uri).query)
@@ -374,6 +381,35 @@ describe DiscourseTaper::Importers::Youtube do
       expect(stats).to include(matched: 3, skipped: 1)
       dates = DiscourseTaper::Suggestion.all.map { |s| s.payload["sources"].first["date"] }
       expect(dates).to contain_exactly("2026-07-31", "2026-07-26", "2026-03-03")
+    end
+
+    it "ignores the band's own releases found by the search" do
+      stub_results(
+        [
+          renderer(
+            "album",
+            "Angine de Poitrine - Vol.II (Official Complete Album)",
+            channel: "Angine de Poitrine and Spectacles Bonzai",
+          ),
+          renderer(
+            "own",
+            "Angine de Poitrine - Sarniezz",
+            channel: "Angine de Poitrine",
+            length: "4:12",
+          ),
+          renderer(
+            "kexp",
+            "Angine de Poitrine - Full Performance (Live on KEXP)",
+            channel: "KEXP",
+            published: "8 months ago",
+          ),
+        ],
+      )
+
+      stats = described_class.new(band: band).run
+
+      expect(stats).to include(ignored: 2)
+      expect(DiscourseTaper::Suggestion.count).to eq(0)
     end
 
     it "is not available when neither a key nor scraping is enabled, and ignores a page with no data" do

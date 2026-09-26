@@ -41,7 +41,7 @@ describe DiscourseTaper::Importers::ArchiveOrg do
 
     stats = described_class.new(band: band).run
 
-    expect(stats).to eq(proposed: 1, matched: 0, corrected: 0, appended: 0, skipped: 0)
+    expect(stats).to eq(proposed: 1, matched: 0, corrected: 0, ignored: 0, appended: 0, skipped: 0)
     suggestion = DiscourseTaper::Suggestion.last
     expect(suggestion).to have_attributes(
       kind: "new_show",
@@ -78,7 +78,7 @@ describe DiscourseTaper::Importers::ArchiveOrg do
 
     stats = described_class.new(band: band).run
 
-    expect(stats).to eq(proposed: 1, matched: 0, corrected: 0, appended: 0, skipped: 0)
+    expect(stats).to eq(proposed: 1, matched: 0, corrected: 0, ignored: 0, appended: 0, skipped: 0)
     suggestion = DiscourseTaper::Suggestion.last
     expect(suggestion.payload["venue"]).to eq("Utica Memorial Auditorium")
     expect(suggestion.payload["venue_match"]).to be_nil
@@ -137,7 +137,7 @@ describe DiscourseTaper::Importers::ArchiveOrg do
 
     stats = described_class.new(band: band).run
 
-    expect(stats).to eq(proposed: 0, matched: 0, corrected: 0, appended: 1, skipped: 1)
+    expect(stats).to eq(proposed: 0, matched: 0, corrected: 0, ignored: 0, appended: 1, skipped: 1)
     expect(DiscourseTaper::Suggestion.count).to eq(1)
     expect(DiscourseTaper::Suggestion.last.payload["sources"].map { |s| s["external_id"] }).to eq(
       %w[gd1977-05-08.sbd.hicks gd1977-05-08.aud.cooper],
@@ -150,7 +150,7 @@ describe DiscourseTaper::Importers::ArchiveOrg do
 
     stats = described_class.new(band: band).run
 
-    expect(stats).to eq(proposed: 0, matched: 1, corrected: 0, appended: 0, skipped: 0)
+    expect(stats).to eq(proposed: 0, matched: 1, corrected: 0, ignored: 0, appended: 0, skipped: 0)
     suggestion = DiscourseTaper::Suggestion.last
     expect(suggestion).to have_attributes(kind: "new_source", show: show)
     expect(suggestion.payload["sources"].size).to eq(2)
@@ -291,6 +291,39 @@ describe DiscourseTaper::Importers::ArchiveOrg do
       expect(by_date["2026-05-11"].payload["sources"].first["format"]).to eq("mp3")
     end
 
+    it "ignores the band's releases and promo instead of proposing shows for them" do
+      stub_search(
+        [
+          community(
+            "angine-de-poitrine-vol.-1-album-integral",
+            "Angine de Poitrine - Vol.1 (Full Album)",
+            date: "2026-04-29T00:00:00Z",
+            mediatype: "movies",
+          ),
+          community(
+            "angine-de-poitrine-sherpa-official-cem-video",
+            "Angine De Poitrine - Sherpa (Official CEM Video)",
+            date: "2024-01-01T00:00:00Z",
+            mediatype: "movies",
+          ),
+          community(
+            "nwm-88-dynamic-duos-2",
+            "No Words Music #88: Dynamic Duos Part 2 Featuring Angine de Poitrine",
+            date: "2026-05-07T00:00:00Z",
+          ),
+          community(
+            "adp2026-08-19.mk4",
+            "Angine de Poitrine - 2026-08-19 - The Independent, San Francisco, CA [AUD]",
+          ),
+        ],
+      )
+
+      stats = described_class.new(band: band).run
+
+      expect(stats).to include(ignored: 3, proposed: 1)
+      expect(DiscourseTaper::Suggestion.count).to eq(1)
+    end
+
     it "prefers the date in the title over an upload date, and files video as video" do
       stub_search(
         [
@@ -311,8 +344,9 @@ describe DiscourseTaper::Importers::ArchiveOrg do
 
       described_class.new(band: band).run
 
+      # The album upload is a release, not a show, and is ignored outright.
       dates = DiscourseTaper::Suggestion.all.map { |s| s.payload["date"] }
-      expect(dates).to contain_exactly("2026-07-31", "2026-04-29")
+      expect(dates).to contain_exactly("2026-07-31")
       newport = DiscourseTaper::Suggestion.find_by("payload->>'date' = '2026-07-31'")
       expect(newport.payload).to include(
         "venue" => "Fort Adams State Park",
@@ -341,7 +375,7 @@ describe DiscourseTaper::Importers::ArchiveOrg do
     stats = described_class.new(band: band).run
 
     expect(calls).to eq(2)
-    expect(stats).to eq(proposed: 1, matched: 0, corrected: 0, appended: 0, skipped: 0)
+    expect(stats).to eq(proposed: 1, matched: 0, corrected: 0, ignored: 0, appended: 0, skipped: 0)
   end
 
   it "gives up after repeated faults" do
@@ -355,7 +389,7 @@ describe DiscourseTaper::Importers::ArchiveOrg do
     stub_search([sbd])
     described_class.new(band: band).run
     stats = described_class.new(band: band).run
-    expect(stats).to eq(proposed: 0, matched: 0, corrected: 0, appended: 0, skipped: 1)
+    expect(stats).to eq(proposed: 0, matched: 0, corrected: 0, ignored: 0, appended: 0, skipped: 1)
     expect(DiscourseTaper::Suggestion.count).to eq(1)
   end
 end
