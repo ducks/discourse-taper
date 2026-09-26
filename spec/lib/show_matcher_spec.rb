@@ -34,6 +34,13 @@ describe DiscourseTaper::ShowMatcher do
     expect(described_class.extract_date("Phish 2023.12.31 MSG")).to eq(Date.new(2023, 12, 31))
     expect(described_class.extract_date("Live in Ithaca")).to be_nil
     expect(described_class.extract_date("1977-13-40 nonsense")).to be_nil
+    # A typo'd year that still ends in a plausible one is that year.
+    expect(described_class.extract_date("Festival de Jazz de Montréal - 27/06/3026")).to eq(
+      Date.new(2026, 6, 27),
+    )
+    expect(described_class.extract_date("botanique | 28.05.3026")).to eq(Date.new(2026, 5, 28))
+    expect(described_class.extract_date("old tape 1899-01-01")).to be_nil
+    expect(described_class.extract_date("far off 2999-01-01")).to be_nil
   end
 
   it "reads day-first, written, and French dates" do
