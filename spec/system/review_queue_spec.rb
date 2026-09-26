@@ -199,6 +199,46 @@ describe "Taper review queue" do
     expect(source.reload.taper).to eq(claimant)
   end
 
+  it "headlines a recordings row with the show it matched, and says what the tape called the place" do
+    DiscourseTaper::Suggestion.create!(
+      kind: "new_source",
+      band: band,
+      show: existing,
+      origin: "youtube",
+      payload: {
+        "date" => "2010-11-21",
+        "venue" => "Madison Square Garden",
+        "sources" => [
+          {
+            "provider" => "youtube",
+            "external_id" => "abc",
+            "url" => "https://www.youtube.com/watch?v=abc",
+            "title" => "Furthur live @ Madison Square Garden 11/21/10",
+            "kind" => "video",
+          },
+        ],
+      },
+    )
+    Fabricate(
+      :taper_show,
+      band: band,
+      date: Date.new(2011, 7, 15),
+      venue: "Bethel Woods Center for the Arts",
+      topic: Fabricate(:topic, category: category),
+    )
+
+    visit("/taper/review")
+
+    row = find(".taper-suggestion--new_source")
+    expect(row).to have_css(".taper-suggestion__headline", text: "2010-11-21 · MSG")
+    expect(row).to have_content("the recording says Madison Square Garden")
+
+    proposed = find(".taper-suggestion--new_show")
+    expect(proposed).to have_content("Known shows around this date:")
+    expect(proposed).to have_link("2011-07-15 Bethel Woods Center for the Arts")
+    expect(proposed).to have_content("1 day off")
+  end
+
   it "offers the queue in the sidebar to reviewers only" do
     visit("/")
     expect(page).to have_css(".sidebar-section-link[data-link-name='taper-review']", visible: :all)

@@ -74,6 +74,12 @@ en:
           claim: "Claim"
         from_importer: "found by %{name}"
         claim_by: "%{name} says this recording is theirs"
+        recording_says: "the recording says %{venue}"
+        nearby_shows: "Known shows around this date:"
+        days_offset:
+          one: "%{count} day off"
+          other: "%{count} days off"
+        same_day: "same day"
         claim_current: "currently credited to %{name}"
         claim_uncredited: "currently uncredited"
         also_seen_as: "Also seen as:"

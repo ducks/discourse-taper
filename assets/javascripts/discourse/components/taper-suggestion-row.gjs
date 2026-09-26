@@ -25,12 +25,42 @@ export default class TaperSuggestionRow extends Component {
     return i18n(`taper.review.kinds.${this.suggestion.kind}`);
   }
 
+  // A row attached to a show headlines with the show's own date and
+  // venue; only a proposed show headlines with what the importer read.
   get headline() {
-    const p = this.payload;
-    if (this.suggestion.kind === "correction" || this.isClaim) {
-      return this.suggestion.show?.label;
+    const show = this.suggestion.show;
+    if (show) {
+      return [show.label, show.venue].filter(Boolean).join(" · ");
     }
+    const p = this.payload;
     return [p.date, p.venue].filter(Boolean).join(" · ");
+  }
+
+  // What the recording's own title said about the place, when it differs
+  // from the show it was matched to.
+  get recordingSays() {
+    const show = this.suggestion.show;
+    const venue = this.payload.venue;
+    if (!show || !venue || venue === show.venue) {
+      return null;
+    }
+    return i18n("taper.review.recording_says", { venue });
+  }
+
+  // For a proposed show: the band's known shows within a few days, so a
+  // date that is one day off (an upload date, a time zone) stands out.
+  get nearbyShows() {
+    const shows = this.suggestion.nearby_shows;
+    if (!shows?.length) {
+      return null;
+    }
+    return shows.map((s) => ({
+      ...s,
+      offset:
+        s.days === 0
+          ? i18n("taper.review.same_day")
+          : i18n("taper.review.days_offset", { count: Math.abs(s.days) }),
+    }));
   }
 
   get isClaim() {
@@ -188,8 +218,22 @@ export default class TaperSuggestionRow extends Component {
         <span class="taper-suggestion__origin">{{this.origin}}</span>
       </header>
 
+      {{#if this.recordingSays}}
+        <p class="taper-suggestion__recording-says">{{this.recordingSays}}</p>
+      {{/if}}
+
       {{#if this.venueMatch}}
         <p class="taper-suggestion__venue-match">{{this.venueMatch}}</p>
+      {{/if}}
+
+      {{#if this.nearbyShows}}
+        <p class="taper-suggestion__nearby">
+          {{i18n "taper.review.nearby_shows"}}
+          {{#each this.nearbyShows as |s|}}
+            <a href={{s.url}}>{{s.label}} {{s.venue}}</a>
+            <span>({{s.offset}})</span>
+          {{/each}}
+        </p>
       {{/if}}
 
       {{#if this.otherSpellings.length}}

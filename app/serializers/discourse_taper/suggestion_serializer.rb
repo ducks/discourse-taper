@@ -15,7 +15,8 @@ module DiscourseTaper
                :show,
                :submitted_by,
                :reviewed_by,
-               :source
+               :source,
+               :nearby_shows
 
     def band
       object.band &&
@@ -28,7 +29,37 @@ module DiscourseTaper
     end
 
     def show
-      object.show && { id: object.show.id, label: object.show.label, url: object.show.url }
+      object.show &&
+        {
+          id: object.show.id,
+          label: object.show.label,
+          url: object.show.url,
+          venue: object.show.venue,
+          city: object.show.city,
+        }
+    end
+
+    # For a proposed show: the band's known shows within a few days, so a
+    # reviewer can spot a tape dated by its upload day, or a night setlist.fm
+    # does not have yet.
+    def nearby_shows
+      return nil if object.kind != "new_show" || object.band.nil?
+      date = ShowMatcher.safe_iso(object.payload["date"])
+      return nil if date.nil?
+      object
+        .band
+        .shows
+        .where(date: (date - 3)..(date + 3))
+        .order(:date)
+        .map do |show|
+          {
+            label: show.label,
+            venue: show.venue,
+            city: show.city,
+            url: show.url,
+            days: (show.date - date).to_i,
+          }
+        end
     end
 
     # The recording a claim is about, so the queue can show and link it.

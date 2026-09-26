@@ -108,59 +108,7 @@ module DiscourseTaper
           city, region = doc["coverage"].to_s.split(",", 2).map { |s| s&.strip.presence }
           return { venue: doc["venue"], city: city, region: region }
         end
-        place_from_title(doc["title"].to_s)
-      end
-
-      # "Band - 2026-08-19 - The Independent, San Francisco, CA [AUD]"
-      #   => The Independent / San Francisco / CA
-      # "Band 2026-07-31 Newport Jazz Festival" => Newport Jazz Festival
-      # "Band live in Richmond at Iron Blossom Festival 9/20/26"
-      #   => Iron Blossom Festival / Richmond
-      def place_from_title(title)
-        text = title.dup
-        text = text.sub(/\[[^\]]*\]\s*\z/, "")
-        text = text.gsub(/\[[^\]]*\]/, " ")
-        text = text.sub(Regexp.new(Regexp.escape(band.name), Regexp::IGNORECASE), " ")
-        text = strip_dates(text)
-        text = text.gsub(/\s*[-–|]\s*/, " - ").gsub(/\s+/, " ").strip.gsub(/\A[-\s]+|[-\s]+\z/, "")
-        return {} if text.blank?
-
-        if (m = text.match(/\A(?:live\s+)?in\s+(.+?)\s+at\s+(.+)\z/i))
-          return { venue: m[2].strip, city: m[1].strip }
-        end
-        if (m = text.match(/\A(?:live\s+)?at\s+(.+?)(?:\s+in\s+(.+))?\z/i))
-          return { venue: m[1].strip, city: m[2]&.strip }
-        end
-        # Dash-separated segments: a label ("Live") drops out, and when the
-        # venue is its own segment tapers put it last and the city first
-        # ("Live - Toronto ON - RBC Amphitheatre"). A segment with commas
-        # is "Venue, City, Region".
-        segments =
-          text
-            .split(/\s+-\s+/)
-            .map { |s| s.gsub(/\A[-\s]+|[-\s]+\z/, "") }
-            .reject { |s| s.blank? || s.match?(/\A(live|full set|full show)\z/i) }
-        return {} if segments.empty?
-        if segments.size > 1 && !segments.last.include?(",")
-          return { venue: segments.last, city: segments.first }
-        end
-
-        text = segments.find { |s| s.include?(",") } || segments.last
-        return {} if text.length < 3
-
-        parts = text.split(/\s*,\s*/).map(&:strip).reject(&:blank?)
-        venue = parts.shift
-        city = parts.shift
-        region = parts.shift
-        { venue: venue, city: city, region: region }
-      end
-
-      def strip_dates(text)
-        text
-          .gsub(/\b\d{4}[-_.\/]\d{1,2}[-_.\/]\d{1,2}\b/, " ")
-          .gsub(%r{\b\d{1,2}[/.]\d{1,2}[/.]\d{2,4}\b}, " ")
-          .gsub(/\b#{ShowMatcher::MONTH_PATTERN}\s+\d{1,2}(?:st|nd|rd|th)?,?\s*\d{0,4}\b/i, " ")
-          .gsub(/\b\d{1,2}(?:st|nd|rd|th)?\s+#{ShowMatcher::MONTH_PATTERN},?\s*\d{0,4}\b/i, " ")
+        TitlePlace.parse(doc["title"], band_name: band.name)
       end
 
       # On etree the unmarked default is an audience tape: identifiers name
