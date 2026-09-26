@@ -1,0 +1,44 @@
+<%- @page_title = [t("taper.media.title"), (@band.primary? ? nil : @band.name)].compact.join(" - ") %>
+<div class="taper-wrap taper-media">
+  <header class="taper-yearhead">
+    <h1 class="taper-display taper-yearhead__year taper-media__title"><%= t("taper.media.title") %></h1>
+    <div class="taper-yearhead__facts">
+      <div class="taper-mono"><%= t("taper.media.items_count", count: @items.size) %></div>
+      <div><%= t("taper.media.blurb", band: @band.name) %></div>
+    </div>
+  </header>
+  <nav class="taper-yearnav" aria-label="<%= t("taper.shows") %>">
+    <a href="<%= @band.url %>"><%= t("taper.shows") %></a>
+    <a href="<%= @band.url %>/media" aria-current="true"><%= t("taper.media.title") %></a>
+  </nav>
+
+  <%- if @items.empty? %>
+    <p class="taper-empty"><%= t("taper.media.empty") %></p>
+  <%- else %>
+    <%- DiscourseTaper::MediaItem::KINDS.each do |kind| %>
+      <%- items = @items.select { |i| i.kind == kind } %>
+      <%- next if items.empty? %>
+      <div class="taper-month">
+        <div class="taper-month__name"><%= t("taper.media.kinds.#{kind}") %></div>
+        <ul class="taper-showlist">
+          <%- items.each do |item| %>
+            <li class="taper-show-row taper-media__item" id="media-<%= item.id %>">
+              <span class="taper-show-row__date"><%= item.published_on ? item.published_on.iso8601 : "" %></span>
+              <span>
+                <a class="taper-show-row__venue" href="<%= item.url %>" rel="noopener"><%= item.title %></a>
+                <span class="taper-show-row__place"><%= [t("taper.provider.#{item.provider}"), item.channel.presence, duration(item.duration_seconds)].compact.join(" · ") %></span>
+              </span>
+              <%- if DiscourseTaper.reviewer?(current_user) %>
+                <form class="taper-media__hide" method="post" action="<%= DiscourseTaper.root_path %>/admin/media/<%= item.id %>">
+                  <input type="hidden" name="_method" value="delete">
+                  <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+                  <button class="btn-flat" type="submit"><%= t("taper.media.hide") %></button>
+                </form>
+              <%- end %>
+            </li>
+          <%- end %>
+        </ul>
+      </div>
+    <%- end %>
+  <%- end %>
+</div>

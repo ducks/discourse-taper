@@ -414,6 +414,37 @@ describe DiscourseTaper::Importers::Youtube do
       )
     end
 
+    it "searches for interviews without the long filter and shelves them" do
+      stub_results(
+        [
+          renderer(
+            "int1",
+            "Angine de Poitrine interview at Polaris 2026",
+            channel: "CBC Music",
+            length: "15:00",
+            published: "3 days ago",
+          ),
+        ],
+      )
+
+      stats = described_class.new(band: band).run
+
+      expect(stats).to include(ignored: 1)
+      expect(
+        a_request(:get, %r{https://www\.youtube\.com/results}).with do |req|
+          q = CGI.parse(URI(req.uri).query)
+          q["search_query"].first == "Angine de Poitrine live interview" && q["sp"].empty?
+        end,
+      ).to have_been_made
+      item = DiscourseTaper::MediaItem.find_by(external_id: "int1")
+      expect(item).to have_attributes(
+        kind: "interview",
+        channel: "CBC Music",
+        duration_seconds: 900,
+      )
+      expect(item.published_on).to be_within(2).of(Date.today - 3)
+    end
+
     it "ignores the band's own releases found by the search" do
       stub_results(
         [

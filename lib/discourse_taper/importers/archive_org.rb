@@ -98,6 +98,7 @@ module DiscourseTaper
           city: place[:city],
           region: place[:region],
           taper_name: doc["taper"].presence,
+          channel: Array(doc["creator"]).first.presence,
           lineage: lineage,
           duration_seconds: runtime_seconds(doc["runtime"]),
           kind: video ? "video" : etree_kind("#{identifier} #{doc["source"]} #{title}"),

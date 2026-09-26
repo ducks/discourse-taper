@@ -21,6 +21,10 @@ describe DiscourseTaper::ReleaseDetector do
       "podcast",
     )
     expect(reason("Angine de Poitrine - Yor Zarad (Remix)")).to eq("single")
+    expect(reason("Angine de Poitrine interview at Polaris 2026", channel: "CBC Music")).to eq(
+      "interview",
+    )
+    expect(reason("Entrevue avec Angine de Poitrine", channel: "ICI Musique")).to eq("interview")
   end
 
   it "treats an undated upload on the band's own channel with no live cue as a release" do

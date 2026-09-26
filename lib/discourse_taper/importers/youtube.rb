@@ -29,7 +29,16 @@ module DiscourseTaper
       INFERENCE_WINDOW = 31
       # Result pages carry about twenty videos each and overlap heavily
       # between phrasings; four phrasings find nearly every full set.
-      SCRAPE_SUFFIXES = ["full set", "live", "concert complet", ""].freeze
+      # Each phrasing with whether to keep YouTube's long-video filter on:
+      # full sets are long, interviews are not.
+      SCRAPE_QUERIES = [
+        ["full set", true],
+        ["live", true],
+        ["concert complet", true],
+        ["", true],
+        ["interview", false],
+        ["entrevue", false],
+      ].freeze
       BROWSER_UA =
         "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0 Safari/537.36"
 
@@ -107,9 +116,11 @@ module DiscourseTaper
 
       # One result page per phrasing of the query, long videos only.
       def each_scraped_page
-        SCRAPE_SUFFIXES.each do |suffix|
+        SCRAPE_QUERIES.each do |suffix, long|
           query = [band.youtube_search_query, suffix].reject(&:blank?).join(" ")
-          params = URI.encode_www_form(search_query: query, sp: LONG_FILTER)
+          query_params = { search_query: query }
+          query_params[:sp] = LONG_FILTER if long
+          params = URI.encode_www_form(query_params)
           html =
             get_html(
               "#{RESULTS_PAGE}?#{params}",
@@ -269,6 +280,8 @@ module DiscourseTaper
           kind: "video",
           format: "video",
           taper_name: video[:channel_title],
+          channel: video[:channel_title],
+          published_at: video[:published_at],
           duration_seconds: duration,
         }
       end
