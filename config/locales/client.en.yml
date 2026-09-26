@@ -50,6 +50,7 @@ en:
           youtube_channel_id: "YouTube channel id"
           youtube_search_query: "YouTube search"
           setlistfm_artist_name: "setlist.fm artist"
+          auto_accept_recordings: "Attach recordings without review"
         hints:
           name: "As the band writes it."
           slug: "In URLs for a non-primary band. Left blank, it comes from the name."
@@ -60,6 +61,7 @@ en:
           youtube_channel_id: "The band's own channel, for its uploads."
           youtube_search_query: "Usually the band name. Finds full sets on fans' channels; needs an API key or scraping enabled."
           setlistfm_artist_name: "As spelled on setlist.fm. Blank means the band name."
+          auto_accept_recordings: "When a recording carries its date in its own title and that show exists, attach it straight away. Proposed shows, inferred dates, corrections, and claims still wait for review."
       review:
         title: "Review queue"
         sidebar: "Review queue"

@@ -158,6 +158,24 @@ with a recording form and a correction form; the listing links to a
 missing-show form. Plain HTML forms, no JavaScript, logged-in members
 only; submissions land in the review queue.
 
+## Managing recordings
+
+Every recording has its own page at `/taper/recordings/<id>`, linked
+from the show, with the player, the lineage, and the credit. Reviewers
+see a management section there: fix the title, kind, format, taper, or
+link; move the recording to another night of the same band; or remove
+it. Removing leaves a rejected suggestion behind so the importer that
+found it will not bring it back. Rejecting a suggestion in the queue has
+the same effect: a reviewer's no is final for the importers.
+
+A band can opt in to **attaching recordings without review**
+(`auto_accept_recordings`, on the band admin page): when every
+recording found for a night carries its date in its own title or
+identifier and that show already exists, it is attached outright, with
+a note saying so. Proposed shows, recordings whose date was inferred
+from a description or a place name, corrections, and claims always wait
+for a reviewer.
+
 ## Claiming a tape
 
 Recordings arrive credited to whatever the source said: an archive.org

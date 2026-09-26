@@ -49,6 +49,7 @@ export default class TaperBandForm extends Component {
     for (const field of [...TEXT_FIELDS, "footer", ...IMPORTER_FIELDS]) {
       draft[field] = band[field] ?? "";
     }
+    draft.auto_accept_recordings = band.auto_accept_recordings ?? false;
     return draft;
   }
 
@@ -64,6 +65,12 @@ export default class TaperBandForm extends Component {
   @action
   update(field, event) {
     this.draft = { ...this.draft, [field]: event.target.value };
+    this.saved = false;
+  }
+
+  @action
+  toggle(field, event) {
+    this.draft = { ...this.draft, [field]: event.target.checked };
     this.saved = false;
   }
 
@@ -185,6 +192,18 @@ export default class TaperBandForm extends Component {
             <small>{{field.hint}}</small>
           </label>
         {{/each}}
+        <label class="taper-band-form__field taper-band-form__field--wide taper-band-form__check">
+          <span>
+            <input
+              checked={{this.draft.auto_accept_recordings}}
+              data-field="auto_accept_recordings"
+              type="checkbox"
+              {{on "change" (fn this.toggle "auto_accept_recordings")}}
+            />
+            {{i18n "taper.bands.fields.auto_accept_recordings"}}
+          </span>
+          <small>{{i18n "taper.bands.hints.auto_accept_recordings"}}</small>
+        </label>
       </div>
 
       <footer class="taper-band-form__actions">

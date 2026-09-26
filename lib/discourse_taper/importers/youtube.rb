@@ -26,7 +26,6 @@ module DiscourseTaper
       MAX_UPLOAD_PAGES = 20
       # A search costs 100 quota units of a 10,000 daily allowance.
       MAX_SEARCH_PAGES = 10
-      INFERENCE_WINDOW = 31
       # Result pages carry about twenty videos each and overlap heavily
       # between phrasings; four phrasings find nearly every full set.
       # Each phrasing with whether to keep YouTube's long-video filter on:
@@ -261,6 +260,7 @@ module DiscourseTaper
 
       def item_from(video, duration)
         place = TitlePlace.parse(video[:title], band_name: band.name)
+        date, certain = video_date(video[:title], video[:description], video[:published_at])
         {
           external_id: video[:video_id],
           ignore:
@@ -273,7 +273,8 @@ module DiscourseTaper
             ),
           url: "https://www.youtube.com/watch?v=#{video[:video_id]}",
           title: video[:title],
-          date: video_date(video[:title], video[:description], video[:published_at]),
+          date: date,
+          date_certain: certain,
           venue: place[:venue],
           city: place[:city],
           region: place[:region],
@@ -297,101 +298,19 @@ module DiscourseTaper
       # reads two ways. A date that appears only in the description is a
       # weaker signal (release dates, "since 2019") and counts only when it
       # lands on a known show. Else a show inferred from the place named.
+      # Returns the date and whether it was read straight from the title.
       def video_date(title, description, published_at)
-        known = known_shows.map { |show| show[:date] }
         candidates = ShowMatcher.date_candidates(title, year_hint: published_at)
-        return candidates.first if candidates.size == 1
+        return candidates.first, true if candidates.size == 1
         if candidates.size > 1
-          return candidates.find { |date| known.include?(date) } || candidates.first
+          return [
+            candidates.find { |date| known_show_dates.include?(date) } || candidates.first,
+            true
+          ]
         end
-        from_description = ShowMatcher.date_candidates(description, year_hint: published_at)
-        return (from_description & known).first if (from_description & known).any?
-        infer_date("#{title} #{description}", published_at)
-      end
-
-      # Undated video naming a place the band played. Ambiguity (two shows
-      # both named) leaves it undated rather than guessing.
-      def infer_date(text, published_at)
-        haystack = Venue.normalize(text)
-        named =
-          known_shows.select do |show|
-            [show[:venue], show[:city]].any? { |place| mentions?(haystack, place) }
-          end
-        return nil if named.empty?
-
-        if (year = year_in(text))
-          date = unique_date(named.select { |show| show[:date].year == year })
-          return date if date
-        end
-        if published_at
-          window = (published_at.to_date - INFERENCE_WINDOW)..published_at.to_date
-          date = unique_date(named.select { |show| window.cover?(show[:date]) })
-          return date if date
-        end
-        unique_date(named)
-      end
-
-      def unique_date(shows)
-        dates = shows.map { |show| show[:date] }.uniq
-        dates.size == 1 ? dates.first : nil
-      end
-
-      # "Fuji Rock 2026", "Winnipeg Folk Fest '26".
-      def year_in(text)
-        if (m = text.to_s.match(/\b(19|20)(\d{2})\b/))
-          return "#{m[1]}#{m[2]}".to_i
-        end
-        if (m = text.to_s.match(/[\x27’](\d{2})\b/))
-          return 2000 + m[1].to_i
-        end
-        nil
-      end
-
-      # The place is named when its whole name appears, or when every
-      # distinctive word of it does ("Fuji Rock 2026" names Fuji Rock
-      # Festival; "Newport Jazz Festival, 2026" names it either way).
-      GENERIC_WORDS = %w[
-        festival
-        fest
-        theatre
-        theater
-        hall
-        club
-        arena
-        park
-        stage
-        scene
-        centre
-        center
-        music
-        live
-        the
-      ].freeze
-
-      def mentions?(haystack, place)
-        needle = Venue.normalize(place)
-        return false if needle.length < 4
-        return true if haystack.include?(needle)
-        words = needle.split(/\s+/) - GENERIC_WORDS
-        words.any? && words.all? { |w| w.length >= 4 && haystack.match?(/\b#{Regexp.escape(w)}\b/) }
-      end
-
-      def known_shows
-        @known_shows ||=
-          begin
-            shows =
-              Show
-                .where(band: band)
-                .map { |show| { date: show.date, venue: show.venue, city: show.city } }
-            pending =
-              Suggestion
-                .where(band: band, kind: "new_show", status: "pending")
-                .map do |suggestion|
-                  p = suggestion.payload
-                  { date: ShowMatcher.safe_iso(p["date"]), venue: p["venue"], city: p["city"] }
-                end
-            (shows + pending).select { |show| show[:date] }
-          end
+        date = date_from_description(description, year_hint: published_at)
+        return date, false if date
+        [infer_date("#{title} #{description}", published_at), false]
       end
 
       # "PT1H2M3S" => 3723

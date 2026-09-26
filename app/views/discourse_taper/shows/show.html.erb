@@ -55,7 +55,8 @@
             <div class="taper-source"<%- if source == @player %> aria-current="true"<%- end %>>
               <span class="taper-source-mark" aria-hidden="true"><i></i><i></i><i></i></span>
               <span>
-                <a class="taper-source__title" href="<%= source.display_url %>" rel="noopener"><%= source.title.presence || t("taper.provider.#{source.provider}") %></a><br>
+                <a class="taper-source__title" href="<%= DiscourseTaper.root_path %>/recordings/<%= source.id %>"><%= source.title.presence || t("taper.provider.#{source.provider}") %></a>
+                <a class="taper-source__open" href="<%= source.display_url %>" rel="noopener">↗</a><br>
                 <span class="taper-source__meta"><%= [t("taper.kind.#{source.kind}"), (%w[unknown video].include?(source.format) ? nil : source.format), duration(source.duration_seconds), t("taper.provider.#{source.provider}"), (source.credited_taper ? t("taper.taped_by", name: source.credited_taper) : t("taper.taper_unclaimed"))].compact.join(" · ") %></span>
                 <%- if source.taper.nil? && current_user %>
                   <a class="taper-source__claim" href="<%= suggest_url %>&claim=<%= source.id %>"><%= t("taper.claim.link") %></a>

@@ -94,6 +94,7 @@ describe DiscourseTaper::Importers::SetlistFm do
       matched: 0,
       corrected: 0,
       ignored: 0,
+      accepted: 0,
       appended: 0,
       skipped: 0,
     )
@@ -104,7 +105,15 @@ describe DiscourseTaper::Importers::SetlistFm do
 
     stats = described_class.new(band: band).run
 
-    expect(stats).to eq(proposed: 1, matched: 0, corrected: 0, ignored: 0, appended: 0, skipped: 0)
+    expect(stats).to eq(
+      proposed: 1,
+      matched: 0,
+      corrected: 0,
+      ignored: 0,
+      accepted: 0,
+      appended: 0,
+      skipped: 0,
+    )
     suggestion = DiscourseTaper::Suggestion.last
     expect(suggestion).to have_attributes(kind: "new_show", origin: "setlist_fm", band: band)
     expect(suggestion.payload).to include(
@@ -159,7 +168,15 @@ describe DiscourseTaper::Importers::SetlistFm do
 
     stats = described_class.new(band: band).run
 
-    expect(stats).to eq(proposed: 0, matched: 0, corrected: 1, ignored: 0, appended: 0, skipped: 1)
+    expect(stats).to eq(
+      proposed: 0,
+      matched: 0,
+      corrected: 1,
+      ignored: 0,
+      accepted: 0,
+      appended: 0,
+      skipped: 1,
+    )
     correction = DiscourseTaper::Suggestion.find_by(kind: "correction")
     expect(correction.show).to eq(bare)
     expect(correction.payload.dig("changes", "setlist").map { |s| s["title"] }).to eq(

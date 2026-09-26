@@ -21,6 +21,10 @@ DiscourseTaper::Engine.routes.draw do
   # date is never read as a band slug.
   get "/(.:format)" => "shows#band"
   get "/media(.:format)" => "shows#media"
+  get "/recordings/:id(.:format)" => "recordings#show", :constraints => { id: /\d+/ }
+  put "/recordings/:id" => "recordings#update", :constraints => { id: /\d+/ }
+  post "/recordings/:id/move" => "recordings#move", :constraints => { id: /\d+/ }
+  delete "/recordings/:id" => "recordings#destroy", :constraints => { id: /\d+/ }
   get "/suggest" => "shows#suggest_form"
   get "/:date" => "shows#show", :constraints => { date: date }
   post "/suggest" => "shows#suggest"

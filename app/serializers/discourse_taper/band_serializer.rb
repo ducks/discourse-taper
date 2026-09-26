@@ -14,7 +14,8 @@ module DiscourseTaper
                :archive_org_query,
                :youtube_channel_id,
                :youtube_search_query,
-               :setlistfm_artist_name
+               :setlistfm_artist_name,
+               :auto_accept_recordings
 
     def show_count
       object.respond_to?(:show_count) ? object.show_count : object.shows.count

@@ -78,7 +78,13 @@ module DiscourseTaper
         video = doc["mediatype"] == "movies" || title.match?(/\[(vid|webcast)\]|\bwebcast\b/i)
         lineage = [doc["source"], doc["lineage"]].flatten.compact.join(" | ").presence
         place = place_from(doc)
-        dated = ShowMatcher.extract_date("#{identifier} #{title}").present?
+        description = doc["description"].to_s
+        title_date = ShowMatcher.extract_date("#{identifier} #{title}")
+        dated = title_date.present?
+        if place[:venue].blank?
+          # "performing live at ESMA in Rennes, France" in the description.
+          place = TitlePlace.parse(description.gsub(/<[^>]+>/, " ")[0, 300], band_name: band.name)
+        end
         {
           external_id: identifier,
           ignore:
@@ -93,7 +99,10 @@ module DiscourseTaper
           title: doc["title"],
           # A date written into the identifier or title is the show; the
           # item's date field can be the upload date on community uploads.
-          date: ShowMatcher.extract_date("#{identifier} #{title}") || field_date(doc["date"]),
+          date:
+            title_date || date_from_description(description) ||
+              inferred_date(doc, title, description) || field_date(doc["date"]),
+          date_certain: dated,
           venue: place[:venue],
           city: place[:city],
           region: place[:region],
@@ -104,6 +113,17 @@ module DiscourseTaper
           kind: video ? "video" : etree_kind("#{identifier} #{doc["source"]} #{title}"),
           format: video ? "video" : archive_format(doc["format"], identifier),
         }
+      end
+
+      # On community uploads the item date is the upload day, so a place
+      # named in the title or description outranks it; an etree collection
+      # carries the real date and never needs the guess.
+      def inferred_date(doc, title, description)
+        return nil if band.archive_org_collection.present?
+        infer_date(
+          "#{title} #{description.gsub(/<[^>]+>/, " ")[0, 300]}",
+          field_date(doc["date"])&.in_time_zone,
+        )
       end
 
       def field_date(value)
