@@ -73,7 +73,8 @@ describe DiscourseTaper::Importers::Youtube do
     suggestion = DiscourseTaper::Suggestion.last
     expect(suggestion.payload).to include(
       "date" => "2026-09-16",
-      "venue" => "Underground Arts, Philadelphia (full set)",
+      "venue" => "Underground Arts",
+      "city" => "Philadelphia",
     )
     expect(suggestion.payload["sources"]).to eq(
       [
@@ -87,7 +88,7 @@ describe DiscourseTaper::Importers::Youtube do
           "taper_name" => "a fan",
           "duration_seconds" => 4329,
           "date" => "2026-09-16",
-          "venue" => "Underground Arts, Philadelphia (full set)",
+          "venue" => "Underground Arts",
         },
       ],
     )
@@ -143,6 +144,26 @@ describe DiscourseTaper::Importers::Youtube do
     )
     pending = DiscourseTaper::Suggestion.find_by(origin: "setlist_fm")
     expect(pending.reload.payload["sources"].map { |s| s["external_id"] }).to eq(["lpr"])
+  end
+
+  it "reads the venue and city out of an at-sign title" do
+    stub_search(
+      [
+        hit(
+          "lpr1",
+          "Angine de Poitrine live in NYC @ le Poisson Rouge - Full set, night 1 - 09/09/26",
+        ),
+      ],
+    )
+    stub_durations("lpr1" => "PT1H18M")
+
+    described_class.new(band: band).run
+
+    expect(DiscourseTaper::Suggestion.last.payload).to include(
+      "date" => "2026-09-09",
+      "venue" => "le Poisson Rouge",
+      "city" => "NYC",
+    )
   end
 
   it "walks channel uploads as well when the band has a channel" do

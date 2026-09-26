@@ -250,12 +250,15 @@ module DiscourseTaper
 
       def item_from(video, duration)
         text = "#{video[:title]} #{video[:description]}"
+        place = TitlePlace.parse(video[:title], band_name: band.name)
         {
           external_id: video[:video_id],
           url: "https://www.youtube.com/watch?v=#{video[:video_id]}",
           title: video[:title],
           date: video_date(text, video[:published_at]),
-          venue: venue_from(video[:title]),
+          venue: place[:venue],
+          city: place[:city],
+          region: place[:region],
           kind: "video",
           format: "video",
           taper_name: video[:channel_title],
@@ -365,17 +368,6 @@ module DiscourseTaper
                 end
             (shows + pending).select { |show| show[:date] }
           end
-      end
-
-      # "Band - 5/8/77 - Barton Hall, Ithaca NY" => "Barton Hall, Ithaca NY".
-      # Takes the segment after the date when the title is dash-delimited;
-      # otherwise nothing, and the matcher falls back to date alone.
-      def venue_from(title)
-        parts = title.to_s.split(/\s+[-–|]\s+/)
-        return nil if parts.size < 2
-        idx = parts.index { |p| ShowMatcher.extract_date(p) }
-        return nil if idx.nil? || parts[idx + 1].blank?
-        parts[idx + 1].strip
       end
 
       # "PT1H2M3S" => 3723

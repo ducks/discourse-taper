@@ -61,6 +61,7 @@ after_initialize do
   require_relative "app/serializers/discourse_taper/suggestion_serializer"
   require_relative "lib/discourse_taper/venue_resolver"
   require_relative "lib/discourse_taper/show_matcher"
+  require_relative "lib/discourse_taper/title_place"
   require_relative "lib/discourse_taper/show_creator"
   require_relative "lib/discourse_taper/suggestion_reviewer"
   require_relative "lib/discourse_taper/importers/base"
