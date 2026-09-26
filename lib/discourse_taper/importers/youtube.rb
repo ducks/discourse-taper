@@ -249,7 +249,6 @@ module DiscourseTaper
       end
 
       def item_from(video, duration)
-        text = "#{video[:title]} #{video[:description]}"
         place = TitlePlace.parse(video[:title], band_name: band.name)
         {
           external_id: video[:video_id],
@@ -263,7 +262,7 @@ module DiscourseTaper
             ),
           url: "https://www.youtube.com/watch?v=#{video[:video_id]}",
           title: video[:title],
-          date: video_date(text, video[:published_at]),
+          date: video_date(video[:title], video[:description], video[:published_at]),
           venue: place[:venue],
           city: place[:city],
           region: place[:region],
@@ -281,16 +280,20 @@ module DiscourseTaper
         text.include?(Venue.normalize(band.name))
       end
 
-      # The date written in the text, settled against known shows when it
-      # reads two ways; else a show inferred from the place named.
-      def video_date(text, published_at)
-        candidates = ShowMatcher.date_candidates(text, year_hint: published_at)
+      # The date written in the title, settled against known shows when it
+      # reads two ways. A date that appears only in the description is a
+      # weaker signal (release dates, "since 2019") and counts only when it
+      # lands on a known show. Else a show inferred from the place named.
+      def video_date(title, description, published_at)
+        known = known_shows.map { |show| show[:date] }
+        candidates = ShowMatcher.date_candidates(title, year_hint: published_at)
         return candidates.first if candidates.size == 1
         if candidates.size > 1
-          known = known_shows.map { |show| show[:date] }
           return candidates.find { |date| known.include?(date) } || candidates.first
         end
-        infer_date(text, published_at)
+        from_description = ShowMatcher.date_candidates(description, year_hint: published_at)
+        return (from_description & known).first if (from_description & known).any?
+        infer_date("#{title} #{description}", published_at)
       end
 
       # Undated video naming a place the band played. Ambiguity (two shows
