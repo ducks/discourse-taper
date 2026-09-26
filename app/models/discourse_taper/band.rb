@@ -60,6 +60,7 @@ end
 #  id                     :bigint           not null, primary key
 #  archive_org_collection :string
 #  archive_org_query      :string
+#  auto_accept_recordings :boolean          default(FALSE), not null
 #  description            :text
 #  footer                 :text
 #  name                   :string           not null
