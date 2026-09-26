@@ -149,8 +149,21 @@ module DiscourseTaper
       nil
     end
 
+    # A show is not a year in the future and not before recorded sound.
+    # A four-digit year that fails that test but whose last two digits make
+    # a plausible one is a typo for it ("27/06/3026" is 2026); anything
+    # else is no date.
+    EARLIEST_YEAR = 1900
+
+    def self.plausible?(date)
+      date && date.year >= EARLIEST_YEAR && date <= Date.today + 366
+    end
+
     def self.safe_date(year, month, day)
-      Date.new(year, month, day)
+      date = Date.new(year, month, day)
+      return date if plausible?(date)
+      corrected = Date.new(2000 + (year % 100), month, day)
+      plausible?(corrected) ? corrected : nil
     rescue Date::Error
       nil
     end
