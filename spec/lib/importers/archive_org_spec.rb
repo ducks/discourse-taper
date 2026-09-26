@@ -346,6 +346,37 @@ describe DiscourseTaper::Importers::ArchiveOrg do
       ).to have_been_made
     end
 
+    it "files what it ignores on the band's media shelf, with a kind and the uploader" do
+      stub_search(
+        [
+          community(
+            "angine-de-poitrine-sherpa",
+            "SHERPA - Angine De Poitrine",
+            :date => "2024-06-01T00:00:00Z",
+            "creator" => "Angine De Poitrine",
+            "description" => "SHERPA by Angine De Poitrine, single release.",
+          ),
+          community(
+            "nwm-88-dynamic-duos-2",
+            "No Words Music #88: Dynamic Duos Part 2 Featuring Angine de Poitrine",
+            :date => "2026-05-07T00:00:00Z",
+            "creator" => "No Words Music",
+          ),
+        ],
+      )
+
+      described_class.new(band: band).run
+      described_class.new(band: band).run
+
+      items = DiscourseTaper::MediaItem.where(band: band).order(:external_id)
+      expect(items.map { |i| [i.external_id, i.kind, i.channel, i.published_on&.iso8601] }).to eq(
+        [
+          ["angine-de-poitrine-sherpa", "single", "Angine De Poitrine", "2024-06-01"],
+          ["nwm-88-dynamic-duos-2", "podcast", "No Words Music", "2026-05-07"],
+        ],
+      )
+    end
+
     it "prefers the date in the title over an upload date, and files video as video" do
       stub_search(
         [

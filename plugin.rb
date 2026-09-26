@@ -55,6 +55,7 @@ after_initialize do
   require_relative "app/models/discourse_taper/show"
   require_relative "app/models/discourse_taper/source"
   require_relative "app/models/discourse_taper/suggestion"
+  require_relative "app/models/discourse_taper/media_item"
   require_relative "app/serializers/discourse_taper/band_serializer"
   require_relative "app/serializers/discourse_taper/source_serializer"
   require_relative "app/serializers/discourse_taper/show_serializer"

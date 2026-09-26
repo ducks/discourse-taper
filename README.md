@@ -37,7 +37,14 @@ did.
   tapes. Both importers run every item through a release detector
   (title patterns in English and French, a numbered volume with no
   date, an undated upload on the band's own channel with no live cue)
-  and drop what it flags, counted as ignored and logged with the reason.
+  and file what it flags on the band's **media shelf** instead of the queue:
+  albums, singles, official videos, promo, interviews, podcasts, each
+  with a kind, the uploader, and a date. The shelf is at `/taper/media`
+  (and `/taper/<band>/media`), by kind, with a strip of the newest on
+  the front door; no topic and no review, since it is the band's own
+  output, but a reviewer can hide an item and a re-run will not bring
+  it back. The YouTube search adds "interview" and "entrevue" phrasings
+  without the long-video filter to find press.
 - **Undated videos find their show.** YouTube titles carry dates in
   every format (5/8/77, 16/09/2026, September 16th, 16 septembre) or
   none at all. A slash date that reads two ways (10/05/2026) is settled by

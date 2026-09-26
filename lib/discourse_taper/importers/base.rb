@@ -64,9 +64,7 @@ module DiscourseTaper
 
         each_item do |item|
           if item[:ignore].present?
-            Rails.logger.info(
-              "#{PLUGIN_NAME}: #{self.class.key} ignoring #{item[:external_id]} (#{item[:ignore]}): #{item[:title]}",
-            )
+            file_media(item)
             stats[:ignored] += 1
             next
           end
@@ -190,6 +188,30 @@ module DiscourseTaper
           )
           :proposed
         end
+      end
+
+      # A release or press item goes on the band's media shelf instead of
+      # the queue, keyed by provider and id so re-runs refresh it in place.
+      def file_media(item)
+        return if item[:external_id].blank? || item[:url].blank?
+        MediaItem.file!(
+          band: band,
+          provider: self.class.key,
+          external_id: item[:external_id],
+          attributes: {
+            url: item[:url],
+            title: item[:title].presence || item[:external_id],
+            kind: MediaItem.kind_for(item[:ignore]),
+            reason: item[:ignore],
+            channel: item[:channel].presence || item[:taper_name].presence,
+            published_on: item[:date] || item[:published_at]&.to_date,
+            duration_seconds: item[:duration_seconds],
+          },
+        )
+      rescue ActiveRecord::RecordInvalid => e
+        Rails.logger.warn(
+          "#{PLUGIN_NAME}: could not file media #{item[:external_id]}: #{e.message}",
+        )
       end
 
       # Service-specific identifiers an importer wants carried onto the

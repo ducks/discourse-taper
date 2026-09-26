@@ -15,15 +15,18 @@ DiscourseTaper::Engine.routes.draw do
   post "/admin/bands" => "bands#create"
   put "/admin/bands/:id" => "bands#update", :constraints => { id: /\d+/ }
   delete "/admin/bands/:id" => "bands#destroy", :constraints => { id: /\d+/ }
+  delete "/admin/media/:id" => "media#destroy", :constraints => { id: /\d+/ }
 
   # Primary band: no band segment. Declared before the band forms so a
   # date is never read as a band slug.
   get "/(.:format)" => "shows#band"
+  get "/media(.:format)" => "shows#media"
   get "/suggest" => "shows#suggest_form"
   get "/:date" => "shows#show", :constraints => { date: date }
   post "/suggest" => "shows#suggest"
 
   # Any band, including the primary one, by slug.
+  get "/:band/media(.:format)" => "shows#media"
   get "/:band/suggest" => "shows#suggest_form"
   post "/:band/suggest" => "shows#suggest"
   get "/:band" => "shows#band"

@@ -59,6 +59,20 @@
     </div>
   <%- end %>
 
+  <%- if @latest_media.any? %>
+    <section class="taper-media-strip">
+      <div class="taper-section-title"><h2><%= t("taper.media.from_the_band") %></h2><a href="<%= @band.url %>/media"><%= t("taper.media.all") %></a></div>
+      <ul class="taper-media-strip__list">
+        <%- @latest_media.each do |item| %>
+          <li>
+            <a href="<%= item.url %>" rel="noopener"><%= item.title %></a>
+            <span class="taper-mono"><%= [t("taper.media.kinds.#{item.kind}"), item.published_on&.iso8601].compact.join(" · ") %></span>
+          </li>
+        <%- end %>
+      </ul>
+    </section>
+  <%- end %>
+
   <%- if @band.footer.present? %>
     <footer class="taper-policy">
       <%- @band.footer.split(/\n\s*\n/).each do |paragraph| %>

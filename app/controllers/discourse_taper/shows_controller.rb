@@ -8,11 +8,13 @@ module DiscourseTaper
   class ShowsController < ::ApplicationController
     requires_plugin PLUGIN_NAME
 
-    skip_before_action :preload_json, :check_xhr, only: %i[band show bands suggest_form suggest]
+    skip_before_action :preload_json,
+                       :check_xhr,
+                       only: %i[band show bands media suggest_form suggest]
     before_action :ensure_logged_in, only: %i[suggest]
     before_action :ensure_can_see_archive
-    before_action :load_bands, only: %i[band show bands suggest_form suggest]
-    before_action :set_reader_locale, only: %i[band show suggest_form suggest]
+    before_action :load_bands, only: %i[band show bands media suggest_form suggest]
+    before_action :set_reader_locale, only: %i[band show media suggest_form suggest]
 
     prepend_view_path File.expand_path("../../views", __dir__)
     layout "taper"
@@ -80,6 +82,25 @@ module DiscourseTaper
         @runtime = @sources.filter_map(&:duration_seconds).max
         @reply_count, @replies = latest_replies(@show.topic)
         render_page(:show)
+      end
+    end
+
+    # GET /taper(/:band)/media
+    # The band's own output and press, filed by the importers: albums,
+    # singles, official videos, interviews, podcasts. Not shows.
+    def media
+      @band = find_band!
+      @items = MediaItem.visible.where(band: @band).newest.limit(300).to_a
+      canonical("#{@band.url}/media")
+
+      if json_request?
+        render json: {
+                 band: BandSerializer.new(@band, root: false).as_json,
+                 media: @items.map { |item| media_json(item) },
+               }
+      else
+        cache_for_anonymous
+        render_page(:media)
       end
     end
 
@@ -246,6 +267,7 @@ module DiscourseTaper
           .order(created_at: :desc)
           .limit(6)
           .to_a
+      @latest_media = MediaItem.visible.where(band: @band).newest.limit(6).to_a
       @stats = {
         shows: @band.shows.count,
         recordings: Source.joins(:show).where(taper_shows: { band_id: @band.id }).count,
@@ -392,6 +414,19 @@ module DiscourseTaper
       Date.iso8601(value.to_s)
     rescue Date::Error
       raise Discourse::InvalidParameters.new(:date)
+    end
+
+    def media_json(item)
+      {
+        id: item.id,
+        kind: item.kind,
+        title: item.title,
+        url: item.url,
+        provider: item.provider,
+        channel: item.channel,
+        published_on: item.published_on,
+        duration_seconds: item.duration_seconds,
+      }
     end
 
     def show_summary(show)

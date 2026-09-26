@@ -17,6 +17,7 @@ module DiscourseTaper
       "single" => /\b(single|remix|remaster(ed)?|instrumental|acoustic version)\b/i,
       "podcast" =>
         /\b(podcast|episode|[ée]pisode)\b|#\d+\b.{0,40}\b(featuring|feat\.?|ft\.?|with)\b/i,
+      "interview" => /\b(interview|entrevue|entretien|in conversation|q ?& ?a)\b/i,
     }.freeze
 
     # A numbered volume with no date anywhere is the album, not a night.
