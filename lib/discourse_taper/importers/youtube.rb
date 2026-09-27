@@ -29,11 +29,20 @@ module DiscourseTaper
       # Result pages carry about twenty videos each and overlap heavily
       # between phrasings; four phrasings find nearly every full set.
       # Each phrasing with whether to keep YouTube's long-video filter on:
-      # full sets are long, interviews are not.
+      # full sets are long, interviews are not. A result page holds about
+      # twenty videos and each phrasing ranks them differently, so the
+      # same band asked thirteen ways turns up a third more full sets than
+      # asked six ways. Years are added per band, one "live YEAR" per year
+      # it played.
       SCRAPE_QUERIES = [
         ["full set", true],
+        ["full show", true],
         ["live", true],
+        ["concert", true],
         ["concert complet", true],
+        ["performance complète", true],
+        ["festival", true],
+        ["4K", true],
         ["", true],
         ["interview", false],
         ["entrevue", false],
@@ -115,7 +124,7 @@ module DiscourseTaper
 
       # One result page per phrasing of the query, long videos only.
       def each_scraped_page
-        SCRAPE_QUERIES.each do |suffix, long|
+        (SCRAPE_QUERIES + year_queries).each do |suffix, long|
           query = [band.youtube_search_query, suffix].reject(&:blank?).join(" ")
           query_params = { search_query: query }
           query_params[:sp] = LONG_FILTER if long
@@ -132,6 +141,12 @@ module DiscourseTaper
             )
           yield scraped_videos(html)
         end
+      end
+
+      # "live 2026" for every year the band has a show: uploaders date
+      # titles far more often than they name venues.
+      def year_queries
+        known_shows.map { |show| show[:date].year }.uniq.sort.map { |year| ["live #{year}", true] }
       end
 
       # The result page embeds its data as JSON; every videoRenderer in it

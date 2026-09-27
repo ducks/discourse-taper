@@ -32,6 +32,12 @@ did.
   recording importer created first it proposes the setlist as a
   correction. A show keeps its setlist.fm id so it is never proposed
   twice.
+- **The search asks many ways.** A YouTube result page holds about
+  twenty videos and every phrasing ranks them differently, so the
+  scraper runs eleven phrasings (full set, full show, live, concert,
+  concert complet, performance complète, festival, 4K, the bare name,
+  interview, entrevue) plus "live YEAR" for every year the band has a
+  show. Asked six ways it missed a third of the full sets.
 - **Releases stay out.** Searching for a band turns up its albums,
   singles, music videos, teasers, and podcast appearances next to the
   tapes. Both importers run every item through a release detector
