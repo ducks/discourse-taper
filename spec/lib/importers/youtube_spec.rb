@@ -305,7 +305,7 @@ describe DiscourseTaper::Importers::Youtube do
           q = CGI.parse(URI(req.uri).query)
           q["sp"] == ["EgIYAg=="] && q["search_query"].first.include?("Angine de Poitrine live")
         end,
-      ).to have_been_made.times(4)
+      ).to have_been_made.times(9)
       source = DiscourseTaper::Suggestion.last.payload["sources"].first
       expect(source).to include(
         "external_id" => "Wk_PLQuICx8",
@@ -396,6 +396,12 @@ describe DiscourseTaper::Importers::Youtube do
       stats = described_class.new(band: band).run
 
       expect(stats).to include(matched: 3, skipped: 1)
+      # One "live YEAR" phrasing per year the band played.
+      expect(
+        a_request(:get, %r{https://www\.youtube\.com/results}).with do |req|
+          CGI.parse(URI(req.uri).query)["search_query"].first == "Angine de Poitrine live live 2025"
+        end,
+      ).to have_been_made
       dates = DiscourseTaper::Suggestion.all.map { |s| s.payload["sources"].first["date"] }
       expect(dates).to contain_exactly("2026-07-31", "2026-07-26", "2026-03-03")
     end
