@@ -75,6 +75,28 @@ module DiscourseTaper
       show
     end
 
+    # What the tapes called the place becomes an alias of the show's venue,
+    # so the next undated video titled "Field of Vision '26" finds the
+    # night at Cottonwood Meadows by itself.
+    def learn_tape_names(show, suggestion)
+      p = suggestion.payload
+      names = [p["venue"], *(p["venue_spellings"] || {}).keys].compact_blank.uniq
+      names -= [I18n.t("taper.unknown_venue"), show.venue]
+      return if names.empty? && show.venue_record.present?
+      if show.venue_record.nil?
+        link_venue!(
+          show,
+          show.venue,
+          city: show.city,
+          region: show.region,
+          country: show.country,
+          spellings: names,
+        )
+      else
+        show.venue_record.learn!(names)
+      end
+    end
+
     # Every spelling seen for an accepted show becomes an alias, so the
     # reviewer answers the venue question once per venue.
     def link_venue!(show, name, city: nil, region: nil, country: nil, spellings: [])
@@ -96,6 +118,7 @@ module DiscourseTaper
         raise Error.new("show_not_found") if show.nil?
       end
       sources_in(suggestion).each { |attrs| attach_source(show, attrs, suggestion) }
+      learn_tape_names(show, suggestion)
       show
     end
 

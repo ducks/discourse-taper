@@ -239,6 +239,57 @@ describe DiscourseTaper::SuggestionReviewer do
     expect(again.reload.status).to eq("pending")
   end
 
+  it "does not learn a year or a label as a name for the place" do
+    venue = DiscourseTaper::Venue.create!(name: "Le Grand Mix", city: "Tourcoing")
+    venue.learn!(["2026", "HD", "4K", "Le Grand Mix Tourcoing"])
+    expect(venue.aliases).to eq(["le grand mix", "le grand mix tourcoing"])
+  end
+
+  it "learns what the tapes called the place when recordings are accepted" do
+    show =
+      Fabricate(
+        :taper_show,
+        band: band,
+        date: Date.new(2026, 8, 14),
+        venue: "Cottonwood Meadows",
+        city: "Buena Vista",
+        region: "CO",
+        topic: Fabricate(:topic, category: category),
+      )
+    suggestion =
+      DiscourseTaper::Suggestion.create!(
+        kind: "new_source",
+        band: band,
+        show: show,
+        origin: "youtube",
+        payload: {
+          "date" => "2026-08-14",
+          "venue" => "Field of Vision II Festival",
+          "venue_spellings" => {
+            "Field of Vision II Festival" => 2,
+            "Field of Vision" => 1,
+          },
+          "sources" => [
+            {
+              "provider" => "youtube",
+              "external_id" => "fov1",
+              "url" => "https://youtu.be/fov1",
+              "kind" => "video",
+            },
+          ],
+        },
+      )
+
+    reviewer_service.accept!(suggestion)
+
+    expect(show.reload.venue_record.name).to eq("Cottonwood Meadows")
+    expect(show.venue_record.aliases).to include(
+      "field of vision",
+      "field of vision ii festival",
+      "cottonwood meadows",
+    )
+  end
+
   it "rejects, and refuses to review twice" do
     suggestion =
       DiscourseTaper::Suggestion.create!(

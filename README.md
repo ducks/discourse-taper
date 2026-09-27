@@ -62,7 +62,11 @@ did.
   videos only, so full sets rather than phone clips.
 - **Venues resolve themselves, without a model.** Every spelling an
   importer sees for an accepted show is learned as an alias of that
-  venue, so a reviewer answers "what is this venue" once, ever. An
+  venue, so a reviewer answers "what is this venue" once, ever.
+  Accepting a night's recordings teaches the venue every name the tapes
+  used for it ("Field of Vision" for Cottonwood Meadows), and the place
+  matcher reads those names, so the next undated festival video finds
+  its night by itself. An
   importer resolves a night's spellings by learned alias first, then the
   abbreviations every taper uses (MSG, SPAC, Red Rocks), then a trigram
   near-match through PostgreSQL's `pg_trgm`, which must also agree on the

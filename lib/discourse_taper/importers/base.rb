@@ -248,7 +248,15 @@ module DiscourseTaper
             shows =
               Show
                 .where(band: band)
-                .map { |show| { date: show.date, venue: show.venue, city: show.city } }
+                .includes(:venue_record)
+                .map do |show|
+                  {
+                    date: show.date,
+                    venue: show.venue,
+                    city: show.city,
+                    aliases: show.venue_record&.aliases || [],
+                  }
+                end
             pending =
               Suggestion
                 .where(band: band, kind: "new_show", status: "pending")
@@ -281,7 +289,8 @@ module DiscourseTaper
         haystack = Venue.normalize(text)
         named =
           known_shows.select do |show|
-            [show[:venue], show[:city]].any? { |place| mentions?(haystack, place) }
+            [show[:venue], show[:city]].any? { |place| mentions?(haystack, place) } ||
+              (show[:aliases] || []).any? { |a| a.length >= 4 && haystack.include?(a) }
           end
         return nil if named.empty?
 
