@@ -468,6 +468,34 @@ describe DiscourseTaper::Importers::Youtube do
       expect(item.published_on).to be_within(2).of(Date.today - 3)
     end
 
+    it "dates a video by a name the venue has learned from earlier tapes" do
+      venue =
+        DiscourseTaper::Venue.create!(name: "Cottonwood Meadows", city: "Buena Vista", region: "CO")
+      venue.learn!(["Field of Vision"])
+      Fabricate(
+        :taper_show,
+        band: band,
+        date: Date.new(2026, 8, 14),
+        venue: "Cottonwood Meadows",
+        city: "Buena Vista",
+        venue_record: venue,
+      )
+      stub_results(
+        [
+          renderer(
+            "fov26",
+            "Angine De Poitrine Live at Field of Vision '26",
+            published: "1 month ago",
+          ),
+        ],
+      )
+
+      stats = described_class.new(band: band).run
+
+      expect(stats).to include(matched: 1)
+      expect(DiscourseTaper::Suggestion.last.payload["sources"].first["date"]).to eq("2026-08-14")
+    end
+
     it "ignores the band's own releases found by the search" do
       stub_results(
         [

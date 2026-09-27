@@ -63,8 +63,14 @@ module DiscourseTaper
       find_by_alias(name) || create!(name: name.to_s.strip, city:, region:, country:)
     end
 
+    # A spelling worth remembering has letters and some length: "MSG" is
+    # a name for the place, "2026" and "HD" on a tape title are not.
     def learn!(spellings)
-      keys = Array(spellings).map { |s| self.class.normalize(s) }.compact_blank
+      keys =
+        Array(spellings)
+          .map { |s| self.class.normalize(s) }
+          .compact_blank
+          .select { |k| k.length >= 3 && k.scan(/[a-z]/).size >= 2 }
       fresh = (keys + [self.class.normalize(name)]).uniq - aliases
       update!(aliases: aliases + fresh) if fresh.any?
       self
