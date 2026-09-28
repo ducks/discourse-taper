@@ -6,8 +6,10 @@ module DiscourseTaper
   # archive. Readers see what the show page shows, in full.
   class RecordingsController < ::ApplicationController
     requires_plugin PLUGIN_NAME
+    include ReaderLocale
 
     skip_before_action :preload_json, :check_xhr, only: %i[show]
+    before_action :set_reader_locale, only: %i[show]
     before_action :ensure_logged_in, only: %i[update move destroy]
     before_action :ensure_reviewer, only: %i[update move destroy]
     before_action :ensure_can_see_archive
