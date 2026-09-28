@@ -304,6 +304,22 @@ describe DiscourseTaper::ShowsController do
       expect(response.body).to include("Latest shows")
       expect(response.cookies["taper_lang"]).to be_nil
     end
+
+    it "covers the suggestion form and the recording pages too" do
+      sign_in(member)
+      get "/taper/suggest", params: { date: "1977-05-08", lang: "fr" }
+      expect(response.body).to include("Proposer un enregistrement")
+      expect(response.body).to include("Capteur")
+      expect(response.body).to include("Envoyer la correction")
+
+      get "/taper/recordings/#{source.id}", params: { lang: "fr" }
+      expect(response.status).to eq(200)
+      expect(response.body).to include("Écouter")
+      expect(response.body).to include(%(<html lang="fr">))
+      expect(response.body).to include(
+        %(href="/taper/recordings/#{source.id}?lang=en" hreflang="en"),
+      )
+    end
   end
 
   describe "songs" do

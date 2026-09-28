@@ -7,6 +7,7 @@ module DiscourseTaper
   # archive stays private.
   class ShowsController < ::ApplicationController
     requires_plugin PLUGIN_NAME
+    include ReaderLocale
 
     skip_before_action :preload_json,
                        :check_xhr,
