@@ -251,7 +251,7 @@ describe DiscourseTaper::ShowsController do
 
       expect(response.status).to eq(200)
       expect(response.media_type).to eq("text/html")
-      expect(response.body).to include("Scarlet Begonias")
+      expect(response.body).to include(%(href="/taper/songs/scarlet-begonias">Scarlet Begonias</a>))
       expect(response.body).to include("SBD")
       expect(response.body).to include(%(rel="canonical"))
       expect(response.body).to include("MusicEvent")
