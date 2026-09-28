@@ -7,6 +7,32 @@ fr:
     shows: "Spectacles"
     bands: "Groupes"
     language: "Langue"
+    sections: "Sections"
+    songs:
+      title: "Chansons"
+      blurb: "Toutes les chansons que les setlists mentionnent, par nombre de fois jouées. Une chanson passée sur bande n'est pas comptée."
+      empty: "Pas encore de setlist, donc pas de chansons."
+      count:
+        one: "%{count} chanson"
+        other: "%{count} chansons"
+      performances:
+        one: "%{count} interprétation"
+        other: "%{count} interprétations"
+      times:
+        one: "%{count} fois"
+        other: "%{count} fois"
+      song: "Chanson"
+      played: "jouée"
+      first: "première"
+      last: "dernière"
+      opened: "en ouverture"
+      closed: "en clôture"
+      encore: "en rappel"
+      every_night: "Chaque soir où elle a été jouée"
+      position: "chanson %{position} sur %{of}"
+      most_played: "Les plus jouées"
+      all: "Toutes les chansons"
+      description: "%{song} a été jouée %{count} fois, la première le %{first} et la dernière le %{last}."
     auto_accepted: "Attaché par l'importateur : l'enregistrement porte sa date et le spectacle existe."
     recording:
       kind: "type"

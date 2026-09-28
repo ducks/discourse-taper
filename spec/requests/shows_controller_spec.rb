@@ -306,6 +306,58 @@ describe DiscourseTaper::ShowsController do
     end
   end
 
+  describe "songs" do
+    fab!(:later) do
+      Fabricate(
+        :taper_show,
+        band: band,
+        date: Date.new(1977, 5, 9),
+        venue: "Buffalo Memorial Auditorium",
+        city: "Buffalo",
+        setlist: [{ "title" => "Scarlet Begonias" }, { "title" => "Help on the Way" }],
+        topic: Fabricate(:topic, category: category),
+      )
+    end
+
+    it "lists songs by how often they were played, as html and json, with a strip on the front door" do
+      get "/taper/songs"
+      expect(response.status).to eq(200)
+      expect(response.media_type).to eq("text/html")
+      expect(response.body).to include("Songs")
+      expect(response.body).to include(%(href="/taper/songs/scarlet-begonias"))
+      expect(response.body).to include("2 songs · 4 performances").or include("3 songs")
+
+      get "/taper/songs.json"
+      songs = response.parsed_body["songs"]
+      expect(songs.first).to include("slug" => "scarlet-begonias", "count" => 2, "opened" => 2)
+
+      get "/taper"
+      expect(response.body).to include("Most played")
+      expect(response.body).to include(%(href="/taper/songs"))
+    end
+
+    it "shows one song's nights, and 404s an unknown one" do
+      get "/taper/songs/scarlet-begonias"
+      expect(response.status).to eq(200)
+      expect(response.body).to include("Scarlet Begonias")
+      expect(response.body).to include("Every night it was played")
+      expect(response.body).to include(%(href="/taper/1977-05-08"))
+      expect(response.body).to include(%(href="/taper/1977-05-09"))
+      expect(response.body).to include("song 1 of 2")
+      expect(response.body).to include(
+        %(rel="canonical" href="http://test.localhost/taper/songs/scarlet-begonias"),
+      )
+
+      get "/taper/songs/scarlet-begonias.json"
+      expect(response.parsed_body["song"]["nights"].map { |n| n["date"] }).to eq(
+        %w[1977-05-08 1977-05-09],
+      )
+
+      get "/taper/songs/nope"
+      expect(response.status).to eq(404)
+    end
+  end
+
   describe "suggestion form" do
     it "asks anonymous readers to log in and shows the forms to members" do
       get "/taper/suggest?date=1977-05-08"

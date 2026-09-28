@@ -30,6 +30,32 @@ en:
     shows: "Shows"
     bands: "Bands"
     language: "Language"
+    sections: "Sections"
+    songs:
+      title: "Songs"
+      blurb: "Every song the setlists mention, by how often it was played. A song played from tape is not counted."
+      empty: "No setlists yet, so no songs."
+      count:
+        one: "%{count} song"
+        other: "%{count} songs"
+      performances:
+        one: "%{count} performance"
+        other: "%{count} performances"
+      times:
+        one: "%{count} time"
+        other: "%{count} times"
+      song: "Song"
+      played: "played"
+      first: "first"
+      last: "last"
+      opened: "opened"
+      closed: "closed"
+      encore: "encore"
+      every_night: "Every night it was played"
+      position: "song %{position} of %{of}"
+      most_played: "Most played"
+      all: "All songs"
+      description: "%{song} has been played %{count} times, first on %{first} and last on %{last}."
     auto_accepted: "Attached by the importer: the recording carries its date and the show exists."
     recording:
       kind: "kind"

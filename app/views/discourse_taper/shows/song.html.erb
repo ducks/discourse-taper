@@ -1,0 +1,39 @@
+<%- @page_title = [@song.title, (@band.primary? ? nil : @band.name)].compact.join(" - ") %>
+<%- @page_description = t("taper.songs.description", song: @song.title, count: @song.count, first: @song.first_date.iso8601, last: @song.last_date.iso8601) %>
+<article class="taper-wrap taper-song">
+  <header class="taper-showhead">
+    <nav class="taper-crumbs" aria-label="Breadcrumb">
+      <a href="<%= DiscourseTaper.root_path %>"><%= t("taper.shows") %></a>
+      <span aria-hidden="true">/</span>
+      <a href="<%= @band.url %>/songs"><%= t("taper.songs.title") %></a>
+    </nav>
+    <h1 class="taper-display taper-song__title"><%= @song.title %></h1>
+    <div class="taper-facts">
+      <span><%= t("taper.songs.played") %> <b><%= t("taper.songs.times", count: @song.count) %></b></span>
+      <span><%= t("taper.songs.first") %> <b><a href="<%= @song.nights.first.show.url %>"><%= @song.first_date.iso8601 %></a></b></span>
+      <span><%= t("taper.songs.last") %> <b><a href="<%= @song.nights.last.show.url %>"><%= @song.last_date.iso8601 %></a></b></span>
+      <%- if @song.opened.positive? %><span><%= t("taper.songs.opened") %> <b><%= @song.opened %></b></span><%- end %>
+      <%- if @song.closed.positive? %><span><%= t("taper.songs.closed") %> <b><%= @song.closed %></b></span><%- end %>
+      <%- if @song.encore.positive? %><span><%= t("taper.songs.encore") %> <b><%= @song.encore %></b></span><%- end %>
+    </div>
+  </header>
+
+  <div class="taper-section-title"><h2><%= t("taper.songs.every_night") %></h2></div>
+  <ul class="taper-showlist">
+    <%- @song.nights.each do |night| %>
+      <%- show = night.show %>
+      <li class="taper-show-row">
+        <span class="taper-show-row__date"><%= show.date.iso8601 %></span>
+        <span>
+          <a class="taper-show-row__venue" href="<%= show.url %>"><%= show.venue %></a>
+          <span class="taper-show-row__place"><%= [show.city, t("taper.songs.position", position: night.position, of: night.of), night.notes.presence].compact.join(" · ") %></span>
+        </span>
+        <%- if show.sources.any? %>
+          <span class="taper-show-row__tape"><span class="taper-mark" aria-hidden="true"></span> <%= t("taper.recordings_count", count: show.sources.size) %></span>
+        <%- else %>
+          <span class="taper-show-row__tape taper-show-row__tape--none"><%= t("taper.no_tape_yet") %></span>
+        <%- end %>
+      </li>
+    <%- end %>
+  </ul>
+</article>

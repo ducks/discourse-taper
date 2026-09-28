@@ -1,0 +1,40 @@
+<%- @page_title = [t("taper.songs.title"), (@band.primary? ? nil : @band.name)].compact.join(" - ") %>
+<div class="taper-wrap taper-songs">
+  <header class="taper-yearhead">
+    <h1 class="taper-display taper-yearhead__year taper-media__title"><%= t("taper.songs.title") %></h1>
+    <div class="taper-yearhead__facts">
+      <div class="taper-mono"><%= [t("taper.songs.count", count: @songs.size), t("taper.songs.performances", count: @songs.sum(&:count))].join(" · ") %></div>
+      <div><%= t("taper.songs.blurb") %></div>
+    </div>
+  </header>
+  <%= render partial: "discourse_taper/shows/tabs", locals: { current: :songs } %>
+
+  <%- if @songs.empty? %>
+    <p class="taper-empty"><%= t("taper.songs.empty") %></p>
+  <%- else %>
+    <table class="taper-table">
+      <thead>
+        <tr>
+          <th><%= t("taper.songs.song") %></th>
+          <th class="taper-table__num"><%= t("taper.songs.played") %></th>
+          <th><%= t("taper.songs.first") %></th>
+          <th><%= t("taper.songs.last") %></th>
+          <th class="taper-table__num"><%= t("taper.songs.opened") %></th>
+          <th class="taper-table__num"><%= t("taper.songs.closed") %></th>
+        </tr>
+      </thead>
+      <tbody>
+        <%- @songs.each do |song| %>
+          <tr>
+            <td><a class="taper-table__song" href="<%= @band.url %>/songs/<%= song.slug %>"><%= song.title %></a></td>
+            <td class="taper-table__num taper-mono"><%= song.count %></td>
+            <td class="taper-mono"><a href="<%= song.nights.first.show.url %>"><%= song.first_date.iso8601 %></a></td>
+            <td class="taper-mono"><a href="<%= song.nights.last.show.url %>"><%= song.last_date.iso8601 %></a></td>
+            <td class="taper-table__num taper-mono"><%= song.opened.zero? ? "" : song.opened %></td>
+            <td class="taper-table__num taper-mono"><%= song.closed.zero? ? "" : song.closed %></td>
+          </tr>
+        <%- end %>
+      </tbody>
+    </table>
+  <%- end %>
+</div>

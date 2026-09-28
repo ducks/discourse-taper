@@ -21,6 +21,8 @@ DiscourseTaper::Engine.routes.draw do
   # date is never read as a band slug.
   get "/(.:format)" => "shows#band"
   get "/media(.:format)" => "shows#media"
+  get "/songs(.:format)" => "shows#songs"
+  get "/songs/:song(.:format)" => "shows#song", :constraints => { song: /[a-z0-9-]+/ }
   get "/recordings/:id(.:format)" => "recordings#show", :constraints => { id: /\d+/ }
   put "/recordings/:id" => "recordings#update", :constraints => { id: /\d+/ }
   post "/recordings/:id/move" => "recordings#move", :constraints => { id: /\d+/ }
@@ -31,6 +33,8 @@ DiscourseTaper::Engine.routes.draw do
 
   # Any band, including the primary one, by slug.
   get "/:band/media(.:format)" => "shows#media"
+  get "/:band/songs(.:format)" => "shows#songs"
+  get "/:band/songs/:song(.:format)" => "shows#song", :constraints => { song: /[a-z0-9-]+/ }
   get "/:band/suggest" => "shows#suggest_form"
   post "/:band/suggest" => "shows#suggest"
   get "/:band" => "shows#band"

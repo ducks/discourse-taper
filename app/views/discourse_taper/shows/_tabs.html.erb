@@ -1,0 +1,5 @@
+<nav class="taper-yearnav" aria-label="<%= t("taper.sections") %>">
+  <a href="<%= @band.url %>"<%- if current == :shows %> aria-current="true"<%- end %>><%= t("taper.shows") %></a>
+  <a href="<%= @band.url %>/songs"<%- if current == :songs %> aria-current="true"<%- end %>><%= t("taper.songs.title") %></a>
+  <a href="<%= @band.url %>/media"<%- if current == :media %> aria-current="true"<%- end %>><%= t("taper.media.title") %></a>
+</nav>

@@ -7,10 +7,7 @@
       <div><%= t("taper.media.blurb", band: @band.name) %></div>
     </div>
   </header>
-  <nav class="taper-yearnav" aria-label="<%= t("taper.shows") %>">
-    <a href="<%= @band.url %>"><%= t("taper.shows") %></a>
-    <a href="<%= @band.url %>/media" aria-current="true"><%= t("taper.media.title") %></a>
-  </nav>
+  <%= render partial: "discourse_taper/shows/tabs", locals: { current: :media } %>
 
   <%- if @items.empty? %>
     <p class="taper-empty"><%= t("taper.media.empty") %></p>
