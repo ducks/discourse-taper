@@ -28,7 +28,11 @@
           <%- @show.setlist.each do |song| %>
             <li class="<%= "is-tape" if song["notes"].to_s.include?("tape") %>">
               <span>
-                <span class="taper-setlist__song"><%= song["title"] %></span>
+                <%- if song["notes"].to_s.match?(/\btape\b/i) %>
+                  <span class="taper-setlist__song"><%= song["title"] %></span>
+                <%- else %>
+                  <a class="taper-setlist__song" href="<%= @band.url %>/songs/<%= DiscourseTaper::SongIndex.slug_for(song["title"]) %>"><%= song["title"] %></a>
+                <%- end %>
                 <%- if song["notes"].present? %><span class="taper-setlist__note"><%= song["notes"] %></span><%- end %>
               </span>
             </li>
