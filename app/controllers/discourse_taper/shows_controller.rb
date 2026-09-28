@@ -10,11 +10,11 @@ module DiscourseTaper
 
     skip_before_action :preload_json,
                        :check_xhr,
-                       only: %i[band show bands media suggest_form suggest]
+                       only: %i[band show bands media songs song suggest_form suggest]
     before_action :ensure_logged_in, only: %i[suggest]
     before_action :ensure_can_see_archive
-    before_action :load_bands, only: %i[band show bands media suggest_form suggest]
-    before_action :set_reader_locale, only: %i[band show media suggest_form suggest]
+    before_action :load_bands, only: %i[band show bands media songs song suggest_form suggest]
+    before_action :set_reader_locale, only: %i[band show media songs song suggest_form suggest]
 
     prepend_view_path File.expand_path("../../views", __dir__)
     layout "taper"
@@ -82,6 +82,58 @@ module DiscourseTaper
         @runtime = @sources.filter_map(&:duration_seconds).max
         @reply_count, @replies = latest_replies(@show.topic)
         render_page(:show)
+      end
+    end
+
+    # GET /taper(/:band)/songs and /songs/:song
+    # What the setlists add up to: every song by how often it was played,
+    # and each song's nights.
+    def songs
+      @band = find_band!
+      @songs = SongIndex.new(@band).songs
+      canonical("#{@band.url}/songs")
+
+      if json_request?
+        render json: {
+                 band: BandSerializer.new(@band, root: false).as_json,
+                 songs: @songs.map { |song| song_json(song) },
+               }
+      else
+        cache_for_anonymous
+        render_page(:songs)
+      end
+    end
+
+    def song
+      @band = find_band!
+      @song = SongIndex.new(@band).find(params[:song].to_s)
+      raise Discourse::NotFound if @song.nil?
+      canonical("#{@band.url}/songs/#{@song.slug}")
+
+      if json_request?
+        render json: {
+                 band: BandSerializer.new(@band, root: false).as_json,
+                 song:
+                   song_json(@song).merge(
+                     nights:
+                       @song.nights.map do |night|
+                         {
+                           date: night.show.date,
+                           label: night.show.label,
+                           venue: night.show.venue,
+                           city: night.show.city,
+                           url: night.show.url,
+                           position: night.position,
+                           of: night.of,
+                           notes: night.notes,
+                           recordings: night.show.sources.size,
+                         }
+                       end,
+                   ),
+               }
+      else
+        cache_for_anonymous
+        render_page(:song)
       end
     end
 
@@ -268,6 +320,7 @@ module DiscourseTaper
           .limit(6)
           .to_a
       @latest_media = MediaItem.visible.where(band: @band).newest.limit(6).to_a
+      @most_played = SongIndex.new(@band).songs.first(5)
       @stats = {
         shows: @band.shows.count,
         recordings: Source.joins(:show).where(taper_shows: { band_id: @band.id }).count,
@@ -414,6 +467,20 @@ module DiscourseTaper
       Date.iso8601(value.to_s)
     rescue Date::Error
       raise Discourse::InvalidParameters.new(:date)
+    end
+
+    def song_json(song)
+      {
+        slug: song.slug,
+        title: song.title,
+        url: "#{@band.url}/songs/#{song.slug}",
+        count: song.count,
+        first_date: song.first_date,
+        last_date: song.last_date,
+        opened: song.opened,
+        closed: song.closed,
+        encore: song.encore,
+      }
     end
 
     def media_json(item)

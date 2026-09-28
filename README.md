@@ -139,6 +139,12 @@ underneath, so it is fast, cacheable, and indexable:
   monumental heading, counts, and the shows grouped by month with
   weekday dates. A venue or tour containing the word "festival" is
   marked as one.
+- **Songs** (`/songs`, `/songs/<song>`): every song the setlists
+  mention, by how often it was played, with first and last night, how
+  often it opened or closed a set or came as an encore, and a page per
+  song listing every night with its position in the set. Built from the
+  setlists on request, so it is as right as they are; a song played from
+  tape is not counted. The front door shows the five most played.
 - **Show**: the date as the headline, venue and city, runtime and tour,
   the numbered setlist with per-song notes, an embedded player for the
   first YouTube or archive.org recording, every recording with its

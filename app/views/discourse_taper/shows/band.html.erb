@@ -59,6 +59,17 @@
     </div>
   <%- end %>
 
+  <%- if @most_played.any? %>
+    <section class="taper-most-played">
+      <div class="taper-section-title"><h2><%= t("taper.songs.most_played") %></h2><a href="<%= @band.url %>/songs"><%= t("taper.songs.all") %></a></div>
+      <ol class="taper-most-played__list">
+        <%- @most_played.each do |song| %>
+          <li><a href="<%= @band.url %>/songs/<%= song.slug %>"><%= song.title %></a> <span class="taper-mono"><%= t("taper.songs.times", count: song.count) %></span></li>
+        <%- end %>
+      </ol>
+    </section>
+  <%- end %>
+
   <%- if @latest_media.any? %>
     <section class="taper-media-strip">
       <div class="taper-section-title"><h2><%= t("taper.media.from_the_band") %></h2><a href="<%= @band.url %>/media"><%= t("taper.media.all") %></a></div>
