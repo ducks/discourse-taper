@@ -97,6 +97,7 @@ describe DiscourseTaper::Importers::Youtube do
           "duration_seconds" => 4329,
           "date" => "2026-09-16",
           "venue" => "Underground Arts",
+          "date_evidence" => "title",
         },
       ],
     )
@@ -160,6 +161,76 @@ describe DiscourseTaper::Importers::Youtube do
     )
     pending = DiscourseTaper::Suggestion.find_by(origin: "setlist_fm")
     expect(pending.reload.payload["sources"].map { |s| s["external_id"] }).to eq(["lpr"])
+  end
+
+  it "matches titles before grouping and does not let description dates relocate a festival" do
+    strasbourg =
+      Fabricate(
+        :taper_show,
+        band: band,
+        date: Date.new(2026, 5, 16),
+        venue: "Jardin des Deux Rives",
+        city: "Strasbourg",
+      )
+    venue = DiscourseTaper::Venue.create!(name: "Cottonwood Meadows", city: "Buena Vista")
+    venue.learn!(["Field of Vision"])
+    fov =
+      Fabricate(
+        :taper_show,
+        band: band,
+        date: Date.new(2026, 8, 14),
+        venue: venue.name,
+        venue_record: venue,
+        city: venue.city,
+      )
+    stub_search(
+      [
+        hit("strasbourg", "Angine de Poitrine live in Strasbourg 2026"),
+        hit(
+          "fov",
+          "Angine De Poitrine at FIELD OF VISION 2026 was wild",
+          description: "See our previous concert on 2026-05-16 in Strasbourg",
+        ),
+        hit("conflict", "Angine de Poitrine Field of Vision 2026-05-16"),
+        hit(
+          "reaction",
+          "Angine de Poitrine reveals their age! #reaction",
+          description: "2026-05-16",
+          channel: "Smitty Reacts",
+        ),
+      ],
+    )
+    stub_durations({})
+
+    expect(described_class.new(band: band).run).to include(matched: 2, skipped: 1, ignored: 1)
+    expect(
+      DiscourseTaper::Suggestion.find_by(show: strasbourg).payload["sources"].pluck("external_id"),
+    ).to eq(["strasbourg"])
+    source = DiscourseTaper::Suggestion.find_by(show: fov).payload["sources"].sole
+    expect(source).to include("external_id" => "fov", "date_evidence" => "title_place")
+    expect(DiscourseTaper::MediaItem.find_by(external_id: "reaction").reason).to eq("reaction")
+    expect(described_class.new(band: band).run).to include(matched: 0, appended: 0)
+  end
+
+  it "keeps two shows on the same date separate" do
+    date = Date.new(2026, 5, 16)
+    first = Fabricate(:taper_show, band: band, date: date, venue: "First Ballroom")
+    second = Fabricate(:taper_show, band: band, date: date, sequence: 2, venue: "Second Ballroom")
+    stub_search(
+      [
+        hit("first", "Angine de Poitrine First Ballroom 2026-05-16"),
+        hit("second", "Angine de Poitrine Second Ballroom 2026-05-16"),
+        hit("ambiguous", "Angine de Poitrine full show 2026-05-16"),
+      ],
+    )
+    stub_durations({})
+    expect(described_class.new(band: band).run).to include(matched: 2, skipped: 1)
+    expect(
+      DiscourseTaper::Suggestion.find_by(show: first).payload["sources"].pluck("external_id"),
+    ).to eq(["first"])
+    expect(
+      DiscourseTaper::Suggestion.find_by(show: second).payload["sources"].pluck("external_id"),
+    ).to eq(["second"])
   end
 
   it "reads the venue and city out of an at-sign title" do

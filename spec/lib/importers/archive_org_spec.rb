@@ -75,39 +75,22 @@ describe DiscourseTaper::Importers::ArchiveOrg do
     expect(DiscourseTaper::Show.count).to eq(0)
   end
 
-  it "groups every recording of one date into a single suggestion, choosing the majority venue" do
+  it "keeps unverified venue spellings separate rather than grouping by date alone" do
     stub_search(
       [
         doc("gd77.sbd", venue: "Utica Memorial Auditorium"),
-        doc("gd77.aud1", venue: "Utica Memorial Auditorium", source: "dpa4021 > sd722", taper: nil),
-        doc("gd77.aud2", venue: "Utica Auditorium", source: "schoeps mk4 > v3", taper: "Jim"),
+        doc("gd77.aud1", venue: "Utica Memorial Auditorium"),
+        doc("gd77.aud2", venue: "Utica Auditorium"),
       ],
     )
-
-    stats = described_class.new(band: band).run
-
-    expect(stats).to eq(
-      proposed: 1,
-      matched: 0,
-      corrected: 0,
-      ignored: 0,
-      accepted: 0,
-      appended: 0,
-      skipped: 0,
-    )
-    suggestion = DiscourseTaper::Suggestion.last
-    expect(suggestion.payload["venue"]).to eq("Utica Memorial Auditorium")
-    expect(suggestion.payload["venue_match"]).to be_nil
-    expect(suggestion.payload["venue_spellings"]).to eq(
-      "Utica Memorial Auditorium" => 2,
-      "Utica Auditorium" => 1,
-    )
-    expect(suggestion.payload["sources"].map { |s| s["external_id"] }).to eq(
-      %w[gd77.sbd gd77.aud1 gd77.aud2],
-    )
-    # On etree an unmarked recording is an audience tape.
-    expect(suggestion.payload["sources"].map { |s| s["kind"] }).to eq(
-      %w[soundboard audience audience],
+    expect(described_class.new(band: band).run).to include(proposed: 2)
+    groups =
+      DiscourseTaper::Suggestion.all.to_h do |suggestion|
+        [suggestion.payload["venue"], suggestion.payload["sources"].pluck("external_id")]
+      end
+    expect(groups).to eq(
+      "Utica Memorial Auditorium" => %w[gd77.sbd gd77.aud1],
+      "Utica Auditorium" => %w[gd77.aud2],
     )
   end
 

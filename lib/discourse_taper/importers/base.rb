@@ -8,12 +8,9 @@ module DiscourseTaper
     # show or source itself; a person accepts them, which is what keeps
     # the archive trustworthy whether a bot or a human found the item.
     #
-    # Everything found for one date is filed as ONE suggestion carrying
-    # every recording. A real archive.org collection has five recordings
-    # per night on average and a dozen spellings of each venue, so
-    # proposing per item would flood the queue with duplicates of the
-    # same show. Re-runs append newly found recordings to the pending
-    # suggestion for that date rather than proposing it again.
+    # Match recordings individually, then group by show or date and
+    # canonical venue. A shared date alone must not combine different
+    # performances. Re-runs append to the matching pending suggestion.
     #
     # An item may also be show-only (no recording): setlist.fm knows the
     # date, venue, tour, and songs but has no tape. Those propose the show
@@ -82,12 +79,50 @@ module DiscourseTaper
             stats[:skipped] += 1
             next
           end
-          fresh << item.merge(date: date)
+          candidates = Show.where(band: band, date: date).to_a
+          named = named_shows([item[:title], item[:venue], item[:city]].compact.join(" "))
+          named = named_shows(item[:description]) if named.empty?
+          compatible = candidates.select { |show| named.any? { |n| n[:id] == show.id } }
+          if candidates.any? && compatible.empty?
+            Rails.logger.info(
+              "#{PLUGIN_NAME}: conflicting date and venue for #{self.class.key}:#{item[:external_id]}",
+            )
+            stats[:skipped] += 1
+            next
+          end
+          show = compatible.one? ? compatible.first : nil
+          if candidates.many? && show.nil?
+            stats[:skipped] += 1
+            next
+          end
+          pending = named.select { |s| s[:date] == date && s[:pending_id] }
+          pending_id = pending.one? ? pending.first[:pending_id] : nil
+          venue_match =
+            VenueResolver.new.resolve(item[:venue].present? ? { item[:venue] => 1 } : {})
+          fresh << item.merge(
+            date: date,
+            matched_show: show,
+            pending_id: pending_id,
+            grouping_venue: venue_match&.name || item[:venue],
+          )
         end
 
         fresh
-          .group_by { |item| item[:date] }
-          .each { |date, items| stats[file_group(date, items)] += 1 }
+          .group_by do |item|
+            [
+              item[:date],
+              item[:matched_show]&.id,
+              item[:pending_id],
+              (
+                if item[:matched_show] || item[:pending_id]
+                  nil
+                else
+                  Venue.normalize(item[:grouping_venue])
+                end
+              ),
+            ]
+          end
+          .each { |(date, _), items| stats[file_group(date, items)] += 1 }
 
         stats
       end
@@ -128,11 +163,14 @@ module DiscourseTaper
         venues = items.map { |item| item[:venue] }.compact_blank.tally
         match = VenueResolver.new.resolve(venues)
         venue = match ? match.name : majority(venues)
-        show = ShowMatcher.new(band: band).find(date: date, venue: venue)
+        show = items.first[:matched_show]
         setlist = items.map { |item| item[:setlist] }.compact_blank.max_by(&:size) || []
         tour = majority(items.map { |item| item[:tour] }.compact_blank.tally)
 
-        pending = pending_for(date, show, kind: pending_kind(show, sources))
+        pending = Suggestion.pending.find_by(id: items.first[:pending_id]) if items.first[
+          :pending_id
+        ]
+        pending ||= pending_for(date, show, venue: venue, kind: pending_kind(show, sources))
         if pending && sources.any?
           pending.payload["sources"] = Array(pending.payload["sources"]) + sources
           pending.save!
@@ -251,6 +289,7 @@ module DiscourseTaper
                 .includes(:venue_record)
                 .map do |show|
                   {
+                    id: show.id,
                     date: show.date,
                     venue: show.venue,
                     city: show.city,
@@ -262,7 +301,12 @@ module DiscourseTaper
                 .where(band: band, kind: "new_show", status: "pending")
                 .map do |suggestion|
                   p = suggestion.payload
-                  { date: ShowMatcher.safe_iso(p["date"]), venue: p["venue"], city: p["city"] }
+                  {
+                    pending_id: suggestion.id,
+                    date: ShowMatcher.safe_iso(p["date"]),
+                    venue: p["venue"],
+                    city: p["city"],
+                  }
                 end
             (shows + pending).select { |show| show[:date] }
           end
@@ -286,12 +330,7 @@ module DiscourseTaper
       INFERENCE_WINDOW = 31
 
       def infer_date(text, published_at)
-        haystack = Venue.normalize(text)
-        named =
-          known_shows.select do |show|
-            [show[:venue], show[:city]].any? { |place| mentions?(haystack, place) } ||
-              (show[:aliases] || []).any? { |a| a.length >= 4 && haystack.include?(a) }
-          end
+        named = named_shows(text)
         return nil if named.empty?
 
         if (year = year_in(text))
@@ -304,6 +343,15 @@ module DiscourseTaper
           return date if date
         end
         unique_date(named)
+      end
+
+      def named_shows(text)
+        haystack = Venue.normalize(text)
+        known_shows.select do |show|
+          [show[:venue], show[:city], *show[:aliases]].compact.any? do |place|
+            mentions?(haystack, place)
+          end
+        end
       end
 
       def unique_date(shows)
@@ -362,12 +410,18 @@ module DiscourseTaper
         sources.any? ? "new_source" : "correction"
       end
 
-      def pending_for(date, show, kind:)
+      def pending_for(date, show, venue:, kind:)
         scope = Suggestion.where(status: "pending", band_id: band.id, kind: kind).reorder(nil)
         if show
           scope.find_by(show_id: show.id)
         else
-          scope.find_by("payload->>'date' = ?", date.iso8601)
+          scope
+            .where("payload->>'date' = ?", date.iso8601)
+            .find do |suggestion|
+              expected = suggestion.payload["venue"]
+              Venue.normalize(expected) == Venue.normalize(venue) ||
+                mentions?(Venue.normalize(venue), expected)
+            end
         end
       end
 
@@ -391,6 +445,7 @@ module DiscourseTaper
           "duration_seconds" => item[:duration_seconds],
           "date" => date.iso8601,
           "venue" => item[:venue],
+          "date_evidence" => item[:date_evidence],
         }.compact
       end
 
