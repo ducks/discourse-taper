@@ -8,6 +8,8 @@ module DiscourseTaper
   # be a recording of a show.
   module ReleaseDetector
     PATTERNS = {
+      "reaction" =>
+        /\b(reaction|reacts|reacting|commentary)\b|\bwatching\b.{0,100}\bcome hang out\b/i,
       "official video" =>
         /\b(official|officiel(le)?)\b.{0,20}\b(video|vid[ée]o|clip|audio|visuali[sz]er)\b|\bclip\s+officiel\b/i,
       "music video" => /\b(music|lyric|lyrics)\s+video\b/i,

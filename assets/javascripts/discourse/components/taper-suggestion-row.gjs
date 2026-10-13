@@ -144,6 +144,9 @@ export default class TaperSuggestionRow extends Component {
       kindLabel: i18n(`taper.kind.${s.kind ?? "unknown"}`),
       providerLabel: i18n(`taper.provider.${s.provider ?? "link"}`),
       duration: formatDuration(s.duration_seconds),
+      dateEvidence: s.date_evidence
+        ? i18n(`taper.review.date_evidence.${s.date_evidence}`)
+        : null,
     }));
   }
 
@@ -283,6 +286,7 @@ export default class TaperSuggestionRow extends Component {
                   {{#if r.format}}· {{r.format}}{{/if}}
                   {{#if r.duration}}· {{r.duration}}{{/if}}
                   {{#if r.taper_name}}· {{r.taper_name}}{{/if}}
+                  {{#if r.dateEvidence}}· {{r.dateEvidence}}{{/if}}
                 </span>
               </li>
             {{/each}}

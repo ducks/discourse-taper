@@ -275,7 +275,8 @@ module DiscourseTaper
 
       def item_from(video, duration)
         place = TitlePlace.parse(video[:title], band_name: band.name)
-        date, certain = video_date(video[:title], video[:description], video[:published_at])
+        date, certain, evidence =
+          video_date(video[:title], video[:description], video[:published_at])
         {
           external_id: video[:video_id],
           ignore:
@@ -288,8 +289,10 @@ module DiscourseTaper
             ),
           url: "https://www.youtube.com/watch?v=#{video[:video_id]}",
           title: video[:title],
+          description: video[:description],
           date: date,
           date_certain: certain,
+          date_evidence: evidence,
           venue: place[:venue],
           city: place[:city],
           region: place[:region],
@@ -316,16 +319,18 @@ module DiscourseTaper
       # Returns the date and whether it was read straight from the title.
       def video_date(title, description, published_at)
         candidates = ShowMatcher.date_candidates(title, year_hint: published_at)
-        return candidates.first, true if candidates.size == 1
+        return candidates.first, true, "title" if candidates.size == 1
         if candidates.size > 1
           return [
             candidates.find { |date| known_show_dates.include?(date) } || candidates.first,
-            true
+            false,
+            "ambiguous_title"
           ]
         end
+        return infer_date(title, published_at), false, "title_place" if named_shows(title).any?
         date = date_from_description(description, year_hint: published_at)
-        return date, false if date
-        [infer_date("#{title} #{description}", published_at), false]
+        return date, false, "description_date" if date
+        [infer_date(description, published_at), false, "description_place"]
       end
 
       # "PT1H2M3S" => 3723

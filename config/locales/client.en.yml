@@ -85,6 +85,12 @@ en:
         claim_current: "currently credited to %{name}"
         claim_uncredited: "currently uncredited"
         also_seen_as: "Also seen as:"
+        date_evidence:
+          title: "Date in title"
+          ambiguous_title: "Ambiguous title date, matched to known show"
+          title_place: "Date inferred from place in title"
+          description_date: "Date from description"
+          description_place: "Date inferred from place in description"
         recordings_count:
           one: "%{count} recording"
           other: "%{count} recordings"
