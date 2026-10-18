@@ -245,7 +245,7 @@ describe DiscourseTaper::SuggestionReviewer do
     expect(venue.aliases).to eq(["le grand mix", "le grand mix tourcoing"])
   end
 
-  it "learns what the tapes called the place when recordings are accepted" do
+  it "learns structured venue spellings when recordings are accepted" do
     show =
       Fabricate(
         :taper_show,
@@ -261,7 +261,7 @@ describe DiscourseTaper::SuggestionReviewer do
         kind: "new_source",
         band: band,
         show: show,
-        origin: "youtube",
+        origin: "archive_org",
         payload: {
           "date" => "2026-08-14",
           "venue" => "Field of Vision II Festival",
@@ -288,6 +288,44 @@ describe DiscourseTaper::SuggestionReviewer do
       "field of vision ii festival",
       "cottonwood meadows",
     )
+  end
+
+  [true, false].each do |linked|
+    it "does not learn YouTube title fragments with an existing venue record: #{linked}" do
+      venue = DiscourseTaper::Venue.create!(name: "ESMA", city: "Rennes") if linked
+      venue&.learn!(["École ESMA"])
+      show = Fabricate(:taper_show, band: band, venue: "ESMA", city: "Rennes", venue_record: venue)
+      suggestion =
+        DiscourseTaper::Suggestion.create!(
+          kind: "new_source",
+          origin: "youtube",
+          band: band,
+          show: show,
+          payload: {
+            "venue" => "Fabienk",
+            "venue_spellings" => {
+              "Yor Zarad" => 1,
+              "Live Bristol Highlights" => 1,
+            },
+            "sources" => [
+              {
+                "provider" => "youtube",
+                "external_id" => "kexp",
+                "url" => "https://youtu.be/kexp",
+                "title" => "Fabienk (Live on KEXP)",
+              },
+            ],
+          },
+        )
+
+      reviewer_service.accept!(suggestion)
+
+      expect(suggestion.reload.status).to eq("accepted")
+      expect(show.sources.sole.external_id).to eq("kexp")
+      expect(show.reload.venue).to eq("ESMA")
+      expected = linked ? ["esma", "ecole esma"] : ["esma"]
+      expect(show.venue_record.aliases).to contain_exactly(*expected)
+    end
   end
 
   it "rejects, and refuses to review twice" do
