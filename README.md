@@ -37,7 +37,9 @@ did.
   scraper runs eleven phrasings (full set, full show, live, concert,
   concert complet, performance complète, festival, 4K, the bare name,
   interview, entrevue) plus "live YEAR" for every year the band has a
-  show. Asked six ways it missed a third of the full sets.
+  show. It also searches the current and previous month without a
+  duration filter to find recent clips. Asked six ways it missed a third
+  of the full sets.
 - **Releases stay out.** Searching for a band turns up its albums,
   singles, music videos, teasers, and podcast appearances next to the
   tapes. Both importers run every item through a release detector
@@ -58,8 +60,9 @@ did.
   to a known or pending show whose venue or city it names: the one show
   there in the year the title gives, else the one in the month before
   the video was published, else the one show ever at that place; two
-  candidates leave it undated rather than guessed. The search takes long
-  videos only, so full sets rather than phone clips.
+  candidates leave it undated rather than guessed. Venue and venue-alias
+  matches take priority over city matches. Most searches favor full sets;
+  the month-specific searches also find shorter recordings.
 - **Venues resolve themselves, without a model.** Every spelling an
   importer sees for an accepted show is learned as an alias of that
   venue, so a reviewer answers "what is this venue" once, ever.

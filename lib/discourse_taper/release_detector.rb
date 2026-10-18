@@ -41,7 +41,7 @@ module DiscourseTaper
         return reason if description.to_s.match?(pattern)
       end
       text = "#{title} #{description}"
-      return "album" if !dated && text.match?(VOLUME)
+      return "album" if !dated && text.match?(VOLUME) && !text.match?(LIVE_CUES)
       if channel.present? && band_name.present? && !dated &&
            Venue.normalize(channel).include?(Venue.normalize(band_name)) && !text.match?(LIVE_CUES)
         return "band's own channel, not a show"

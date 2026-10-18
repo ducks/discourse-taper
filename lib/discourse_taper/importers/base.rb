@@ -347,11 +347,13 @@ module DiscourseTaper
 
       def named_shows(text)
         haystack = Venue.normalize(text)
-        known_shows.select do |show|
-          [show[:venue], show[:city], *show[:aliases]].compact.any? do |place|
-            mentions?(haystack, place)
+        venues =
+          known_shows.select do |show|
+            [show[:venue], *show[:aliases]].compact.any? { |place| mentions?(haystack, place) }
           end
-        end
+        return venues if venues.any?
+
+        known_shows.select { |show| show[:city] && mentions?(haystack, show[:city]) }
       end
 
       def unique_date(shows)

@@ -348,6 +348,111 @@ describe DiscourseTaper::Importers::Youtube do
       )
     end
 
+    it "reads compact and spelled-out upload ages without confusing minutes and months" do
+      freeze_time Time.zone.parse("2026-10-18 12:00:00")
+      importer = described_class.new(band: band)
+      {
+        "1d ago" => 1.day,
+        "8mo ago" => 8.months,
+        "2 weeks ago" => 2.weeks,
+        "3h ago" => 3.hours,
+        "4m ago" => 4.minutes,
+        "5s ago" => 5.seconds,
+        "1y ago" => 1.year,
+      }.each { |text, age| expect(importer.send(:relative_time, text)).to eq(Time.current - age) }
+      expect(importer.send(:relative_time, "LIVE")).to be_nil
+    end
+
+    it "finds short recent performances and keeps a tour volume out of album classification" do
+      freeze_time Time.zone.parse("2026-10-18 12:00:00")
+      show =
+        Fabricate(
+          :taper_show,
+          band: band,
+          date: Date.new(2026, 10, 16),
+          venue: "Vicar Street",
+          city: "Dublin",
+        )
+      stub_results([])
+      stub_request(:get, "https://www.youtube.com/results").with(
+        query: {
+          search_query: "Angine de Poitrine live October 2026 live",
+        },
+      ).to_return(
+        status: 200,
+        body:
+          results_page(
+            [
+              renderer(
+                "dublin",
+                "Angine de Poitrine - Yor Zarad - live in Dublin, Ireland (2026)",
+                length: "8:03",
+                published: "1d ago",
+                snippet:
+                  'Performing during their "Vol.II" tour on October 16th 2026 live at Vicar Street, Dublin.',
+              ),
+            ],
+          ),
+      )
+
+      expect(described_class.new(band: band).run).to include(matched: 1, ignored: 0)
+      source = DiscourseTaper::Suggestion.find_by!(show: show).payload["sources"].sole
+      expect(source).to include("external_id" => "dublin", "duration_seconds" => 483)
+      expect(DiscourseTaper::MediaItem.exists?(external_id: "dublin")).to eq(false)
+      expect(
+        a_request(:get, "https://www.youtube.com/results").with(
+          query: {
+            search_query: "Angine de Poitrine live September 2026 live",
+          },
+        ),
+      ).to have_been_made.once
+    end
+
+    it "prefers a named venue over other shows in the city and uses compact upload ages" do
+      freeze_time Time.zone.parse("2026-10-18 12:00:00")
+      recent =
+        Fabricate(
+          :taper_show,
+          band: band,
+          date: Date.new(2026, 10, 16),
+          venue: "Club Soda",
+          city: "Montreal",
+        )
+      Fabricate(
+        :taper_show,
+        band: band,
+        date: Date.new(2026, 4, 18),
+        venue: "Club Soda",
+        city: "Montreal",
+      )
+      Fabricate(
+        :taper_show,
+        band: band,
+        date: Date.new(2026, 10, 15),
+        venue: "Other Ballroom",
+        city: "Montreal",
+      )
+      stub_results(
+        [
+          renderer(
+            "soda",
+            "Angine de Poitrine live at Club Soda Montreal 2026",
+            published: "1d ago",
+          ),
+        ],
+      )
+
+      expect(described_class.new(band: band).run).to include(matched: 1, skipped: 0)
+      expect(DiscourseTaper::Suggestion.last.show_id).to eq(recent.id)
+    end
+
+    it "searches December of the previous year in January" do
+      freeze_time Time.zone.parse("2027-01-02 12:00:00")
+      expect(described_class.new(band: band).send(:recent_queries)).to eq(
+        [["January 2027 live", false], ["December 2026 live", false]],
+      )
+    end
+
     it "is available, searches long videos for each phrasing, and reads duration and channel off the page" do
       expect(described_class.available?).to eq(true)
       stub_results(

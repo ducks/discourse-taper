@@ -122,9 +122,9 @@ module DiscourseTaper
         end
       end
 
-      # One result page per phrasing of the query, long videos only.
+      # One result page per phrasing; recent clips and interviews have no duration filter.
       def each_scraped_page
-        (SCRAPE_QUERIES + year_queries).each do |suffix, long|
+        (SCRAPE_QUERIES + year_queries + recent_queries).each do |suffix, long|
           query = [band.youtube_search_query, suffix].reject(&:blank?).join(" ")
           query_params = { search_query: query }
           query_params[:sp] = LONG_FILTER if long
@@ -147,6 +147,13 @@ module DiscourseTaper
       # titles far more often than they name venues.
       def year_queries
         known_shows.map { |show| show[:date].year }.uniq.sort.map { |year| ["live #{year}", true] }
+      end
+
+      # Month-specific searches find recent clips buried below popular full sets.
+      def recent_queries
+        [Date.current, Date.current.prev_month].map do |date|
+          ["#{Date::MONTHNAMES[date.month]} #{date.year} live", false]
+        end
       end
 
       # The result page embeds its data as JSON; every videoRenderer in it
@@ -186,23 +193,30 @@ module DiscourseTaper
         }
       end
 
-      # "3 weeks ago" to a date, roughly; only ever used as a hint.
+      # "3 weeks ago" or "3w ago" to a date, roughly; only used as a hint.
       def relative_time(text)
-        m = text.to_s.match(/(\d+)\s+(second|minute|hour|day|week|month|year)/i)
+        m =
+          text.to_s.match(
+            /\b(\d+)\s*(seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|weeks?|w|months?|mo|years?|yrs?|y)\s+ago\b/i,
+          )
         return nil if m.nil?
         n = m[1].to_i
         now = Time.zone.now
         case m[2].downcase
-        when "day"
+        when "day", "days", "d"
           now - n.days
-        when "week"
+        when "week", "weeks", "w"
           now - n.weeks
-        when "month"
+        when "month", "months", "mo"
           now - n.months
-        when "year"
+        when "year", "years", "yr", "yrs", "y"
           now - n.years
+        when "hour", "hours", "hr", "hrs", "h"
+          now - n.hours
+        when "minute", "minutes", "min", "mins", "m"
+          now - n.minutes
         else
-          now
+          now - n.seconds
         end
       end
 
