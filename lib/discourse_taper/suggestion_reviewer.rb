@@ -69,18 +69,22 @@ module DiscourseTaper
         city: p["city"],
         region: p["region"],
         country: p["country"],
-        spellings: (p["venue_spellings"] || {}).keys,
+        spellings: venue_spellings(suggestion),
       )
       sources_in(suggestion).each { |attrs| attach_source(show, attrs, suggestion) }
       show
     end
 
-    # What the tapes called the place becomes an alias of the show's venue,
-    # so the next undated video titled "Field of Vision '26" finds the
-    # night at Cottonwood Meadows by itself.
+    def venue_spellings(suggestion)
+      # YouTube venue text is extracted from titles, not structured venue metadata.
+      return [] if suggestion.origin == "youtube"
+      (suggestion.payload["venue_spellings"] || {}).keys
+    end
+
     def learn_tape_names(show, suggestion)
       p = suggestion.payload
-      names = [p["venue"], *(p["venue_spellings"] || {}).keys].compact_blank.uniq
+      names = venue_spellings(suggestion)
+      names = [p["venue"], *names].compact_blank.uniq if suggestion.origin != "youtube"
       names -= [I18n.t("taper.unknown_venue"), show.venue]
       return if names.empty? && show.venue_record.present?
       if show.venue_record.nil?
@@ -97,8 +101,7 @@ module DiscourseTaper
       end
     end
 
-    # Every spelling seen for an accepted show becomes an alias, so the
-    # reviewer answers the venue question once per venue.
+    # Callers supply only spellings suitable for reuse as venue aliases.
     def link_venue!(show, name, city: nil, region: nil, country: nil, spellings: [])
       return if name.blank?
       venue =

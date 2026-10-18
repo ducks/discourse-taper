@@ -63,13 +63,11 @@ did.
   candidates leave it undated rather than guessed. Venue and venue-alias
   matches take priority over city matches. Most searches favor full sets;
   the month-specific searches also find shorter recordings.
-- **Venues resolve themselves, without a model.** Every spelling an
-  importer sees for an accepted show is learned as an alias of that
-  venue, so a reviewer answers "what is this venue" once, ever.
-  Accepting a night's recordings teaches the venue every name the tapes
-  used for it ("Field of Vision" for Cottonwood Meadows), and the place
-  matcher reads those names, so the next undated festival video finds
-  its night by itself. An
+- **Venues resolve themselves, without a model.** Venue spellings from
+  structured imports are learned as aliases when accepted. YouTube title
+  fragments are excluded: accepting a recording does not confirm its
+  extracted venue text as an alias. Existing aliases still help the place
+  matcher find undated festival videos. An
   importer resolves a night's spellings by learned alias first, then the
   abbreviations every taper uses (MSG, SPAC, Red Rocks), then a trigram
   near-match through PostgreSQL's `pg_trgm`, which must also agree on the

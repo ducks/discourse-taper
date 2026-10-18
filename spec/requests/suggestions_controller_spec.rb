@@ -65,6 +65,27 @@ describe DiscourseTaper::SuggestionsController do
     expect(show.venue_record.aliases).to include("barton hall")
   end
 
+  it "uses a corrected YouTube venue without learning the extracted title as an alias" do
+    suggestion.update!(
+      origin: "youtube",
+      payload:
+        suggestion.payload.merge(
+          "venue" => "Fabienk",
+          "venue_spellings" => {
+            "Live Bristol Highlights" => 1,
+          },
+        ),
+    )
+    sign_in(reviewer)
+
+    post "/taper/suggestions/#{suggestion.id}/accept.json", params: { venue: "ESMA" }
+
+    expect(response.status).to eq(200)
+    show = DiscourseTaper::Show.last
+    expect(show.venue).to eq("ESMA")
+    expect(show.venue_record.aliases).to eq(["esma"])
+  end
+
   it "accepts every pending show from an importer in a job, ids fixed at request time" do
     sign_in(reviewer)
     other =
