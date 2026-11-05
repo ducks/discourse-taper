@@ -113,6 +113,14 @@ concept. Its shows live at `/taper/1977-05-08`; any other band's at
 4. Importers run every `taper_import_interval_hours`. A reviewer can
    kick one early with `POST /taper/suggestions/import`.
 
+Importer GET requests make at most three attempts on network failures or HTTP
+429/503, with exponential waits of 2 and 4 seconds. [Retry-After](https://www.rfc-editor.org/rfc/rfc9110.html#name-retry-after) accepts seconds
+or an HTTP date and can extend that wait. A requested wait over 60 seconds stops
+the run rather than retrying early or occupying a worker for a long period.
+Other HTTP errors are not retried. setlist.fm waits one second between pages.
+These limits apply per request/run; they do not coordinate concurrent imports
+or schedule a deferred retry after a long cooldown.
+
 ## API
 
 | Route | Purpose |
