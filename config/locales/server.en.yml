@@ -18,6 +18,7 @@ en:
       sequence: "show %{n}"
     errors:
       category_not_configured: "The archive category is not configured."
+      recordings_required: "This action requires a recording suggestion."
       not_pending: "This suggestion has already been reviewed."
       show_not_found: "No show on that date to attach this source to. Suggest the show first."
       source_needs_location: "A source needs a link or an upload."

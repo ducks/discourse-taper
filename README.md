@@ -250,3 +250,24 @@ a web-font link). Everything a theme might want to change is a hook on
 [archive-de-poitrine-theme](https://github.com/ducks/archive-de-poitrine-theme)
 is the reference: polka dots, cubes, triangles, Bricolage Grotesque and
 IBM Plex, one red.
+
+## Reviewing recordings individually
+
+The review queue groups suggestions by band and performance date. A date is a
+review grouping, not a unique show key: separate performances on the same day
+keep their own show IDs.
+
+Use **Review recordings individually** on a bundle to separate its recordings.
+For a proposed show, the event stays pending without recordings; create it first
+or choose an existing performance for each recording. Each recording can then
+be accepted or rejected with its own review note. Import refreshes do not append
+to these individual suggestions. Nothing is approved just by splitting it.
+
+Reviewer-authenticated API clients use `POST /taper/suggestions/:id/split.json`.
+The response contains the pending suggestions, with `review_date` and IDs in
+`nearby_shows`. Accept an individual recording with
+`POST /taper/suggestions/:id/accept.json`, passing `show_id` and an evidence
+`note`; reject it through the existing `/reject.json` endpoint. Show targets must
+belong to the same band. Split children retain `parent_suggestion_id`, recording
+metadata and submitter credit. This supports externally assisted review without
+a model dependency or an unattended approval policy in the plugin.

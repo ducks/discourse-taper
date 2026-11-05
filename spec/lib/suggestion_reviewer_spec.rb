@@ -343,4 +343,82 @@ describe DiscourseTaper::SuggestionReviewer do
     expect(suggestion.reload).to have_attributes(status: "rejected", review_note: "duplicate")
     expect { reviewer_service.accept!(suggestion) }.to raise_error(DiscourseTaper::Error)
   end
+
+  describe "individual recording review" do
+    let(:sources) do
+      %w[leeds lisbon].map do |id|
+        {
+          "provider" => "youtube",
+          "external_id" => id,
+          "url" => "https://youtu.be/#{id}",
+          "title" => id,
+        }
+      end
+    end
+    let(:bundle) do
+      DiscourseTaper::Suggestion.create!(
+        kind: "new_show",
+        band: band,
+        origin: "youtube",
+        submitted_by: member,
+        payload: {
+          "date" => "2026-10-18",
+          "venue" => "O2 Academy Leeds",
+          "sources" => sources,
+          "external_id" => "leeds",
+        },
+      )
+    end
+
+    it "keeps the event separate and audits independent recording decisions" do
+      rows = reviewer_service.split_recordings!(bundle)
+      expect(rows.size).to eq(3)
+      expect(bundle.reload.payload["sources"]).to eq([])
+      expect(rows.drop(1).map { |s| s.payload["sources"].sole }).to eq(sources)
+      expect(rows.drop(1).map(&:submitted_by)).to eq([member, member])
+      expect(rows.drop(1).map { |s| s.payload["parent_suggestion_id"] }).to eq(
+        [bundle.id, bundle.id],
+      )
+      show = reviewer_service.accept!(bundle)
+      expect(show.sources).to be_empty
+      rows[1].update!(show: show)
+      reviewer_service.accept!(rows[1], note: "venue and date verified")
+      reviewer_service.reject!(rows[2], note: "different city")
+      expect(show.sources.pluck(:external_id)).to eq(["leeds"])
+      expect(rows[1].reload.review_note).to eq("venue and date verified")
+      expect(rows[2].reload.status).to eq("rejected")
+    end
+
+    it "splits an existing show's bundle without making another show" do
+      show = Fabricate(:taper_show, band: band)
+      bundle.update!(kind: "new_source", show: show)
+      rows = reviewer_service.split_recordings!(bundle)
+      expect(rows.size).to eq(2)
+      expect(rows.map(&:show_id)).to eq([show.id, show.id])
+      expect(rows.map { |s| s.payload["sources"].size }).to eq([1, 1])
+      expect { reviewer_service.split_recordings!(bundle) }.not_to change(
+        DiscourseTaper::Suggestion,
+        :count,
+      )
+      reviewer_service.accept!(rows.first)
+      expect(rows.last.reload).to be_pending
+    end
+
+    it "refuses to split an already reviewed bundle, including a stale instance" do
+      stale = DiscourseTaper::Suggestion.find(bundle.id)
+      reviewer_service.reject!(bundle)
+      expect { reviewer_service.split_recordings!(stale) }.to raise_error(DiscourseTaper::Error)
+      expect { reviewer_service.accept!(stale) }.to raise_error(DiscourseTaper::Error)
+    end
+
+    it "keeps isolated recordings out of importer append targets" do
+      show = Fabricate(:taper_show, band: band, date: "2026-10-18")
+      bundle.update!(kind: "new_source", show: show)
+      reviewer_service.split_recordings!(bundle)
+      importer = DiscourseTaper::Importers::Youtube.new(band: band)
+      expect(
+        importer.send(:pending_for, show.date, show, venue: show.venue, kind: "new_source"),
+      ).to be_nil
+    end
+  end
 end

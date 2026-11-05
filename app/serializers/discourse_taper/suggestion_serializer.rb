@@ -16,7 +16,12 @@ module DiscourseTaper
                :submitted_by,
                :reviewed_by,
                :source,
+               :review_date,
                :nearby_shows
+
+    def review_date
+      ShowMatcher.safe_iso(object.payload["date"])&.iso8601 || object.show&.date&.iso8601
+    end
 
     def band
       object.band &&
@@ -43,8 +48,8 @@ module DiscourseTaper
     # reviewer can spot a tape dated by its upload day, or a night setlist.fm
     # does not have yet.
     def nearby_shows
-      return nil if object.kind != "new_show" || object.band.nil?
-      date = ShowMatcher.safe_iso(object.payload["date"])
+      return nil unless %w[new_show new_source].include?(object.kind) && object.band
+      date = ShowMatcher.safe_iso(review_date)
       return nil if date.nil?
       object
         .band
@@ -53,6 +58,8 @@ module DiscourseTaper
         .order(:date)
         .map do |show|
           {
+            id: show.id,
+            date: show.date.iso8601,
             label: show.label,
             venue: show.venue,
             city: show.city,
