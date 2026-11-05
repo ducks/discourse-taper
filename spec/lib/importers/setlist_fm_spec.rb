@@ -86,6 +86,47 @@ describe DiscourseTaper::Importers::SetlistFm do
     end
   end
 
+  it "paces pages and retries the same page without losing earlier shows" do
+    first =
+      stub_request(
+        :get,
+        "#{described_class::ENDPOINT}?artistName=Angine+de+Poitrine&p=1",
+      ).to_return(
+        status: 200,
+        body: {
+          itemsPerPage: 1,
+          total: 2,
+          setlist: [setlist(id: "a", date: "16-09-2026")],
+        }.to_json,
+      )
+    second =
+      stub_request(
+        :get,
+        "#{described_class::ENDPOINT}?artistName=Angine+de+Poitrine&p=2",
+      ).to_return(
+        { status: 429, headers: { "Retry-After" => "7" } },
+        {
+          status: 200,
+          body: {
+            itemsPerPage: 1,
+            total: 2,
+            setlist: [setlist(id: "b", date: "17-09-2026")],
+          }.to_json,
+        },
+      )
+    importer = described_class.new(band: band)
+    delays = []
+    allow(importer).to receive(:sleep) { |delay| delays << delay }
+
+    expect(importer.run).to include(proposed: 2)
+    expect(
+      DiscourseTaper::Suggestion.pending.map { |s| s.payload["setlistfm_id"] },
+    ).to contain_exactly("a", "b")
+    expect(delays).to eq([1, 7])
+    expect(first).to have_been_requested.once
+    expect(second).to have_been_requested.twice
+  end
+
   it "is unavailable without an api key" do
     SiteSetting.taper_setlistfm_api_key = ""
     expect(described_class.available?).to eq(false)

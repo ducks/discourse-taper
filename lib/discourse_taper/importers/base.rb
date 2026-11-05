@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "time"
+
 module DiscourseTaper
   module Importers
     # Shared plumbing for the automated channel. An importer fetches
@@ -33,6 +35,18 @@ module DiscourseTaper
         OpenSSL::SSL::SSLError,
       ].freeze
       RETRIES = 3
+      RETRY_BASE_DELAY = 2
+      MAX_RETRY_DELAY = 60
+
+      class HttpError < DiscourseTaper::Error
+        attr_reader :status, :retry_after
+
+        def initialize(status, retry_after)
+          @status = status.to_i
+          @retry_after = retry_after
+          super("importer_http", status: status)
+        end
+      end
 
       attr_reader :band
 
@@ -464,14 +478,33 @@ module DiscourseTaper
         begin
           attempt += 1
           fetch_body(url, headers: headers, accept: accept)
-        rescue *RETRYABLE => e
+        rescue HttpError, *RETRYABLE => e
+          raise if e.is_a?(HttpError) && ![429, 503].include?(e.status)
           raise if attempt >= RETRIES
+
+          delay = RETRY_BASE_DELAY * (2**(attempt - 1))
+          delay = [delay, retry_after_seconds(e.retry_after)].compact.max if e.is_a?(HttpError)
+          # Never shorten the service's requested wait to fit our worker budget.
+          if delay > MAX_RETRY_DELAY
+            Rails.logger.info("#{PLUGIN_NAME}: #{self.class.key} retry delay exceeds worker budget")
+            raise
+          end
           Rails.logger.info(
-            "#{PLUGIN_NAME}: #{self.class.key} retrying after #{e.class} (attempt #{attempt} of #{RETRIES})",
+            "#{PLUGIN_NAME}: #{self.class.key} retrying after #{e.class} in #{delay}s (attempt #{attempt} of #{RETRIES})",
           )
-          sleep(attempt)
+          sleep(delay)
           retry
         end
+      end
+
+      def retry_after_seconds(value)
+        value = value.to_s.strip
+        return if value.empty?
+        return value.to_i if value.match?(/\A\d+\z/)
+
+        [(Time.httpdate(value) - Time.now).ceil, 0].max
+      rescue ArgumentError
+        nil
       end
 
       # GET through Discourse's SSRF-aware client, with a body cap.
@@ -491,7 +524,7 @@ module DiscourseTaper
           read_timeout: 20,
         ) do |http|
           http.request(request) do |response|
-            raise Error.new("importer_http", status: response.code) if response.code.to_i != 200
+            raise HttpError.new(response.code, response["Retry-After"]) if response.code.to_i != 200
             response.read_body do |chunk|
               body << chunk
               raise Error.new("importer_too_large") if body.bytesize > MAX_BODY_BYTES

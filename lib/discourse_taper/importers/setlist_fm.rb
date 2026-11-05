@@ -36,6 +36,7 @@ module DiscourseTaper
           total = data["total"].to_i
           break if per_page.zero? || page * per_page >= total || page >= MAX_PAGES
           page += 1
+          sleep(1)
         end
       end
 
