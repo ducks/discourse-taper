@@ -49,6 +49,14 @@ end
 require_relative "lib/discourse_taper/engine"
 
 after_initialize do
+  on(:robots_info) do |info|
+    if DiscourseTaper::SitemapsController.available?
+      info[
+        :header
+      ] += "\nSitemap: #{Discourse.base_url_no_prefix}#{DiscourseTaper.root_path}/sitemap.xml\n"
+    end
+  end
+
   require_relative "lib/discourse_taper/errors"
   require_relative "app/models/discourse_taper/band"
   require_relative "app/models/discourse_taper/venue"

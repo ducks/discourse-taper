@@ -19,15 +19,36 @@ module DiscourseTaper
       @reader_locale_pinned = true
     end
 
-    # The language switch: the same page in each reader locale. The engine
-    # mounts the front door at "/taper/"; link the canonical path without
-    # the slash.
+    def reader_query
+      query = {}
+      if controller_name == "shows" && action_name == "band"
+        %w[year venue tour].each { |key| query[key] = params[key].to_s if params[key].present? }
+      end
+      query
+    end
+
+    def set_reader_canonical(path)
+      query = reader_query
+      locale = I18n.locale.to_s
+      if DiscourseTaper.reader_locales.include?(locale) && locale != SiteSetting.default_locale
+        query["lang"] = locale
+      end
+      @canonical_path = path
+      @canonical_url = "#{Discourse.base_url_no_prefix}#{path}"
+      @canonical_url += "?#{query.to_query}" if query.present?
+    end
+
     def locale_links
-      path = (@canonical_path.presence || request.path).sub(/\?.*/, "").sub(%r{(?<=.)/\z}, "")
+      path = (@canonical_path.presence || request.path).split("?", 2).first.chomp("/")
       DiscourseTaper.reader_locales.map do |locale|
-        query = request.query_parameters.merge("lang" => locale)
+        query = reader_query.merge("lang" => locale)
         { locale: locale, url: "#{path}?#{query.to_query}", current: I18n.locale.to_s == locale }
       end
+    end
+
+    # Reader pages have JSON alternates, not the forum's Markdown topic list.
+    def markdown_alternate_url
+      nil
     end
   end
 end

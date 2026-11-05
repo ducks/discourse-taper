@@ -8,6 +8,7 @@ module DiscourseTaper
   class ShowsController < ::ApplicationController
     requires_plugin PLUGIN_NAME
     include ReaderLocale
+    helper MetadataHelper
 
     skip_before_action :preload_json,
                        :check_xhr,
@@ -40,16 +41,20 @@ module DiscourseTaper
 
     def band
       @band = find_band!
+      if params[:year].present? && !params[:year].to_s.match?(/\A[1-9]\d{3}\z/)
+        raise Discourse::NotFound
+      end
       @year = params[:year].presence&.to_i
-      shows = @band.shows.includes(:topic, :sources).by_date
+      shows = @band.shows.readable_by(guardian).includes(:topic, :sources).by_date
       shows = shows.for_year(@year) if @year
       shows = shows.where(venue: params[:venue]) if params[:venue].present?
       shows = shows.where(tour: params[:tour]) if params[:tour].present?
       @shows = shows.limit(500).to_a
-      @years = @band.shows.group("EXTRACT(YEAR FROM date)::int").count.sort.reverse
+      @years =
+        @band.shows.readable_by(guardian).group("EXTRACT(YEAR FROM date)::int").count.sort.reverse
       # The same page answers at / when the archive is the site homepage;
       # /taper stays canonical.
-      canonical(request.query_string.present? ? "#{@band.url}?#{request.query_string}" : @band.url)
+      canonical(@band.url)
 
       if json_request?
         render json: {
@@ -60,6 +65,7 @@ module DiscourseTaper
       elsif @year || params[:venue].present? || params[:tour].present?
         cache_for_anonymous
         prepare_listing(shows)
+        @page_noindex = @shows.empty?
         render_page(:listing)
       else
         cache_for_anonymous
@@ -91,7 +97,7 @@ module DiscourseTaper
     # and each song's nights.
     def songs
       @band = find_band!
-      @songs = SongIndex.new(@band).songs
+      @songs = SongIndex.new(@band, guardian: guardian).songs
       canonical("#{@band.url}/songs")
 
       if json_request?
@@ -107,7 +113,7 @@ module DiscourseTaper
 
     def song
       @band = find_band!
-      @song = SongIndex.new(@band).find(params[:song].to_s)
+      @song = SongIndex.new(@band, guardian: guardian).find(params[:song].to_s)
       raise Discourse::NotFound if @song.nil?
       canonical("#{@band.url}/songs/#{@song.slug}")
 
@@ -243,8 +249,7 @@ module DiscourseTaper
     # Core's head partial emits the canonical link from @canonical_url, so
     # the reader sets it absolute there and keeps the path for its own use.
     def canonical(path)
-      @canonical_path = path
-      @canonical_url = "#{Discourse.base_url_no_prefix}#{path}"
+      set_reader_canonical(path)
     end
 
     # Where "the forum" is. Normally the site root; when the archive is the
@@ -257,8 +262,8 @@ module DiscourseTaper
     # The JSON twin of the page being viewed, by its canonical path so it is
     # right at / too.
     def json_url
-      base = (@canonical_path.presence || request.path).split("?", 2)
-      "#{base[0]}.json#{"?#{base[1]}" if base[1].present?}"
+      uri = URI.parse(@canonical_url || "#{Discourse.base_url_no_prefix}#{request.path}")
+      "#{uri.path}.json#{"?#{uri.query}" if uri.query.present?}"
     end
 
     # Localised names where the locale has them, strftime where it does
@@ -315,16 +320,17 @@ module DiscourseTaper
       @latest_sources =
         Source
           .joins(:show)
-          .where(taper_shows: { band_id: @band.id })
+          .where(show_id: @band.shows.readable_by(guardian).select(:id))
           .includes(:taper, show: :band)
           .order(created_at: :desc)
           .limit(6)
           .to_a
       @latest_media = MediaItem.visible.where(band: @band).newest.limit(6).to_a
-      @most_played = SongIndex.new(@band).songs.first(5)
+      @most_played = SongIndex.new(@band, guardian: guardian).songs.first(5)
       @stats = {
-        shows: @band.shows.count,
-        recordings: Source.joins(:show).where(taper_shows: { band_id: @band.id }).count,
+        shows: @band.shows.readable_by(guardian).count,
+        recordings:
+          Source.joins(:show).where(show_id: @band.shows.readable_by(guardian).select(:id)).count,
         years: counts.size,
       }
     end
@@ -404,33 +410,6 @@ module DiscourseTaper
       end
     end
 
-    # A reader may pick the archive's language with ?lang=, remembered in
-    # a cookie for a year. Only locales the plugin is translated into
-    # count. Pages served under a pinned language are not put in the
-    # anonymous cache, whose key knows nothing about the cookie.
-    def set_reader_locale
-      locales = DiscourseTaper.reader_locales
-      return if locales.size < 2
-      wanted = params[:lang].presence || cookies[:taper_lang].presence
-      return if wanted.blank? || !locales.include?(wanted)
-      cookies[:taper_lang] = { value: wanted, expires: 1.year.from_now, same_site: :lax } if params[
-        :lang
-      ].present?
-      I18n.locale = wanted
-      @reader_locale_pinned = true
-    end
-
-    # The language switch: the same page in each reader locale.
-    def locale_links
-      # The engine mounts the front door at "/taper/"; link the canonical
-      # path without the slash.
-      path = (@canonical_path.presence || request.path).sub(/\?.*/, "").sub(%r{(?<=.)/\z}, "")
-      DiscourseTaper.reader_locales.map do |locale|
-        query = request.query_parameters.merge("lang" => locale)
-        { locale: locale, url: "#{path}?#{query.to_query}", current: I18n.locale.to_s == locale }
-      end
-    end
-
     def load_bands
       @bands = Band.order(:name).to_a
       @primary_band = @bands.find(&:primary?)
@@ -458,7 +437,7 @@ module DiscourseTaper
     end
 
     def neighbours(show)
-      list = show.band.shows.by_date.to_a.reverse
+      list = show.band.shows.readable_by(guardian).by_date.to_a.reverse
       index = list.index { |s| s.id == show.id }
       return nil, nil if index.nil?
       [index.positive? ? list[index - 1] : nil, list[index + 1]]

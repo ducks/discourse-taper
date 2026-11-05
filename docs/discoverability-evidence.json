@@ -1,0 +1,609 @@
+{
+  "checked_on": "2026-11-05",
+  "base_url": "https://archive.depoitrine.com",
+  "coverage": {
+    "public_show_urls": 176,
+    "show_urls_linked_from_year_pages": 176,
+    "missing": []
+  },
+  "responses": {
+    "/robots.txt": {
+      "status": 200,
+      "url": "https://archive.depoitrine.com/robots.txt",
+      "headers": {
+        "Content-Type": "text/plain; charset=utf-8"
+      },
+      "title": "",
+      "h1": [],
+      "lang": null,
+      "meta": [],
+      "links": [],
+      "json_ld": [],
+      "body": "# See https://datatracker.ietf.org/doc/rfc9309 for documentation on how to use the robots.txt file\n# Google uses the same format as the standard above. More info at https://developers.google.com/search/docs/crawling-indexing/robots/robots_txt\n\n#\nUser-agent: mauibot\nDisallow: /\n\n\nUser-agent: semrushbot\nDisallow: /\n\n\nUser-agent: ahrefsbot\nDisallow: /\n\n\nUser-agent: blexbot\nDisallow: /\n\n\nUser-agent: seo spider\nDisallow: /\n\n\nUser-agent: *\nDisallow: /admin/\nDisallow: /auth/\nDisallow: /assets/js/browser-update*.js\nDisallow: /email/\nDisallow: /session\nDisallow: /user-api-key\nDisallow: /*?api_key*\nDisallow: /*?*api_key*\nDisallow: /badges\nDisallow: /my\nDisallow: /search\nDisallow: /tag/*/l\nDisallow: /g\nDisallow: /t/*/*.rss\nDisallow: /c/*.rss\n\n\nUser-agent: Googlebot\nDisallow: /admin/\nDisallow: /auth/\nDisallow: /assets/js/browser-update*.js\nDisallow: /email/\nDisallow: /session\nDisallow: /user-api-key\nDisallow: /*?api_key*\nDisallow: /*?*api_key*\n\n\n\nSitemap: https://archive.depoitrine.com/sitemap.xml\n\n\n"
+    },
+    "/sitemap.xml": {
+      "status": 200,
+      "url": "https://archive.depoitrine.com/sitemap.xml",
+      "headers": {
+        "Content-Type": "application/xml; charset=utf-8"
+      },
+      "title": "",
+      "h1": [],
+      "lang": null,
+      "meta": [],
+      "links": [],
+      "json_ld": [],
+      "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<sitemapindex xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n      <sitemap>\n         <loc>https://archive.depoitrine.com/sitemap_recent.xml</loc>\n         <lastmod>2026-11-05T17:34:17Z</lastmod>\n      </sitemap>\n      <sitemap>\n         <loc>https://archive.depoitrine.com/sitemap_1.xml</loc>\n         <lastmod>2026-11-05T17:34:17Z</lastmod>\n      </sitemap>\n</sitemapindex>\n"
+    },
+    "/sitemap_index.xml": {
+      "status": 404,
+      "url": "https://archive.depoitrine.com/sitemap_index.xml",
+      "headers": {
+        "Content-Type": "text/html; charset=utf-8"
+      },
+      "title": "Page Not Found - Archive de Poitrine",
+      "h1": [
+        "Oops! That page doesn’t exist or is private."
+      ],
+      "lang": "en",
+      "meta": [
+        {
+          "name": "description",
+          "content": ""
+        }
+      ],
+      "links": [
+        {
+          "rel": "canonical",
+          "href": "https://archive.depoitrine.com/404"
+        }
+      ],
+      "json_ld": [],
+      "body": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <title>Page Not Found - Archive de Poitrine</title>\n  <meta name=\"description\" content=\"\">\n  <meta name=\"generator\" content=\"Discourse 2026.11.0-latest - https://github.com/discourse/discourse version ccf2eeb156d4fe0189cf1f568dc9f022fc509366\">\n<link rel=\"icon\" type=\"image/png\" href=\"https://archive.depoitrine.com/uploads/default/optimized/1X/_b68166f4bb46bfd2d40d915426ff6a39607e4ea_2_32x32.png\">\n<link rel=\"apple-touch-icon\" type=\"image/png\" href=\"https://archive.depoitrine.com/uploads/default/optimized/1X/_b68166f4bb46bfd2d40d915426ff6a39607e4ea_2_180x180.png\">\n<meta name=\"theme-color\" media=\"(prefers-color-scheme: light)\" content=\"#fff\">\n<meta name=\"theme-color\" media=\"(prefers-color-scheme: dark)\" content=\"#111111\">\n\n<meta name=\"color-scheme\" content=\"light dark\">\n\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, minimum-scale=1.0, viewport-fit=cover\">\n<link rel=\"canonical\" href=\"https://archive.depoitrine.com/404\" />\n\n<meta name=\"discourse-track-view-session-id\" content=\"[[track_view_session_id_placeholder_6dab9dd0967a9331405ecdc48242bdab]]\">\n  <link rel=\"search\" type=\"application/opensearchdescription+xml\" href=\"https://archive.depoitrine.com/opensearch.xml\" title=\"Archive de Poitrine Search\">\n\n  <link href=\"/stylesheets/color_definitions_light-default_-1_-1_c769f0df6a19d5cd216fb702404a5944200f39d8.css?__ws=archive.depoitrine.com\" media=\"(prefers-color-scheme: light)\" rel=\"stylesheet\" class=\"light-scheme\"/><link href=\"/stylesheets/color_definitions_dark_13_-1_5424475410b866ddc6a28ea156ac25d1d72063eb.css?__ws=archive.depoitrine.com\" media=\"(prefers-color-scheme: dark)\" rel=\"stylesheet\" class=\"dark-scheme\" data-scheme-id=\"13\"/>\n\n<link href=\"/stylesheets/common_62346139e2b527ebb3d0c55892eb5d3f4139c1e8.css?__ws=archive.depoitrine.com\" media=\"all\" rel=\"stylesheet\" data-target=\"common\"  />\n\n\n\n  <link href=\"/stylesheets/boards_62346139e2b527ebb3d0c55892eb5d3f4139c1e8.css?__ws=archive.depoitrine.com\" media=\"all\" rel=\"stylesheet\" data-target=\"boards\"  />\n  <link href=\"/stylesheets/chat_62346139e2b527ebb3d0c55892eb5d3f4139c1e8.css?__ws=archive.depoitrine.com\" media=\"all\" rel=\"stylesheet\" data-target=\"chat\"  />\n  <link href=\"/stylesheets/checklist_62346139e2b527ebb3d0c55892eb5d3f4139c1e8.css?__ws=archive.depoitrine.com\" media=\"all\" rel=\"stylesheet\" data-target=\"checklist\"  />\n  <link href=\"/stylesheets/discourse-details_62346139e2b527ebb3d0c55892eb5d3f4139c1e8.css?__ws=archive.depoitrine.com\" media=\"all\" rel=\"stylesheet\" data-target=\"discourse-details\"  />\n  <link href=\"/stylesheets/discourse-lazy-videos_62346139e2b527ebb3d0c55892eb5d3f4139c1e8.css?__ws=archive.depoitrine.com\" media=\"all\" rel=\"stylesheet\" data-target=\"discourse-lazy-videos\"  />\n  <link href=\"/stylesheets/discourse-local-dates_62346139e2b527ebb3d0c55892eb5d3f4139c1e8.css?__ws=archive.depoitrine.com\" media=\"all\" rel=\"stylesheet\" data-target=\"discourse-local-dates\"  />\n  <link href=\"/stylesheets/discourse-narrative-bot_62346139e2b527ebb3d0c55892eb5d3f4139c1e8.css?__ws=archive.depoitrine.com\" media=\"all\" rel=\"stylesheet\" data-target=\"discourse-narrative-bot\"  />\n  <link href=\"/stylesheets/discourse-presence_62346139e2b527ebb3d0c55892eb5d3f4139c1e8.css?__ws=archive.depoitrine.com\" media=\"all\" rel=\"stylesheet\" data-target=\"discourse-presence\"  />\n  <link href=\"/stylesheets/discourse-reactions_62346139e2b527ebb3d0c55892eb5d3f4139c1e8.css?__ws=archive.depoitrine.com\" media=\"all\" rel=\"stylesheet\" data-target=\"discourse-reactions\"  />\n  <link href=\"/stylesheets/discourse-solved_62346139e2b527ebb3d0c55892eb5d3f4139c1e8.css?__ws=archive.depoitrine.com\" media=\"all\" rel=\"stylesheet\" data-target=\"discourse-solved\"  />\n  <link href=\"/stylesheets/discourse-taper_62346139e2b527ebb3d0c55892eb5d3f4139c1e8.css?__ws=archive.depoitrine.com\" media=\"all\" rel=\"stylesheet\" data-target=\"discourse-taper\"  />\n  <link href=\"/stylesheets/discourse-templates_62346139e2b527ebb3d0c55892eb5d3f4139c1e8.css?__ws=archive.depoitrine.com\" media=\"all\" rel=\"stylesheet\" data-target=\"discourse-templates\"  />\n  <link href=\"/stylesheets/discourse-topic-voting_62346139e2b527ebb3d0c55892eb5d3f4139c1e8.css?__ws=archive.depoitrine.com\" media=\"all\" rel=\"stylesheet\" data-target=\"discourse-topic-voting\"  />\n  <link href=\"/stylesheets/discourse-workflows_62346139e2b527ebb3d0c55892eb5d3f4139c1e8.css?__ws=archive.depoitrine.com\" media=\"all\" rel=\"stylesheet\" data-target=\"discourse-workflows\"  />\n  <link href=\"/stylesheets/docker_manager_62346139e2b527ebb3d0c55892eb5d3f4139c1e8.css?__ws=archive.depoitrine.com\" media=\"all\" rel=\"stylesheet\" data-target=\"docker_manager\"  />\n  <link href=\"/stylesheets/footnote_62346139e2b527ebb3d0c55892eb5d3f4139c1e8.css?__ws=archive.depoitrine.com\" media=\"all\" rel=\"stylesheet\" data-target=\"footnote\"  />\n  <link href=\"/stylesheets/poll_62346139e2b527ebb3d0c55892eb5d3f4139c1e8.css?__ws=archive.depoitrine.com\" media=\"all\" rel=\"stylesheet\" data-target=\"poll\"  />\n  <link href=\"/stylesheets/spoiler-alert_62346139e2b527ebb3d0c55892eb5d3f4139c1e8.css?__ws=archive.depoitrine.com\" media=\"all\" rel=\"stylesheet\" data-target=\"spoiler-alert\"  />\n  <link href=\"/stylesheets/chat_mobile_62346139e2b527ebb3d0c55892eb5d3f4139c1e8.css?__ws=archive.depoitrine.com\" media=\"(width < 40rem)\" rel=\"stylesheet\" data-target=\"chat_mobile\"  />\n  <link href=\"/stylesheets/discourse-reactions_mobile_62346139e2b527ebb3d0c55892eb5d3f4139c1e8.css?__ws=archive.depoitrine.com\" media=\"(width < 40rem)\" rel=\"stylesheet\" data-target=\"discourse-reactions_mobile\"  />\n  <link href=\"/stylesheets/chat_desktop_62346139e2b527ebb3d0c55892eb5d3f4139c1e8.css?__ws=archive.depoitrine.com\" media=\"(width >= 40rem)\" rel=\"stylesheet\" data-target=\"chat_desktop\"  />\n  <link href=\"/stylesheets/discourse-reactions_desktop_62346139e2b527ebb3d0c55892eb5d3f4139c1e8.css?__ws=archive.depoitrine.com\" media=\"(width >= 40rem)\" rel=\"stylesheet\" data-target=\"discourse-reactions_desktop\"  />\n  <link href=\"/stylesheets/poll_desktop_62346139e2b527ebb3d0c55892eb5d3f4139c1e8.css?__ws=archive.depoitrine.com\" media=\"(width >= 40rem)\" rel=\"stylesheet\" data-target=\"poll_desktop\"  />\n\n  <link href=\"/stylesheets/common_theme_1_167307aefc71799da0276531e110c7b2851027fb.css?__ws=archive.depoitrine.com\" media=\"all\" rel=\"stylesheet\" data-target=\"common_theme\" data-theme-id=\"1\" data-theme-name=\"archive de poitrine\"/>\n  \n  \n\n\n\n  \n\n    <link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n<link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin=\"\">\n<link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,800&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap\">\n\n\n    <meta id=\"discourse-error\" data-discourse-error=\"true\">\n\n  \n\n    \n\n\n\n\n  <script defer src=\"/assets/js/pageview-de2d5660.js\" data-discourse-entrypoint=\"js/pageview\" nonce=\"w4xUdUc0TyzGYKHs4yubnE0MB\"></script>\n\n</head>\n<body class=\"no-ember \">\n    \n\n    \n\n    \n\n  <section id='main'>\n    \n  <header class=\"d-header\">\n    <div class=\"wrap\">\n      <div class=\"contents clearfix\">\n        <div class=\"title\">\n          <a href=\"/\">\n              <picture>\n                <img src=\"https://archive.depoitrine.com/images/discourse-logo-sketch.png\" alt=\"Archive de Poitrine\" id=\"site-logo\" />\n              </picture>\n          </a>\n        </div>\n        <div class=\"panel clearfix\">\n            <span class='header-buttons'>\n              <span class='auth-buttons'>\n                  <a href=\"/signup\" class='btn btn-text btn-primary btn-small sign-up-button'>Sign Up</a>\n                <a href=\"/login\" class='btn btn-icon-text btn-primary btn-small login-button'><svg class=\"fa d-icon svg-icon svg-node\" aria-hidden=\"true\"><svg id=\"user\" viewBox=\"0 0 448 512\" overflow=\"visible\">\n  <path d=\"M224 248a120 120 0 1 0 0-240 120 120 0 1 0 0 240zm-29.7 56C95.8 304 16 383.8 16 482.3 16 498.7 29.3 512 45.7 512l356.6 0c16.4 0 29.7-13.3 29.7-29.7 0-98.5-79.8-178.3-178.3-178.3l-59.4 0z\"/>\n</svg></svg>\nLog In</a>\n              </span>\n            </span>\n        </div>\n      </div>\n    </div>\n  </header>\n\n    <div id=\"main-outlet\" class=\"wrap not-found-container\">\n      \n\n\n\n<div class=\"page-not-found\">\n\n<div class=\"heading\">\n<div class=\"illustration-not-found\">\n  <svg viewBox=\"0 0 219 170\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n<ellipse cx=\"101\" cy=\"163\" rx=\"96\" ry=\"7\" fill=\"var(--secondary)\"/>\n<path d=\"M149.726 24.5874C151.174 24.9801 152.037 26.4529 151.644 27.9005C151.374 28.8958 150.563 29.6472 149.558 29.8602L147.46 30.4324L147.331 30.9074C147.221 31.3146 146.796 31.5392 146.411 31.4349C146.004 31.3244 145.773 30.9218 145.884 30.5147L146.129 29.6099C146.197 29.3611 146.371 29.1655 146.634 29.0912L149.201 28.4033C149.715 28.2998 150.074 27.9602 150.197 27.5078C150.368 26.8744 149.967 26.2069 149.333 26.035L146.89 25.3723C146.483 25.2618 146.081 25.4926 145.97 25.8997C145.872 26.2616 145.441 26.5089 145.056 26.4046C144.649 26.2941 144.418 25.8915 144.522 25.507C144.848 24.3081 146.084 23.5993 147.283 23.9246L149.726 24.5874ZM146.117 32.5206C146.614 32.6556 146.905 33.1959 146.776 33.6709C146.641 34.1685 146.123 34.4652 145.626 34.3302C145.105 34.1891 144.825 33.7002 144.966 33.18C145.101 32.6823 145.596 32.3795 146.117 32.5206Z\" fill=\"var(--tertiary-high)\"/>\n<path d=\"M58.1071 115.793C58.4765 115.94 58.7754 116.22 58.9328 116.586L61.7934 123.239C62.1267 124.014 61.7615 124.886 61.0079 125.21L55.4958 127.58C54.7206 127.913 53.8585 127.569 53.5253 126.794L49.9703 118.526C49.6463 117.772 49.9807 116.889 50.7558 116.555L54.653 114.88C55.0191 114.722 55.4284 114.725 55.7979 114.872L58.1071 115.793ZM60.7599 123.683L60.7383 123.693L58.0721 117.492L56.3711 118.223C55.9836 118.39 55.5525 118.218 55.3859 117.83L54.6545 116.129L51.2094 117.61C51.0157 117.694 50.9297 117.909 51.0131 118.103L54.5588 126.35C54.6421 126.543 54.8576 126.629 55.0514 126.546L60.5635 124.176C60.7358 124.102 60.8432 123.877 60.7599 123.683ZM54.037 122.288C53.9166 122.008 54.0301 121.679 54.3316 121.549L57.4321 120.216C57.712 120.096 58.0507 120.231 58.1711 120.51C58.3007 120.812 58.1564 121.129 57.8765 121.249L54.7759 122.583C54.4745 122.712 54.1666 122.589 54.037 122.288ZM58.3209 122.283C58.6008 122.163 58.9395 122.298 59.0598 122.578C59.1894 122.879 59.0451 123.196 58.7652 123.316L55.6647 124.65C55.3632 124.779 55.0553 124.656 54.9257 124.355C54.8054 124.075 54.9189 123.746 55.2203 123.616L58.3209 122.283Z\" fill=\"var(--tertiary-high)\"/>\n<path d=\"M10.6672 15.165C10.8922 15.5133 10.7695 15.9899 10.4043 16.1864C10.2331 16.2875 10.0339 16.3088 9.85236 16.2621C9.64809 16.2095 9.48403 16.0947 9.3829 15.9234L7.61313 12.9267L4.59371 14.6906C4.42247 14.7918 4.22336 14.8131 4.04178 14.7664C3.83751 14.7138 3.67345 14.599 3.57232 14.4277C3.34737 14.0794 3.47006 13.6027 3.83524 13.4063L6.83781 11.6139L5.06804 8.61714C4.84308 8.26882 4.96577 7.79217 5.33095 7.59575C5.67928 7.37079 6.15593 7.49349 6.35234 7.85867L8.14481 10.8612L11.1415 9.09146C11.4899 8.86651 11.9665 8.9892 12.1629 9.35438C12.3879 9.70271 12.2652 10.1794 11.9 10.3758L8.89744 12.1682L10.6672 15.165Z\" fill=\"#var(--tertiary-high)\"/>\n<circle cx=\"73\" cy=\"47\" r=\"46\" fill=\"var(--secondary)\" stroke=\"var(--tertiary-high)\" stroke-width=\"2\"/>\n<rect x=\"101\" y=\"85.2603\" width=\"14\" height=\"31\" transform=\"rotate(-47.1283 101 85.2603)\" fill=\"var(--tertiary-medium)\"/>\n<rect x=\"113\" y=\"106.626\" width=\"29.5091\" height=\"65.3415\" rx=\"6\" transform=\"rotate(-47.1283 113 106.626)\" fill=\"var(--tertiary-high)\"/>\n<circle cx=\"73\" cy=\"47\" r=\"37.5\" fill=\"var(--tertiary-medium)\" stroke=\"var(--tertiary-high)\"/>\n<circle cx=\"60.5\" cy=\"36.5\" r=\"4\" fill=\"var(--secondary)\" stroke=\"var(--secondary)\"/>\n<circle cx=\"85.5\" cy=\"36.5\" r=\"4\" fill=\"var(--secondary)\" stroke=\"var(--secondary)\"/>\n<path d=\"M58 61.8011C66.2918 53.492 75.574 55.8621 83 63.0002\" stroke=\"var(--secondary)\" stroke-width=\"2\"/>\n<path d=\"M200.473 105.782C200.473 95.2311 201.557 82.8566 193.945 74.5196C189.225 69.3502 174.712 64.2654 174.712 64.2654C163.984 62.2082 157.391 67.0725 163.108 77.871C165.857 83.0642 172.298 87.4386 177.964 88.4503C186.94 90.0531 198.843 86.3663 205.425 80.1219C214.619 71.3993 223.721 36.595 211.728 27\" stroke=\"var(--tertiary-high)\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-dasharray=\"3 4\"/>\n</svg>\n</div>\n\n<div class=\"title_wrapper\">\n  <h1 class=\"title\">Oops! That page doesn’t exist or is private.</h1>\n  <a class=\"btn btn-primary btn-large --home\" href=\"https://archive.depoitrine.com\"> <svg class=\"fa d-icon svg-icon svg-node\" aria-hidden=\"true\"><svg id=\"house\" viewBox=\"0 0 512 512\" overflow=\"visible\">\n  <path d=\"M277.8 8.6c-12.3-11.4-31.3-11.4-43.5 0l-224 208c-9.6 9-12.8 22.9-8 35.1S18.8 272 32 272l16 0 0 176c0 35.3 28.7 64 64 64l288 0c35.3 0 64-28.7 64-64l0-176 16 0c13.2 0 25-8.1 29.8-20.3s1.6-26.2-8-35.1l-224-208zM240 320l32 0c26.5 0 48 21.5 48 48l0 96-128 0 0-96c0-26.5 21.5-48 48-48z\"/>\n</svg></svg>\n Take me home\n  </a>\n  </div>\n</div>\n  <div class=\"row\">\n    <div class=\"page-not-found-search\">\n      <form action='/search' id='discourse-search'>\n        <label for=\"search-input\">Try searching instead?</label>\n        <div class=\"search-input__wrapper\">\n        <input type=\"text\" id=\"search-input\" class=\"search-input\" placeholder=\"Search topics by title or keywords…\" name=\"q\" value=\"\">\n        <div class=\"search-input__icon\" aria-hidden=\"true\"><svg class=\"fa d-icon svg-icon svg-node\" aria-hidden=\"true\"><svg id=\"magnifying-glass\" viewBox=\"0 0 512 512\" overflow=\"visible\">\n  <path d=\"M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376C296.3 401.1 253.9 416 208 416 93.1 416 0 322.9 0 208S93.1 0 208 0 416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z\"/>\n</svg></svg>\n</div>\n        </div>\n        <button class=\"btn btn-primary\">Search</button>\n      </form>\n    </div>\n  </div>\n\n  <script defer src=\"/assets/js/onpopstate-handler-34b9efd2.js\" data-discourse-entrypoint=\"js/onpopstate-handler\" nonce=\"w4xUdUc0TyzGYKHs4yubnE0MB\"></script>\n\n\n</div>\n\n\n\n<div class=\"row page-not-found-topics\">\n    <div class=\"recent-topics\">\n      <h2 class=\"recent-topics-title\">Recent topics</h2>\n        <div class='not-found-topic'>\n          <a href=\"/t/2026-10-29-commissary-art-space-heidelberg/222\">2026-10-29 Commissary Art Space, Heidelberg</a><a class='badge-category__wrapper ' href='/c/shows/34'><span data-category-id='34' style='--category-badge-color: #0088CC; --category-badge-text-color: #FFFFFF;' data-drop-close='true' class='badge-category --style-square '><span class='badge-category__name'>Shows</span></span></a>\n        </div>\n        <div class='not-found-topic'>\n          <a href=\"/t/2026-10-16-vicar-street-dublin/221\">2026-10-16 Vicar Street, Dublin</a><a class='badge-category__wrapper ' href='/c/shows/34'><span data-category-id='34' style='--category-badge-color: #0088CC; --category-badge-text-color: #FFFFFF;' data-drop-close='true' class='badge-category --style-square '><span class='badge-category__name'>Shows</span></span></a>\n        </div>\n        <div class='not-found-topic'>\n          <a href=\"/t/2026-11-01-vera-groningen/220\">2026-11-01 Vera, Groningen</a><a class='badge-category__wrapper ' href='/c/shows/34'><span data-category-id='34' style='--category-badge-color: #0088CC; --category-badge-text-color: #FFFFFF;' data-drop-close='true' class='badge-category --style-square '><span class='badge-category__name'>Shows</span></span></a>\n        </div>\n        <div class='not-found-topic'>\n          <a href=\"/t/2026-10-24-l-epicerie-moderne-feyzin/219\">2026-10-24 L’Épicerie Moderne, Feyzin</a><a class='badge-category__wrapper ' href='/c/shows/34'><span data-category-id='34' style='--category-badge-color: #0088CC; --category-badge-text-color: #FFFFFF;' data-drop-close='true' class='badge-category --style-square '><span class='badge-category__name'>Shows</span></span></a>\n        </div>\n        <div class='not-found-topic'>\n          <a href=\"/t/2026-10-31-paradiso-grote-zaal-amsterdam/218\">2026-10-31 Paradiso Grote Zaal, Amsterdam</a><a class='badge-category__wrapper ' href='/c/shows/34'><span data-category-id='34' style='--category-badge-color: #0088CC; --category-badge-text-color: #FFFFFF;' data-drop-close='true' class='badge-category --style-square '><span class='badge-category__name'>Shows</span></span></a>\n        </div>\n        <div class='not-found-topic'>\n          <a href=\"/t/2026-10-28-grosse-freiheit-36-hamburg/217\">2026-10-28 Große Freiheit 36, Hamburg</a><a class='badge-category__wrapper ' href='/c/shows/34'><span data-category-id='34' style='--category-badge-color: #0088CC; --category-badge-text-color: #FFFFFF;' data-drop-close='true' class='badge-category --style-square '><span class='badge-category__name'>Shows</span></span></a>\n        </div>\n        <div class='not-found-topic'>\n          <a href=\"/t/2026-10-27-astra-kulturhaus-berlin/216\">2026-10-27 Astra Kulturhaus, Berlin</a><a class='badge-category__wrapper ' href='/c/shows/34'><span data-category-id='34' style='--category-badge-color: #0088CC; --category-badge-text-color: #FFFFFF;' data-drop-close='true' class='badge-category --style-square '><span class='badge-category__name'>Shows</span></span></a>\n        </div>\n        <div class='not-found-topic'>\n          <a href=\"/t/2026-10-25-trix-antwerp/215\">2026-10-25 Trix, Antwerp</a><a class='badge-category__wrapper ' href='/c/shows/34'><span data-category-id='34' style='--category-badge-color: #0088CC; --category-badge-text-color: #FFFFFF;' data-drop-close='true' class='badge-category --style-square '><span class='badge-category__name'>Shows</span></span></a>\n        </div>\n        <div class='not-found-topic'>\n          <a href=\"/t/2026-10-20-troxy-london/214\">2026-10-20 Troxy, London</a><a class='badge-category__wrapper ' href='/c/shows/34'><span data-category-id='34' style='--category-badge-color: #0088CC; --category-badge-text-color: #FFFFFF;' data-drop-close='true' class='badge-category --style-square '><span class='badge-category__name'>Shows</span></span></a>\n        </div>\n        <div class='not-found-topic'>\n          <a href=\"/t/2026-10-21-elysee-montmartre-paris/213\">2026-10-21 Élysée Montmartre, Paris</a><a class='badge-category__wrapper ' href='/c/shows/34'><span data-category-id='34' style='--category-badge-color: #0088CC; --category-badge-text-color: #FFFFFF;' data-drop-close='true' class='badge-category --style-square '><span class='badge-category__name'>Shows</span></span></a>\n        </div>\n      <a href=\"/latest\" class=\"btn btn-default\">More&hellip;</a>\n    </div>\n</div>\n\n\n    </div>\n  </section>\n\n    \n    \n\n    \n    \n</body>\n</html>\n"
+    },
+    "/": {
+      "status": 200,
+      "url": "https://archive.depoitrine.com/",
+      "headers": {
+        "Content-Type": "text/html; charset=utf-8",
+        "Link": "<https://archive.depoitrine.com/latest.md>; rel=\"alternate\"; type=\"text/markdown\""
+      },
+      "title": "Angine de Poitrine",
+      "h1": [
+        "Angine de Poitrine\n      Every show since Saguenay, 2020. Setlists, recordings, and the people who were there.\n    "
+      ],
+      "lang": "en",
+      "meta": [
+        {
+          "name": "description",
+          "content": "Every show since Saguenay, 2020. Setlists, recordings, and the people who were there."
+        }
+      ],
+      "links": [
+        {
+          "rel": "canonical",
+          "href": "https://archive.depoitrine.com/taper"
+        },
+        {
+          "rel": "alternate",
+          "type": "application/json",
+          "href": "/taper.json"
+        }
+      ],
+      "json_ld": [
+        {
+          "@context": "http://schema.org",
+          "@type": "WebSite",
+          "url": "https://archive.depoitrine.com",
+          "name": "Archive de Poitrine",
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://archive.depoitrine.com/search?q={search_term_string}",
+            "query-input": "required name=search_term_string"
+          }
+        }
+      ]
+    },
+    "/taper": {
+      "status": 200,
+      "url": "https://archive.depoitrine.com/taper",
+      "headers": {
+        "Content-Type": "text/html; charset=utf-8"
+      },
+      "title": "Angine de Poitrine",
+      "h1": [
+        "Angine de Poitrine\n      Every show since Saguenay, 2020. Setlists, recordings, and the people who were there.\n    "
+      ],
+      "lang": "en",
+      "meta": [
+        {
+          "name": "description",
+          "content": "Every show since Saguenay, 2020. Setlists, recordings, and the people who were there."
+        }
+      ],
+      "links": [
+        {
+          "rel": "canonical",
+          "href": "https://archive.depoitrine.com/taper"
+        },
+        {
+          "rel": "alternate",
+          "type": "application/json",
+          "href": "/taper.json"
+        }
+      ],
+      "json_ld": []
+    },
+    "/taper?year=2026": {
+      "status": 200,
+      "url": "https://archive.depoitrine.com/taper?year=2026",
+      "headers": {
+        "Content-Type": "text/html; charset=utf-8"
+      },
+      "title": "2026 - Angine de Poitrine",
+      "h1": [
+        "2026"
+      ],
+      "lang": "en",
+      "meta": [],
+      "links": [
+        {
+          "rel": "canonical",
+          "href": "https://archive.depoitrine.com/taper?year=2026"
+        },
+        {
+          "rel": "alternate",
+          "type": "application/json",
+          "href": "/taper.json?year=2026"
+        }
+      ],
+      "json_ld": []
+    },
+    "/taper?utm_source=audit": {
+      "status": 200,
+      "url": "https://archive.depoitrine.com/taper?utm_source=audit",
+      "headers": {
+        "Content-Type": "text/html; charset=utf-8"
+      },
+      "title": "Angine de Poitrine",
+      "h1": [
+        "Angine de Poitrine\n      Every show since Saguenay, 2020. Setlists, recordings, and the people who were there.\n    "
+      ],
+      "lang": "en",
+      "meta": [
+        {
+          "name": "description",
+          "content": "Every show since Saguenay, 2020. Setlists, recordings, and the people who were there."
+        }
+      ],
+      "links": [
+        {
+          "rel": "canonical",
+          "href": "https://archive.depoitrine.com/taper?utm_source=audit"
+        },
+        {
+          "rel": "alternate",
+          "type": "application/json",
+          "href": "/taper.json?utm_source=audit"
+        }
+      ],
+      "json_ld": []
+    },
+    "/taper?lang=fr": {
+      "status": 200,
+      "url": "https://archive.depoitrine.com/taper?lang=fr",
+      "headers": {
+        "Content-Type": "text/html; charset=utf-8"
+      },
+      "title": "Angine de Poitrine",
+      "h1": [
+        "Angine de Poitrine\n      Every show since Saguenay, 2020. Setlists, recordings, and the people who were there.\n    "
+      ],
+      "lang": "fr",
+      "meta": [
+        {
+          "name": "description",
+          "content": "Every show since Saguenay, 2020. Setlists, recordings, and the people who were there."
+        }
+      ],
+      "links": [
+        {
+          "rel": "canonical",
+          "href": "https://archive.depoitrine.com/taper?lang=fr"
+        },
+        {
+          "rel": "alternate",
+          "type": "application/json",
+          "href": "/taper.json?lang=fr"
+        }
+      ],
+      "json_ld": []
+    },
+    "/taper/2026-09-12": {
+      "status": 200,
+      "url": "https://archive.depoitrine.com/taper/2026-09-12",
+      "headers": {
+        "Content-Type": "text/html; charset=utf-8"
+      },
+      "title": "2026-09-12 Stubb's Bar-B-Q, Austin - Angine de Poitrine",
+      "h1": [
+        "2026-09-12"
+      ],
+      "lang": "en",
+      "meta": [
+        {
+          "name": "description",
+          "content": "Stubb's Bar-B-Q, Austin, TX, United States. Mourir j’aime trop ça, Angor, Yor Zarad, Tamebsz, Mata Zyklek, Ababa Hotel"
+        }
+      ],
+      "links": [
+        {
+          "rel": "canonical",
+          "href": "https://archive.depoitrine.com/taper/2026-09-12"
+        },
+        {
+          "rel": "alternate",
+          "type": "application/json",
+          "href": "/taper/2026-09-12.json"
+        }
+      ],
+      "json_ld": [
+        {
+          "@context": "https://schema.org",
+          "@type": "MusicEvent",
+          "name": "2026-09-12 Stubb's Bar-B-Q, Austin",
+          "startDate": "2026-09-12",
+          "performer": {
+            "@type": "MusicGroup",
+            "name": "Angine de Poitrine"
+          },
+          "location": {
+            "@type": "Place",
+            "name": "Stubb's Bar-B-Q",
+            "address": "Austin, TX, United States"
+          },
+          "url": "https://archive.depoitrine.com/taper/2026-09-12",
+          "recordedIn": [
+            {
+              "@type": "MusicRecording",
+              "name": "Vlog Angine de Poitrine en concert à Austin 12/09/2026",
+              "url": "https://www.youtube.com/watch?v=Rn1aMMQy6kU"
+            },
+            {
+              "@type": "MusicRecording",
+              "name": "Angine de Poitrine - \"Yor Zarad\" - September 12, 2026 - Austin, Texas, USA",
+              "url": "https://www.youtube.com/watch?v=paRagSS1u4M"
+            },
+            {
+              "@type": "MusicRecording",
+              "name": "Angine de Poitrine - \"Sherpa\" - September 12, 2026 - Austin, Texas, USA",
+              "url": "https://www.youtube.com/watch?v=yf_v1OqApxg"
+            }
+          ]
+        }
+      ]
+    },
+    "/taper/2026-09-12?lang=fr": {
+      "status": 200,
+      "url": "https://archive.depoitrine.com/taper/2026-09-12?lang=fr",
+      "headers": {
+        "Content-Type": "text/html; charset=utf-8"
+      },
+      "title": "2026-09-12 Stubb's Bar-B-Q, Austin - Angine de Poitrine",
+      "h1": [
+        "2026-09-12"
+      ],
+      "lang": "fr",
+      "meta": [
+        {
+          "name": "description",
+          "content": "Stubb's Bar-B-Q, Austin, TX, United States. Mourir j’aime trop ça, Angor, Yor Zarad, Tamebsz, Mata Zyklek, Ababa Hotel"
+        }
+      ],
+      "links": [
+        {
+          "rel": "canonical",
+          "href": "https://archive.depoitrine.com/taper/2026-09-12"
+        },
+        {
+          "rel": "alternate",
+          "type": "application/json",
+          "href": "/taper/2026-09-12.json"
+        }
+      ],
+      "json_ld": [
+        {
+          "@context": "https://schema.org",
+          "@type": "MusicEvent",
+          "name": "2026-09-12 Stubb's Bar-B-Q, Austin",
+          "startDate": "2026-09-12",
+          "performer": {
+            "@type": "MusicGroup",
+            "name": "Angine de Poitrine"
+          },
+          "location": {
+            "@type": "Place",
+            "name": "Stubb's Bar-B-Q",
+            "address": "Austin, TX, United States"
+          },
+          "url": "https://archive.depoitrine.com/taper/2026-09-12",
+          "recordedIn": [
+            {
+              "@type": "MusicRecording",
+              "name": "Vlog Angine de Poitrine en concert à Austin 12/09/2026",
+              "url": "https://www.youtube.com/watch?v=Rn1aMMQy6kU"
+            },
+            {
+              "@type": "MusicRecording",
+              "name": "Angine de Poitrine - \"Yor Zarad\" - September 12, 2026 - Austin, Texas, USA",
+              "url": "https://www.youtube.com/watch?v=paRagSS1u4M"
+            },
+            {
+              "@type": "MusicRecording",
+              "name": "Angine de Poitrine - \"Sherpa\" - September 12, 2026 - Austin, Texas, USA",
+              "url": "https://www.youtube.com/watch?v=yf_v1OqApxg"
+            }
+          ]
+        }
+      ]
+    },
+    "/taper/media": {
+      "status": 200,
+      "url": "https://archive.depoitrine.com/taper/media",
+      "headers": {
+        "Content-Type": "text/html; charset=utf-8"
+      },
+      "title": "Releases and media - Angine de Poitrine",
+      "h1": [
+        "Releases and media"
+      ],
+      "lang": "en",
+      "meta": [],
+      "links": [
+        {
+          "rel": "canonical",
+          "href": "https://archive.depoitrine.com/taper/media"
+        },
+        {
+          "rel": "alternate",
+          "type": "application/json",
+          "href": "/taper/media.json"
+        }
+      ],
+      "json_ld": []
+    },
+    "/taper/songs": {
+      "status": 200,
+      "url": "https://archive.depoitrine.com/taper/songs",
+      "headers": {
+        "Content-Type": "text/html; charset=utf-8"
+      },
+      "title": "Songs - Angine de Poitrine",
+      "h1": [
+        "Songs"
+      ],
+      "lang": "en",
+      "meta": [],
+      "links": [
+        {
+          "rel": "canonical",
+          "href": "https://archive.depoitrine.com/taper/songs"
+        },
+        {
+          "rel": "alternate",
+          "type": "application/json",
+          "href": "/taper/songs.json"
+        }
+      ],
+      "json_ld": []
+    },
+    "/taper/1900-01-01": {
+      "status": 404,
+      "url": "https://archive.depoitrine.com/taper/1900-01-01",
+      "headers": {
+        "Content-Type": "text/html; charset=utf-8"
+      },
+      "title": "Page Not Found - Archive de Poitrine",
+      "h1": [
+        "Oops! That page doesn’t exist or is private."
+      ],
+      "lang": "en",
+      "meta": [
+        {
+          "name": "description",
+          "content": ""
+        }
+      ],
+      "links": [
+        {
+          "rel": "canonical",
+          "href": "https://archive.depoitrine.com/taper/1900-01-01"
+        }
+      ],
+      "json_ld": []
+    },
+    "/sitemap_recent.xml": {
+      "status": 200,
+      "url": "https://archive.depoitrine.com/sitemap_recent.xml",
+      "headers": {
+        "Content-Type": "text/xml; charset=utf-8"
+      },
+      "title": "",
+      "h1": [],
+      "lang": null,
+      "meta": [],
+      "links": [],
+      "json_ld": [],
+      "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\"\n    xmlns:image=\"http://www.google.com/schemas/sitemap-image/1.1\"\n    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n    xsi:schemaLocation=\"http://www.sitemaps.org/schemas/sitemap/0.9\n        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd\n        http://www.google.com/schemas/sitemap-image/1.1\n        http://www.google.com/schemas/sitemap-image/1.1/sitemap-image.xsd\">\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-10-29-commissary-art-space-heidelberg/222</loc>\n        <lastmod>2026-11-05T17:34:17Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-10-16-vicar-street-dublin/221</loc>\n        <lastmod>2026-11-05T17:34:17Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-11-01-vera-groningen/220</loc>\n        <lastmod>2026-11-05T04:00:53Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-10-24-l-epicerie-moderne-feyzin/219</loc>\n        <lastmod>2026-11-05T04:00:53Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-10-31-paradiso-grote-zaal-amsterdam/218</loc>\n        <lastmod>2026-11-05T04:00:53Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-10-28-grosse-freiheit-36-hamburg/217</loc>\n        <lastmod>2026-11-05T04:00:53Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-10-27-astra-kulturhaus-berlin/216</loc>\n        <lastmod>2026-11-05T04:00:52Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-10-25-trix-antwerp/215</loc>\n        <lastmod>2026-11-05T04:00:52Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-10-20-troxy-london/214</loc>\n        <lastmod>2026-11-05T04:00:52Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-10-21-elysee-montmartre-paris/213</loc>\n        <lastmod>2026-11-05T04:00:52Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-10-22-elysee-montmartre-paris/212</loc>\n        <lastmod>2026-11-05T04:00:52Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-10-19-troxy-london/211</loc>\n        <lastmod>2026-11-05T04:00:51Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-10-18-o2-academy-leeds-leeds/210</loc>\n        <lastmod>2026-11-05T04:00:51Z</lastmod>\n      </url>\n</urlset>\n"
+    },
+    "/sitemap_1.xml": {
+      "status": 200,
+      "url": "https://archive.depoitrine.com/sitemap_1.xml",
+      "headers": {
+        "Content-Type": "text/xml; charset=utf-8"
+      },
+      "title": "",
+      "h1": [],
+      "lang": null,
+      "meta": [],
+      "links": [],
+      "json_ld": [],
+      "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\"\n    xmlns:image=\"http://www.google.com/schemas/sitemap-image/1.1\"\n    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n    xsi:schemaLocation=\"http://www.sitemaps.org/schemas/sitemap/0.9\n        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd\n        http://www.google.com/schemas/sitemap-image/1.1\n        http://www.google.com/schemas/sitemap-image/1.1/sitemap-image.xsd\">\n      <url>\n        <loc>https://archive.depoitrine.com/t/about-the-site-feedback-category/1</loc>\n        <lastmod>2026-07-25T05:58:16Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/about-the-general-category/3</loc>\n        <lastmod>2026-07-25T05:58:16Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/welcome-to-archive-de-poitrine/5</loc>\n        <lastmod>2026-07-25T05:58:28Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/about-the-shows-category/34</loc>\n        <lastmod>2026-09-23T14:02:56Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-09-22-massey-hall-toronto/41</loc>\n        <lastmod>2026-09-24T12:10:17Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-09-20-midtown-green-richmond/42</loc>\n        <lastmod>2026-09-24T12:10:17Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-09-19-riot-stage-chicago/43</loc>\n        <lastmod>2026-09-24T12:10:17Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-09-17-lincoln-theatre-washington/44</loc>\n        <lastmod>2026-09-24T12:10:17Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-09-16-underground-arts-philadelphia/45</loc>\n        <lastmod>2026-09-24T12:10:17Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-09-15-the-atlantis-washington/46</loc>\n        <lastmod>2026-09-24T12:10:17Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-09-14-the-tonight-show-starring-jimmy-fallon-new-york/47</loc>\n        <lastmod>2026-09-24T12:10:18Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-09-12-stubbs-bar-b-q-austin/48</loc>\n        <lastmod>2026-09-24T12:10:18Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-09-11-center-stage-elizabethtown/49</loc>\n        <lastmod>2026-09-24T12:10:18Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-09-10-le-poisson-rouge-new-york/50</loc>\n        <lastmod>2026-09-24T12:10:18Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-09-09-le-poisson-rouge-new-york/51</loc>\n        <lastmod>2026-09-24T12:10:18Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-09-06-usher-hall-edinburgh/52</loc>\n        <lastmod>2026-09-24T12:10:18Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-09-05-o2-apollo-manchester-manchester/53</loc>\n        <lastmod>2026-09-24T12:10:18Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-09-04-the-folly-salisbury/54</loc>\n        <lastmod>2026-09-24T12:10:18Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-09-01-live-music-hall-cologne/55</loc>\n        <lastmod>2026-09-24T12:10:18Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-08-31-rode-zaal-nijmegen/56</loc>\n        <lastmod>2026-09-24T12:10:19Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-08-30-sportveld-vlieland/57</loc>\n        <lastmod>2026-09-24T12:10:19Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-08-28-parque-da-bela-vista-lisbon/58</loc>\n        <lastmod>2026-09-24T12:10:19Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-08-25-commodore-ballroom-vancouver/59</loc>\n        <lastmod>2026-09-24T12:10:19Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-08-24-the-pearl-vancouver/60</loc>\n        <lastmod>2026-09-24T12:10:19Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-08-23-the-pearl-vancouver/61</loc>\n        <lastmod>2026-09-24T12:10:19Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-08-22-kexp-mainstage-seattle/62</loc>\n        <lastmod>2026-09-24T12:10:19Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-08-21-aladdin-theater-portland/63</loc>\n        <lastmod>2026-09-24T12:10:19Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-08-19-the-independent-san-francisco/64</loc>\n        <lastmod>2026-09-24T12:10:19Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-08-18-teragram-ballroom-los-angeles/65</loc>\n        <lastmod>2026-09-24T12:10:20Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-08-17-teragram-ballroom-los-angeles/66</loc>\n        <lastmod>2026-09-24T12:10:20Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-08-14-cottonwood-meadows-buena-vista/67</loc>\n        <lastmod>2026-09-24T12:10:20Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-08-13-ogden-theatre-denver/68</loc>\n        <lastmod>2026-09-24T12:10:20Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-08-12-ogden-theatre-denver/69</loc>\n        <lastmod>2026-09-24T12:10:20Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-08-03-vieux-theatre-de-saint-fabien-saint-fabien/70</loc>\n        <lastmod>2026-09-24T12:10:20Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-08-02-parc-champigny-levis/71</loc>\n        <lastmod>2026-09-24T12:10:20Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-08-01-scene-de-la-riviere-montreal/72</loc>\n        <lastmod>2026-09-24T12:10:20Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-07-31-fort-stage-newport/73</loc>\n        <lastmod>2026-09-24T12:10:20Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-07-29-parc-beausejour-rimouski/74</loc>\n        <lastmod>2026-09-24T12:10:20Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-07-26-field-of-heaven-yuzawa/75</loc>\n        <lastmod>2026-09-24T12:10:21Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-07-19-guelph-lake-conservation-area-toronto/76</loc>\n        <lastmod>2026-09-24T12:10:21Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-07-18-the-mod-club-toronto/77</loc>\n        <lastmod>2026-09-24T12:10:21Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-07-17-rbc-stage-ottawa/78</loc>\n        <lastmod>2026-09-24T12:10:21Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-07-15-the-mod-club-toronto/79</loc>\n        <lastmod>2026-09-24T12:10:21Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-07-14-rbc-amphitheatre-toronto/80</loc>\n        <lastmod>2026-09-24T12:10:21Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-07-12-phillips-brewing-and-malting-co-victoria/81</loc>\n        <lastmod>2026-09-24T12:10:21Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-07-10-birds-hill-provincial-park-winnipeg/82</loc>\n        <lastmod>2026-09-24T12:10:21Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-07-08-fan-park-edmonton/83</loc>\n        <lastmod>2026-09-24T12:10:21Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-07-07-fan-park-edmonton/84</loc>\n        <lastmod>2026-09-24T12:10:22Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-07-03-scene-du-quai-port-de-trois-rivieres-trois-rivieres/85</loc>\n        <lastmod>2026-09-24T12:10:22Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-07-02-la-pulperie-chicoutimi/86</loc>\n        <lastmod>2026-09-24T12:10:22Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-06-27-scene-td-montreal/87</loc>\n        <lastmod>2026-09-24T12:10:22Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-06-26-base-31-drill-hall-picton/88</loc>\n        <lastmod>2026-09-24T12:10:22Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-06-20-parc-louis-querbes-joliette/89</loc>\n        <lastmod>2026-09-24T12:10:22Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-06-04-3arena-stockholm/90</loc>\n        <lastmod>2026-09-24T12:10:22Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-06-02-later-with-jools-holland-alexandra-palace-theatre-london/91</loc>\n        <lastmod>2026-09-24T12:10:22Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-05-31-mart-museo-darte-moderna-e-contemporanea-di-trento-e-rovereto-rovereto/92</loc>\n        <lastmod>2026-09-24T12:10:22Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-05-30-lautre-canal-nancy/93</loc>\n        <lastmod>2026-09-24T12:10:23Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-05-29-le-grand-mix-tourcoing/94</loc>\n        <lastmod>2026-09-24T12:10:23Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-05-28-fountain-sint-joost-ten-noode-saint-josse-ten-noode/95</loc>\n        <lastmod>2026-09-24T12:10:23Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-05-26-magasin-4-laken-laeken/96</loc>\n        <lastmod>2026-09-24T12:10:23Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-05-24-cafe-de-l-ancre-loperhet/97</loc>\n        <lastmod>2026-09-24T12:10:23Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-05-23-la-sirene-la-rochelle/98</loc>\n        <lastmod>2026-09-24T12:10:23Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-05-22-le-confort-moderne-poitiers/99</loc>\n        <lastmod>2026-09-24T12:10:23Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-05-21-le-vecteur-charleroi/100</loc>\n        <lastmod>2026-09-24T12:10:24Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-05-20-la-lune-des-pirates-amiens/101</loc>\n        <lastmod>2026-09-24T12:10:24Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-05-19-theatre-paul-scarron-le-mans/102</loc>\n        <lastmod>2026-09-24T12:10:24Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-05-18-lubu-rennes/103</loc>\n        <lastmod>2026-09-24T12:10:24Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-05-16-jardin-des-deux-rives-strasbourg/104</loc>\n        <lastmod>2026-09-24T12:10:24Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-05-14-the-old-market-hove/105</loc>\n        <lastmod>2026-09-24T12:10:24Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-05-13-the-deep-end-brighton/106</loc>\n        <lastmod>2026-09-24T12:10:24Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-05-12-strange-brew-bristol/107</loc>\n        <lastmod>2026-09-24T12:10:24Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-05-11-electric-ballroom-london/108</loc>\n        <lastmod>2026-09-24T12:10:24Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-05-10-brudenell-social-club-leeds/109</loc>\n        <lastmod>2026-09-24T12:10:25Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-05-02-louvre-boite-culturel-baie-comeau/110</loc>\n        <lastmod>2026-09-24T12:10:25Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-05-01-centre-dexperimentation-musicale-chicoutimi/111</loc>\n        <lastmod>2026-09-24T12:10:25Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-04-26-minotaure-gatineau/112</loc>\n        <lastmod>2026-09-24T12:10:25Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-04-25-la-petite-boite-noire-sherbrooke/113</loc>\n        <lastmod>2026-09-24T12:10:25Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-04-24-centre-dexperimentation-musicale-chicoutimi/114</loc>\n        <lastmod>2026-09-24T12:10:25Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-04-23-cafe-du-clocher-alma/115</loc>\n        <lastmod>2026-09-24T12:10:25Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-04-18-club-soda-montreal/116</loc>\n        <lastmod>2026-09-24T12:10:25Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-04-17-le-zaricot-saint-hyacinthe/117</loc>\n        <lastmod>2026-09-24T12:10:26Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-04-16-mycelium-studio-victoriaville/118</loc>\n        <lastmod>2026-09-24T12:10:26Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-04-15-lardoise-cooperative-brassicole-richmond/119</loc>\n        <lastmod>2026-09-24T12:10:26Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-04-12-le-pantoum-quebec-city/120</loc>\n        <lastmod>2026-09-24T12:10:26Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-04-11-le-pantoum-quebec-city/121</loc>\n        <lastmod>2026-09-24T12:10:27Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-04-10-cafe-coop-bal-maski-saint-gabriel-de-brandon/122</loc>\n        <lastmod>2026-09-24T12:10:28Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-04-09-le-pantoum-quebec-city/123</loc>\n        <lastmod>2026-09-24T12:10:29Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-04-04-espace-dunham-beergarden-cie-dunham/124</loc>\n        <lastmod>2026-09-24T12:10:30Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-04-03-club-soda-montreal/125</loc>\n        <lastmod>2026-09-24T12:10:30Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-04-02-quai-des-brumes-montreal/126</loc>\n        <lastmod>2026-09-24T12:10:31Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-03-28-portas-do-mar-ponta-delgada/127</loc>\n        <lastmod>2026-09-24T12:10:32Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-03-18-theatre-c-saguenay/128</loc>\n        <lastmod>2026-09-24T12:10:33Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-03-17-amphitheatre-cogeco-trois-rivieres/129</loc>\n        <lastmod>2026-09-24T12:10:33Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-03-08-maison-de-radio-canada-montreal/130</loc>\n        <lastmod>2026-09-24T12:10:34Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-02-21-la-peniche-chalon-sur-saone/131</loc>\n        <lastmod>2026-09-24T12:10:35Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-02-20-la-meson-marseille/132</loc>\n        <lastmod>2026-09-24T12:10:35Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-02-19-letoile-rouge-annecy/133</loc>\n        <lastmod>2026-09-24T12:10:36Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-02-18-bistro-des-tilleuls-annecy/134</loc>\n        <lastmod>2026-09-24T12:10:36Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-02-17-la-cartonnerie-reims/135</loc>\n        <lastmod>2026-09-24T12:10:37Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-02-14-bonjour-minuit-saint-brieuc/136</loc>\n        <lastmod>2026-09-24T12:10:37Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-02-13-parc-de-la-gloriette-tours/137</loc>\n        <lastmod>2026-09-24T12:10:38Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-02-12-le-tetris-le-havre/138</loc>\n        <lastmod>2026-09-24T12:10:38Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-02-11-supersonic-paris/139</loc>\n        <lastmod>2026-09-24T12:10:38Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2025-12-28-jardins-de-lhotel-de-ville-de-quebec-quebec-city/140</loc>\n        <lastmod>2026-09-24T12:10:39Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2025-12-06-le-liberte-rennes/141</loc>\n        <lastmod>2026-09-24T12:10:39Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2025-12-04-esma-rennes/142</loc>\n        <lastmod>2026-09-24T12:10:40Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2025-11-21-ausgang-plaza-montreal/143</loc>\n        <lastmod>2026-09-24T12:10:40Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2025-11-14-vieux-couvent-saint-prime/144</loc>\n        <lastmod>2026-09-24T12:10:40Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2025-10-16-bains-publics-rimouski/145</loc>\n        <lastmod>2026-09-24T12:10:41Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2025-09-26-terasse-ubisoft-montreal/146</loc>\n        <lastmod>2026-09-24T12:10:41Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2025-09-12-planete-claire-saguenay/147</loc>\n        <lastmod>2026-09-24T12:10:42Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2025-09-11-place-laval-gatineau/148</loc>\n        <lastmod>2026-09-24T12:10:42Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2025-08-22-bains-publics-rimouski/149</loc>\n        <lastmod>2026-09-24T12:10:43Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2025-08-20-le-naufrageur-carleton-sur-mer/150</loc>\n        <lastmod>2026-09-24T12:10:43Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2025-08-19-pub-aire-salin-perce/151</loc>\n        <lastmod>2026-09-24T12:10:43Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2025-08-18-la-societe-secrete-cap-despoir/152</loc>\n        <lastmod>2026-09-24T12:10:44Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2025-08-16-auberge-le-camp-de-base-lanse-saint-jean/153</loc>\n        <lastmod>2026-09-24T12:10:44Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2025-08-14-festival-a-deux-tetes-sainte-brigitte-de-laval/154</loc>\n        <lastmod>2026-09-24T12:10:44Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2025-08-13-centre-touristique-vauvert-dolbeau-mistassini/155</loc>\n        <lastmod>2026-09-24T12:10:45Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2025-08-01-agora-du-village-portuaire-la-baie/156</loc>\n        <lastmod>2026-09-24T12:10:45Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2025-07-18-caserne-de-pompiers-baie-saint-paul/157</loc>\n        <lastmod>2026-09-24T12:10:46Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2025-07-08-place-dyouville-quebec-city/158</loc>\n        <lastmod>2026-09-24T12:10:46Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2025-07-03-la-petite-boite-noire-sherbrooke/159</loc>\n        <lastmod>2026-09-24T12:10:46Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2025-07-02-cafe-bar-zenob-trois-rivieres/160</loc>\n        <lastmod>2026-09-24T12:10:47Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2025-06-29-club-montreal-loto-quebec-montreal/161</loc>\n        <lastmod>2026-09-24T12:10:47Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2025-06-21-scene-du-parvis-noctem-quebec-city/162</loc>\n        <lastmod>2026-09-24T12:10:47Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2025-06-20-scene-hydro-quebec-saint-casimir/163</loc>\n        <lastmod>2026-09-24T12:10:48Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2025-06-14-le-qg-rouyn-noranda/164</loc>\n        <lastmod>2026-09-24T12:10:48Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2025-06-13-courant-alternatif-amos/165</loc>\n        <lastmod>2026-09-24T12:10:48Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2025-06-08-place-publique-du-vieux-terrebonne-terrebonne/166</loc>\n        <lastmod>2026-09-24T12:10:48Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2025-05-01-mtelus-montreal/167</loc>\n        <lastmod>2026-09-24T12:10:49Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2025-04-26-imperial-bell-quebec-city/168</loc>\n        <lastmod>2026-09-24T12:10:49Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2025-04-25-theatre-palace-arvida-saguenay/169</loc>\n        <lastmod>2026-09-24T12:10:50Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2025-03-22-garage-a-simon-lavaltrie/170</loc>\n        <lastmod>2026-09-24T12:10:50Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2025-03-21-coop-rac-riviere-a-claude/171</loc>\n        <lastmod>2026-09-24T12:10:50Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2025-03-18-lenvol-jonquiere/172</loc>\n        <lastmod>2026-09-24T12:10:51Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2025-03-07-le-zaricot-saint-hyacinthe/173</loc>\n        <lastmod>2026-09-24T12:10:51Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2025-02-16-le-pantoum-quebec-city/174</loc>\n        <lastmod>2026-09-24T12:10:51Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2025-02-08-les-enfants-du-rock-montreal/175</loc>\n        <lastmod>2026-09-24T12:10:52Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2024-12-20-cafe-du-clocher-alma/176</loc>\n        <lastmod>2026-09-24T12:10:52Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2024-12-01-les-foufounes-electriques-montreal/177</loc>\n        <lastmod>2026-09-24T12:10:52Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2024-11-02-bal-maski-saint-gabriel-de-brandon/178</loc>\n        <lastmod>2026-09-24T12:10:52Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2024-11-01-hop-station-microbrasserie-coaticook/179</loc>\n        <lastmod>2026-09-24T12:10:53Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2024-10-31-quai-des-brumes-montreal/180</loc>\n        <lastmod>2026-09-24T12:10:53Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2024-10-26-le-pantoum-quebec-city/181</loc>\n        <lastmod>2026-09-24T12:10:53Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2024-10-25-cafe-bar-zenob-trois-rivieres/182</loc>\n        <lastmod>2026-09-24T12:10:54Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2024-10-24-cafe-theatre-cote-cour-saguenay/183</loc>\n        <lastmod>2026-09-24T12:10:54Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2024-09-06-auberge-ile-du-repos-peribonka/184</loc>\n        <lastmod>2026-09-24T12:10:54Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2024-09-01-resto-bar-pazzo-rouyn-noranda/185</loc>\n        <lastmod>2026-09-24T12:10:54Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2024-08-31-unknown-venue-quebec-city/186</loc>\n        <lastmod>2026-09-24T12:10:55Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2024-08-03-terrain-de-leglise-saint-edouard-la-baie/187</loc>\n        <lastmod>2026-09-24T12:10:55Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2024-07-04-centre-dexperimentation-musicale-chicoutimi/188</loc>\n        <lastmod>2026-09-24T12:10:55Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2024-06-16-cooperative-de-solidarite-paradis-rimouski/189</loc>\n        <lastmod>2026-09-24T12:10:56Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2024-06-15-auberge-festive-sea-shack-sainte-anne-des-monts/190</loc>\n        <lastmod>2026-09-24T12:10:56Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2024-06-14-le-knock-out-quebec-city/191</loc>\n        <lastmod>2026-09-24T12:10:56Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2024-05-04-scene-phoque-off-mascouche/192</loc>\n        <lastmod>2026-09-24T12:10:57Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2024-05-03-quai-des-brumes-montreal/193</loc>\n        <lastmod>2026-09-24T12:10:57Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2024-03-22-le-zaricot-saint-hyacinthe/194</loc>\n        <lastmod>2026-09-24T12:10:57Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2023-12-16-turbo-haus-montreal/195</loc>\n        <lastmod>2026-09-24T12:10:57Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2023-10-28-centre-dexperimentation-musicale-chicoutimi/196</loc>\n        <lastmod>2026-09-24T12:10:58Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2023-10-27-cafe-du-clocher-alma/197</loc>\n        <lastmod>2026-09-24T12:10:58Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2021-07-10-centre-dexperimentation-musicale-chicoutimi/198</loc>\n        <lastmod>2026-09-24T12:10:58Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2020-02-20-cafe-du-clocher-alma/199</loc>\n        <lastmod>2026-09-24T12:10:59Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2020-01-29-cafe-du-clocher-alma/200</loc>\n        <lastmod>2026-09-24T12:10:59Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2020-01-18-le-lobe-centre-dartistes-chicoutimi/201</loc>\n        <lastmod>2026-09-24T12:10:59Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-10-14-o2-academy-glasgow-glasgow/205</loc>\n        <lastmod>2026-10-13T00:10:52Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-10-13-the-prospect-building-bristol/206</loc>\n        <lastmod>2026-10-13T00:10:52Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-10-18-o2-academy-leeds-leeds/210</loc>\n        <lastmod>2026-11-05T04:00:51Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-10-19-troxy-london/211</loc>\n        <lastmod>2026-11-05T04:00:51Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-10-22-elysee-montmartre-paris/212</loc>\n        <lastmod>2026-11-05T04:00:52Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-10-21-elysee-montmartre-paris/213</loc>\n        <lastmod>2026-11-05T04:00:52Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-10-20-troxy-london/214</loc>\n        <lastmod>2026-11-05T04:00:52Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-10-25-trix-antwerp/215</loc>\n        <lastmod>2026-11-05T04:00:52Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-10-27-astra-kulturhaus-berlin/216</loc>\n        <lastmod>2026-11-05T04:00:52Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-10-28-grosse-freiheit-36-hamburg/217</loc>\n        <lastmod>2026-11-05T04:00:53Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-10-31-paradiso-grote-zaal-amsterdam/218</loc>\n        <lastmod>2026-11-05T04:00:53Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-10-24-l-epicerie-moderne-feyzin/219</loc>\n        <lastmod>2026-11-05T04:00:53Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-11-01-vera-groningen/220</loc>\n        <lastmod>2026-11-05T04:00:53Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-10-16-vicar-street-dublin/221</loc>\n        <lastmod>2026-11-05T17:34:17Z</lastmod>\n      </url>\n      <url>\n        <loc>https://archive.depoitrine.com/t/2026-10-29-commissary-art-space-heidelberg/222</loc>\n        <lastmod>2026-11-05T17:34:17Z</lastmod>\n      </url>\n</urlset>\n"
+    },
+    "/taper.json": {
+      "status": 200,
+      "url": "https://archive.depoitrine.com/taper.json",
+      "headers": {
+        "Content-Type": "application/json; charset=utf-8"
+      },
+      "title": "",
+      "h1": [],
+      "lang": null,
+      "meta": [],
+      "links": [],
+      "json_ld": []
+    },
+    "/taper/recordings/195": {
+      "status": 200,
+      "url": "https://archive.depoitrine.com/taper/recordings/195",
+      "headers": {
+        "Content-Type": "text/html; charset=utf-8"
+      },
+      "title": "Vlog Angine de Poitrine en concert à Austin 12/09/2026 - 2026-09-12 Stubb's Bar-B-Q, Austin - Angine de Poitrine",
+      "h1": [
+        "Vlog Angine de Poitrine en concert à Austin 12/09/2026"
+      ],
+      "lang": "en",
+      "meta": [],
+      "links": [
+        {
+          "rel": "canonical",
+          "href": "https://archive.depoitrine.com/taper/recordings/195"
+        },
+        {
+          "rel": "alternate",
+          "type": "application/json",
+          "href": "/taper/recordings/195.json"
+        }
+      ],
+      "json_ld": []
+    },
+    "/taper/songs/sherpa": {
+      "status": 200,
+      "url": "https://archive.depoitrine.com/taper/songs/sherpa",
+      "headers": {
+        "Content-Type": "text/html; charset=utf-8"
+      },
+      "title": "Sherpa - Angine de Poitrine",
+      "h1": [
+        "Sherpa"
+      ],
+      "lang": "en",
+      "meta": [
+        {
+          "name": "description",
+          "content": "Sherpa has been played 117 times, first on 2023-10-28 and last on 2026-10-29."
+        }
+      ],
+      "links": [
+        {
+          "rel": "canonical",
+          "href": "https://archive.depoitrine.com/taper/songs/sherpa"
+        },
+        {
+          "rel": "alternate",
+          "type": "application/json",
+          "href": "/taper/songs/sherpa.json"
+        }
+      ],
+      "json_ld": []
+    },
+    "/t/2026-10-29-commissary-art-space-heidelberg/222": {
+      "status": 200,
+      "url": "https://archive.depoitrine.com/t/2026-10-29-commissary-art-space-heidelberg/222",
+      "headers": {
+        "Content-Type": "text/html; charset=utf-8",
+        "Link": "<https://archive.depoitrine.com/t/2026-10-29-commissary-art-space-heidelberg/222.md>; rel=\"alternate\"; type=\"text/markdown\""
+      },
+      "title": "2026-10-29 Commissary Art Space, Heidelberg - Shows - Archive de Poitrine",
+      "h1": [
+        "\n      2026-10-29 Commissary Art Space, Heidelberg\n    "
+      ],
+      "lang": "en",
+      "meta": [
+        {
+          "name": "description",
+          "content": "Angine de Poitrine at Commissary Art Space, Heidelberg, 01, Germany on 2026-10-29. Recordings and details are in the card above; corrections and memories go below. \nSetlist \n\nAngor\nYor Zarad\nTamebsz\nMata Zyklek\nAbaba Hot…"
+        },
+        {
+          "property": "og:site_name",
+          "content": "Archive de Poitrine"
+        },
+        {
+          "property": "og:type",
+          "content": "website"
+        },
+        {
+          "name": "twitter:card",
+          "content": "summary"
+        },
+        {
+          "name": "twitter:image",
+          "content": "https://archive.depoitrine.com/images/discourse-logo-sketch-small.png"
+        },
+        {
+          "property": "og:image",
+          "content": "https://archive.depoitrine.com/images/discourse-logo-sketch-small.png"
+        },
+        {
+          "property": "og:url",
+          "content": "https://archive.depoitrine.com/t/2026-10-29-commissary-art-space-heidelberg/222"
+        },
+        {
+          "name": "twitter:url",
+          "content": "https://archive.depoitrine.com/t/2026-10-29-commissary-art-space-heidelberg/222"
+        },
+        {
+          "property": "og:title",
+          "content": "2026-10-29 Commissary Art Space, Heidelberg"
+        },
+        {
+          "name": "twitter:title",
+          "content": "2026-10-29 Commissary Art Space, Heidelberg"
+        },
+        {
+          "property": "og:description",
+          "content": "Angine de Poitrine at Commissary Art Space, Heidelberg, 01, Germany on 2026-10-29. Recordings and details are in the card above; corrections and memories go below.  Setlist   Angor Yor Zarad Tamebsz Mata Zyklek Ababa Hotel Sarniezz Fabienk Sherpa"
+        },
+        {
+          "name": "twitter:description",
+          "content": "Angine de Poitrine at Commissary Art Space, Heidelberg, 01, Germany on 2026-10-29. Recordings and details are in the card above; corrections and memories go below.  Setlist   Angor Yor Zarad Tamebsz Mata Zyklek Ababa Hotel Sarniezz Fabienk Sherpa"
+        },
+        {
+          "property": "og:article:section",
+          "content": "Shows"
+        },
+        {
+          "property": "og:article:section:color",
+          "content": "0088CC"
+        },
+        {
+          "property": "og:ignore_canonical",
+          "content": "true"
+        }
+      ],
+      "links": [
+        {
+          "rel": "canonical",
+          "href": "https://archive.depoitrine.com/t/2026-10-29-commissary-art-space-heidelberg/222"
+        },
+        {
+          "rel": "alternate",
+          "type": "text/markdown",
+          "href": "https://archive.depoitrine.com/t/2026-10-29-commissary-art-space-heidelberg/222.md"
+        }
+      ],
+      "json_ld": []
+    }
+  }
+}

@@ -11,6 +11,12 @@ en:
     taper_import_interval_hours: "How often the importers run, in hours."
     taper_import_page_size: "Results fetched per request from each service."
   taper:
+    seo:
+      band: "%{band} live shows, setlists and recordings."
+      listing: "%{band}: %{listing}. Browse shows, setlists and live recordings."
+      media: "%{band} releases, videos, interviews and other media."
+      songs: "Songs played live by %{band}, with performance dates and setlists."
+      recording: "%{title}. %{band} at %{venue} on %{date}. Listen and view recording details."
     setlist: "Setlist"
     unknown_venue: "Unknown venue"
     topic_intro: "%{band} at %{location} on %{date}. Recordings and details are in the card above; corrections and memories go below."

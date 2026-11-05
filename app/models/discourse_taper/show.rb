@@ -27,6 +27,14 @@ module DiscourseTaper
     validates :sequence, uniqueness: { scope: %i[band_id date] }
     validate :setlist_shape
 
+    scope :readable_by,
+          ->(guardian = nil) do
+            where(
+              topic_id:
+                Topic.visible.secured(guardian).where(archetype: Archetype.default).select(:id),
+            )
+          end
+
     scope :by_date, -> { order(date: :desc, sequence: :desc) }
     scope :for_year, ->(year) { where(date: Date.new(year, 1, 1)..Date.new(year, 12, 31)) }
 
