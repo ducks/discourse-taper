@@ -25,8 +25,9 @@ module DiscourseTaper
       )
     Night = Struct.new(:show, :position, :of, :notes, :encore, keyword_init: true)
 
-    def initialize(band)
+    def initialize(band, guardian: nil)
       @band = band
+      @guardian = guardian
     end
 
     def songs
@@ -49,6 +50,7 @@ module DiscourseTaper
 
       @band
         .shows
+        .readable_by(@guardian)
         .includes(:sources)
         .by_date
         .each do |show|

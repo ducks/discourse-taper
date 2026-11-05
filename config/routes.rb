@@ -3,6 +3,9 @@
 DiscourseTaper::Engine.routes.draw do
   date = /\d{4}-\d{2}-\d{2}(-\d+)?/
 
+  get "/sitemap.xml" => "sitemaps#index"
+  get "/sitemaps/:kind/:page.xml" => "sitemaps#page"
+
   get "/bands" => "shows#bands"
   get "/suggestions" => "suggestions#index"
   post "/suggestions/import" => "suggestions#import"

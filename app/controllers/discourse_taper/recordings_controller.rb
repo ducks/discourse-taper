@@ -7,6 +7,7 @@ module DiscourseTaper
   class RecordingsController < ::ApplicationController
     requires_plugin PLUGIN_NAME
     include ReaderLocale
+    helper MetadataHelper
 
     skip_before_action :preload_json, :check_xhr, only: %i[show]
     before_action :set_reader_locale, only: %i[show]
@@ -28,8 +29,7 @@ module DiscourseTaper
       @band = @show.band
       @bands = Band.order(:name).to_a
       @primary_band = @bands.find(&:primary?)
-      @canonical_path = "#{DiscourseTaper.root_path}/recordings/#{@source.id}"
-      @canonical_url = "#{Discourse.base_url_no_prefix}#{@canonical_path}"
+      set_reader_canonical("#{DiscourseTaper.root_path}/recordings/#{@source.id}")
       response.headers["Cache-Control"] = "private, no-store"
 
       if request.format.json? || params[:format] == "json"
@@ -156,17 +156,8 @@ module DiscourseTaper
     end
 
     def json_url
-      "#{@canonical_path}.json"
-    end
-
-    def locale_links
-      DiscourseTaper.reader_locales.map do |locale|
-        {
-          locale: locale,
-          url: "#{@canonical_path}?lang=#{locale}",
-          current: I18n.locale.to_s == locale,
-        }
-      end
+      uri = URI.parse(@canonical_url || "#{Discourse.base_url_no_prefix}#{request.path}")
+      "#{uri.path}.json#{"?#{uri.query}" if uri.query.present?}"
     end
   end
 end

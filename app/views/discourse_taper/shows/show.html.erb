@@ -1,5 +1,5 @@
 <%- @page_title = @show.title %>
-<%- @page_description = [@show.location, @show.setlist_titles.first(6).join(", ").presence].compact.join(". ") %>
+<%- @page_description = [@band.name, @show.date.iso8601, @show.location, @show.setlist_titles.first(6).join(", ").presence].compact.join(". ") %>
 <%- @body_class = "taper-show-#{@show.id}" %>
 <%- suggest_url = "#{@band.primary? ? DiscourseTaper.root_path : @band.url}/suggest?date=#{@show.slug}" %>
 <article class="taper-wrap taper-show">
@@ -104,16 +104,3 @@
     <a class="taper-btn" href="<%= @show.topic.url %>"><span class="taper-mark" aria-hidden="true"></span> <%= @reply_count.zero? ? t("taper.discuss") : t("taper.join_discussion") %></a>
   </section>
 </article>
-
-<script type="application/ld+json">
-<%= raw({
-  "@context" => "https://schema.org",
-  "@type" => "MusicEvent",
-  "name" => @show.title,
-  "startDate" => @show.date.iso8601,
-  "performer" => { "@type" => "MusicGroup", "name" => @band.name },
-  "location" => { "@type" => "Place", "name" => @show.venue, "address" => [@show.city, @show.region, @show.country].compact.join(", ").presence }.compact,
-  "url" => "#{Discourse.base_url_no_prefix}#{@show.url}",
-  "recordedIn" => @sources.map { |s| { "@type" => "MusicRecording", "name" => s.title.presence || s.provider, "url" => s.display_url }.compact },
-}.compact.to_json) %>
-</script>

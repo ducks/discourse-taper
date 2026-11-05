@@ -1,5 +1,11 @@
 fr:
   taper:
+    seo:
+      band: "Spectacles, setlists et enregistrements de %{band}."
+      listing: "%{band} : %{listing}. Spectacles, setlists et enregistrements en concert."
+      media: "Albums, vidéos, entrevues et autres médias de %{band}."
+      songs: "Chansons jouées en concert par %{band}, avec les dates et les setlists."
+      recording: "%{title}. %{band} à %{venue}, le %{date}. Écoutez et consultez les détails."
     setlist: "Setlist"
     unknown_venue: "Salle inconnue"
     show:
