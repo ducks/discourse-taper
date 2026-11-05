@@ -63,6 +63,10 @@ en:
           setlistfm_artist_name: "As spelled on setlist.fm. Blank means the band name."
           auto_accept_recordings: "When a recording carries its date in its own title and that show exists, attach it straight away. Proposed shows, inferred dates, corrections, and claims still wait for review."
       review:
+        unknown_date: "Date unknown"
+        split_recordings: "Review recordings individually"
+        target_show: "Attach to show"
+        choose_show: "Choose a show (create it first if needed)"
         title: "Review queue"
         sidebar: "Review queue"
         empty: "Nothing to review. Run an importer or wait for suggestions."

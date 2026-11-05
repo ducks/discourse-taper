@@ -427,7 +427,11 @@ module DiscourseTaper
       end
 
       def pending_for(date, show, venue:, kind:)
-        scope = Suggestion.where(status: "pending", band_id: band.id, kind: kind).reorder(nil)
+        scope =
+          Suggestion
+            .where(status: "pending", band_id: band.id, kind: kind)
+            .where("payload->>'individual_recording' IS DISTINCT FROM 'true'")
+            .reorder(nil)
         if show
           scope.find_by(show_id: show.id)
         else

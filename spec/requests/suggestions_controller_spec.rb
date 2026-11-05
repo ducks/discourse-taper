@@ -155,4 +155,38 @@ describe DiscourseTaper::SuggestionsController do
     end
     expect(response.status).to eq(200)
   end
+
+  it "splits recordings for reviewers and exposes date groups and candidate show IDs" do
+    show = Fabricate(:taper_show, band: band, date: "1977-05-08")
+    suggestion.update!(
+      payload: suggestion.payload.merge("sources" => [{ "url" => "https://youtu.be/one" }]),
+    )
+    sign_in(member)
+    post "/taper/suggestions/#{suggestion.id}/split.json"
+    expect(response.status).to eq(403)
+    sign_in(reviewer)
+    post "/taper/suggestions/#{suggestion.id}/split.json"
+    expect(response.status).to eq(200)
+    rows = response.parsed_body["suggestions"]
+    expect(rows.size).to eq(2)
+    expect(rows.map { |s| s["review_date"] }).to eq(%w[1977-05-08 1977-05-08])
+    expect(rows.last["nearby_shows"].map { |s| s["id"] }).to include(show.id)
+    child = DiscourseTaper::Suggestion.find(rows.last["id"])
+    post "/taper/suggestions/#{child.id}/accept.json"
+    expect(response.status).to eq(422)
+    expect(child.reload).to be_pending
+    other = Fabricate(:taper_show)
+    post "/taper/suggestions/#{child.id}/accept.json", params: { show_id: other.id }
+    expect(response.status).to eq(400)
+    expect(child.reload).to be_pending
+    post "/taper/suggestions/#{child.id}/accept.json",
+         params: {
+           show_id: show.id,
+           note: "verified",
+         }
+    expect(response.status).to eq(200)
+    expect(child.reload.show).to eq(show)
+    expect(show.sources.count).to eq(1)
+    expect(suggestion.reload).to be_pending
+  end
 end

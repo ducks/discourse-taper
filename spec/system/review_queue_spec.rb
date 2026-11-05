@@ -250,4 +250,24 @@ describe "Taper review queue" do
       visible: :all,
     )
   end
+
+  it "groups by date, creates the show separately, and reviews recordings independently" do
+    visit("/taper/review")
+    expect(page).to have_css(".taper-review__date-group", count: 2)
+    find(".taper-suggestion--new_show .taper-suggestion__split").click
+    expect(page).to have_css(".taper-suggestion--new_source", count: 3)
+    expect(page).to have_css(".taper-review__date-group", count: 2)
+    find(".taper-suggestion--new_show .taper-suggestion__accept").click
+    expect(page).to have_no_css(".taper-suggestion--new_show")
+    show = DiscourseTaper::Show.find_by!(band: band, date: "2011-07-16")
+    expect(show.sources.count).to eq(0)
+    row = all(".taper-suggestion--new_source").first
+    row.find(".taper-suggestion__target-show").select("2011-07-16 Bethel Woods Center for the Arts")
+    row.find(".taper-suggestion__accept").click
+    expect(page).to have_css(".taper-suggestion--new_source", count: 2)
+    expect(show.sources.count).to eq(1)
+    all(".taper-suggestion--new_source").first.find(".taper-suggestion__reject").click
+    expect(page).to have_css(".taper-suggestion--new_source", count: 1)
+    expect(show.sources.count).to eq(1)
+  end
 end

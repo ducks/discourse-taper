@@ -9,6 +9,7 @@ import { i18n } from "discourse-i18n";
 
 export default class TaperSuggestionRow extends Component {
   @tracked note = "";
+  @tracked targetShowId = this.args.suggestion.show?.id?.toString() ?? "";
   @tracked busy = false;
   @tracked showRecordings = false;
   @tracked venue = this.args.suggestion.payload?.venue ?? "";
@@ -150,6 +151,31 @@ export default class TaperSuggestionRow extends Component {
     }));
   }
 
+  get isRecording() {
+    return this.suggestion.kind === "new_source";
+  }
+
+  get canSplit() {
+    return (this.isNewShow && this.recordings.length > 0) ||
+      (this.isRecording && this.recordings.length > 1);
+  }
+
+  get acceptDisabled() {
+    return this.busy || (this.isRecording && !this.targetShowId);
+  }
+
+  get targetShows() {
+    const shows = [...(this.suggestion.nearby_shows ?? [])];
+    const matched = this.suggestion.show;
+    if (matched && !shows.some((show) => show.id === matched.id)) {
+      shows.unshift(matched);
+    }
+    return shows.map((show) => ({
+      ...show,
+      selected: show.id.toString() === this.targetShowId,
+    }));
+  }
+
   get changes() {
     const changes = this.payload.changes ?? {};
     return Object.entries(changes).map(([field, value]) => ({
@@ -158,6 +184,24 @@ export default class TaperSuggestionRow extends Component {
         ? value.map((song) => [song.title, song.notes].filter(Boolean).join(" ")).join(", ")
         : value,
     }));
+  }
+
+  @action
+  updateTargetShow(event) {
+    this.targetShowId = event.target.value;
+  }
+
+  @action
+  async splitRecordings() {
+    this.busy = true;
+    try {
+      await ajax(`/taper/suggestions/${this.suggestion.id}/split.json`, { type: "POST" });
+      await this.args.onSplit();
+    } catch (e) {
+      popupAjaxError(e);
+    } finally {
+      this.busy = false;
+    }
   }
 
   @action
@@ -194,6 +238,9 @@ export default class TaperSuggestionRow extends Component {
     this.busy = true;
     try {
       const data = { note: this.note };
+      if (verb === "accept" && this.isRecording) {
+        data.show_id = this.targetShowId;
+      }
       if (verb === "accept" && this.isNewShow) {
         data.venue = this.venue;
       }
@@ -203,7 +250,7 @@ export default class TaperSuggestionRow extends Component {
         type: "POST",
         data,
       });
-      this.args.onDecided(this.suggestion, describe(result));
+      await this.args.onDecided(this.suggestion, describe(result));
     } catch (e) {
       popupAjaxError(e);
     } finally {
@@ -286,6 +333,8 @@ export default class TaperSuggestionRow extends Component {
                   {{#if r.format}}· {{r.format}}{{/if}}
                   {{#if r.duration}}· {{r.duration}}{{/if}}
                   {{#if r.taper_name}}· {{r.taper_name}}{{/if}}
+                  {{#if r.date}}· {{r.date}}{{/if}}
+                  {{#if r.venue}}· {{r.venue}}{{/if}}
                   {{#if r.dateEvidence}}· {{r.dateEvidence}}{{/if}}
                 </span>
               </li>
@@ -295,6 +344,25 @@ export default class TaperSuggestionRow extends Component {
       {{/if}}
 
       <footer class="taper-suggestion__actions">
+        {{#if this.canSplit}}
+          <DButton
+            class="btn-default taper-suggestion__split"
+            @action={{this.splitRecordings}}
+            @disabled={{this.busy}}
+            @label="taper.review.split_recordings"
+          />
+        {{/if}}
+        {{#if this.isRecording}}
+          <label>
+            {{i18n "taper.review.target_show"}}
+            <select class="taper-suggestion__target-show" {{on "change" this.updateTargetShow}}>
+              <option value="">{{i18n "taper.review.choose_show"}}</option>
+              {{#each this.targetShows as |show|}}
+                <option selected={{show.selected}} value={{show.id}}>{{show.label}} {{show.venue}}</option>
+              {{/each}}
+            </select>
+          </label>
+        {{/if}}
         {{#if this.isNewShow}}
           <label class="taper-suggestion__venue">
             {{i18n "taper.review.venue"}}
@@ -316,7 +384,7 @@ export default class TaperSuggestionRow extends Component {
         <DButton
           class="btn-primary taper-suggestion__accept"
           @action={{this.accept}}
-          @disabled={{this.busy}}
+          @disabled={{this.acceptDisabled}}
           @icon="check"
           @label="taper.review.accept"
         />

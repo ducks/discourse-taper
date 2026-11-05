@@ -11,11 +11,7 @@ import DButton from "discourse/ui-kit/d-button";
 import { i18n } from "discourse-i18n";
 import TaperSuggestionRow from "./taper-suggestion-row";
 
-// The reviewer's queue. Each row is one show with every recording found
-// for it, accepted or rejected in one click. Decisions are recorded at
-// the top so a reviewer working down a long queue can see what landed.
-// A trusted show source (setlist.fm) can be accepted wholesale; that
-// runs in a job and the queue refreshes when it reports back.
+// Group by band and date without combining distinct performances.
 export default class TaperReviewQueue extends Component {
   @service currentUser;
   @service dialog;
@@ -68,10 +64,36 @@ export default class TaperReviewQueue extends Component {
       }));
   }
 
+  get dateGroups() {
+    const groups = new Map();
+    for (const suggestion of this.suggestions) {
+      const date = suggestion.review_date || "";
+      const key = `${suggestion.band?.id ?? "none"}:${date}`;
+      if (!groups.has(key)) {
+        groups.set(key, {
+          key,
+          date,
+          label: `${suggestion.band?.name ?? ""} · ${date || i18n("taper.review.unknown_date")}`,
+          suggestions: [],
+        });
+      }
+      groups.get(key).suggestions.push(suggestion);
+    }
+    return [...groups.values()].sort((a, b) =>
+      a.date.localeCompare(b.date) || a.label.localeCompare(b.label)
+    );
+  }
+
   @action
-  decided(suggestion, result) {
+  async split() {
+    await this.refresh();
+  }
+
+  @action
+  async decided(suggestion, result) {
     this.suggestions.splice(this.suggestions.indexOf(suggestion), 1);
     this.decisions.unshift(result);
+    await this.refresh();
   }
 
   @action
@@ -252,8 +274,17 @@ export default class TaperReviewQueue extends Component {
         <p class="taper-review__count">
           {{i18n "taper.review.pending_count" count=this.suggestions.length}}
         </p>
-        {{#each this.suggestions as |suggestion|}}
-          <TaperSuggestionRow @onDecided={{this.decided}} @suggestion={{suggestion}} />
+        {{#each this.dateGroups key="key" as |group|}}
+          <section class="taper-review__date-group">
+            <h2>{{group.label}}</h2>
+            {{#each group.suggestions key="id" as |suggestion|}}
+              <TaperSuggestionRow
+                @onDecided={{this.decided}}
+                @onSplit={{this.split}}
+                @suggestion={{suggestion}}
+              />
+            {{/each}}
+          </section>
         {{/each}}
       {{else}}
         <p class="taper-review__empty">{{i18n "taper.review.empty"}}</p>

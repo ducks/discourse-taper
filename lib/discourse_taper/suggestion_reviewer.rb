@@ -10,9 +10,8 @@ module DiscourseTaper
     end
 
     def accept!(suggestion, note: nil)
-      raise Error.new("not_pending") if !suggestion.pending?
-
-      Suggestion.transaction do
+      suggestion.with_lock do
+        raise Error.new("not_pending") if !suggestion.pending?
         show =
           case suggestion.kind
           when "new_show"
@@ -36,14 +35,62 @@ module DiscourseTaper
     end
 
     def reject!(suggestion, note: nil)
-      raise Error.new("not_pending") if !suggestion.pending?
-      suggestion.update!(
-        status: "rejected",
-        reviewed_by: @reviewer,
-        reviewed_at: Time.zone.now,
-        review_note: note,
-      )
-      suggestion
+      suggestion.with_lock do
+        raise Error.new("not_pending") if !suggestion.pending?
+        suggestion.update!(
+          status: "rejected",
+          reviewed_by: @reviewer,
+          reviewed_at: Time.zone.now,
+          review_note: note,
+        )
+        suggestion
+      end
+    end
+
+    # Keep the event proposal separate from its recordings. The original
+    # suggestion remains the first recording when it already targets a show.
+    def split_recordings!(suggestion)
+      suggestion.with_lock do
+        raise Error.new("not_pending") if !suggestion.pending?
+        raise Error.new("recordings_required") if %w[new_show new_source].exclude?(suggestion.kind)
+        sources = sources_in(suggestion)
+        raise Error.new("recordings_required") if sources.empty?
+        if suggestion.kind == "new_source" && sources.size == 1
+          suggestion.update!(payload: suggestion.payload.merge("individual_recording" => true))
+          return [suggestion]
+        end
+
+        original = suggestion.payload.deep_dup
+        first = sources.shift if suggestion.kind == "new_source"
+        base = original.except("sources", "source", "url", "upload_id", "external_id")
+        suggestion.update!(
+          payload:
+            base.merge(
+              "sources" => first ? [first] : [],
+              "external_id" => first&.dig("external_id"),
+              "individual_recording" => first.present?,
+            ),
+        )
+        children =
+          sources.map do |source|
+            Suggestion.create!(
+              kind: "new_source",
+              band: suggestion.band,
+              show: suggestion.show,
+              origin: suggestion.origin,
+              submitted_by: suggestion.submitted_by,
+              note: suggestion.note,
+              payload:
+                base.merge(
+                  "sources" => [source],
+                  "external_id" => source["external_id"],
+                  "parent_suggestion_id" => suggestion.id,
+                  "individual_recording" => true,
+                ),
+            )
+          end
+        [suggestion, *children]
+      end
     end
 
     private

@@ -16,26 +16,52 @@ module DiscourseTaper
 
     def accept
       suggestion = Suggestion.find(params[:id])
-      # A reviewer may correct the proposed venue name before accepting; the
-      # name they type becomes the canonical one.
-      if params[:venue].present? && suggestion.kind == "new_show"
-        corrected = params[:venue].to_s.strip[0, 200]
-        original = suggestion.payload["venue"]
-        if original.present? && original != corrected
-          # The spelling being corrected is exactly the alias worth learning.
-          spellings = suggestion.payload["venue_spellings"] || {}
-          suggestion.payload["venue_spellings"] = spellings.merge(
-            original => spellings[original] || 1,
-          )
+      show =
+        suggestion.with_lock do
+          raise Error.new("not_pending") unless suggestion.pending?
+          if params[:show_id].present?
+            raise Error.new("recordings_required") unless suggestion.kind == "new_source"
+            target = Show.find(params[:show_id])
+            unless target.band_id == suggestion.band_id
+              raise Discourse::InvalidParameters.new(:show_id)
+            end
+            suggestion.update!(show: target)
+          end
+          if suggestion.kind == "new_source" && suggestion.payload["individual_recording"] &&
+               suggestion.show.nil?
+            raise Error.new("show_not_found")
+          end
+          # A reviewer may correct the proposed venue name before accepting; the
+          # name they type becomes the canonical one.
+          if params[:venue].present? && suggestion.kind == "new_show"
+            corrected = params[:venue].to_s.strip[0, 200]
+            original = suggestion.payload["venue"]
+            if original.present? && original != corrected
+              # The spelling being corrected is exactly the alias worth learning.
+              spellings = suggestion.payload["venue_spellings"] || {}
+              suggestion.payload["venue_spellings"] = spellings.merge(
+                original => spellings[original] || 1,
+              )
+            end
+            suggestion.payload["venue"] = corrected
+            suggestion.save!
+          end
+          SuggestionReviewer.new(reviewer: current_user).accept!(suggestion, note: params[:note])
         end
-        suggestion.payload["venue"] = corrected
-        suggestion.save!
-      end
-      show = SuggestionReviewer.new(reviewer: current_user).accept!(suggestion, note: params[:note])
       render json: {
                suggestion: SuggestionSerializer.new(suggestion.reload, root: false).as_json,
                show_url: show.url,
              }
+    rescue DiscourseTaper::Error => e
+      render_json_error(e.message, status: 422)
+    rescue ActiveRecord::RecordInvalid => e
+      render_json_error(e.record.errors.full_messages.join(", "), status: 422)
+    end
+
+    def split
+      suggestion = Suggestion.find(params[:id])
+      suggestions = SuggestionReviewer.new(reviewer: current_user).split_recordings!(suggestion)
+      render json: { suggestions: serialize_data(suggestions, SuggestionSerializer, root: false) }
     rescue DiscourseTaper::Error => e
       render_json_error(e.message, status: 422)
     rescue ActiveRecord::RecordInvalid => e

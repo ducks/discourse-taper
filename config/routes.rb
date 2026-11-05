@@ -8,6 +8,7 @@ DiscourseTaper::Engine.routes.draw do
   post "/suggestions/import" => "suggestions#import"
   post "/suggestions/accept_all" => "suggestions#accept_all"
   post "/suggestions/:id/accept" => "suggestions#accept", :constraints => { id: /\d+/ }
+  post "/suggestions/:id/split" => "suggestions#split", :constraints => { id: /\d+/ }
   post "/suggestions/:id/reject" => "suggestions#reject", :constraints => { id: /\d+/ }
 
   # Band management (reviewers).
