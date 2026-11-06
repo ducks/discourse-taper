@@ -1,9 +1,26 @@
 # discourse-taper
 
-A live music archive for tapers, on Discourse. Shows are the primitive:
-one performance, one topic. Recordings, videos, and archive.org items
-attach to a show as sources, whether an importer found them or a person
-did.
+A live music archive built on Discourse. Collect shows, setlists and
+recordings, then discuss each performance in its own topic. Importers check
+**YouTube, Archive.org and setlist.fm**; reviewers decide which show and
+recording suggestions belong in the archive.
+
+Live example: [Archive de Poitrine](https://archive.depoitrine.com), an
+Angine de Poitrine archive using Taper and a separate theme component.
+
+## Import sources
+
+| Source | What it imports | Configuration |
+| --- | --- | --- |
+| **setlist.fm** | Show dates, venues, cities, tours and setlists. Proposes new shows or missing-setlist corrections, not recordings. | Site setting `taper_setlistfm_api_key`; per-band `setlistfm_artist_name`, falling back to the band name. |
+| **YouTube** | Live videos and clips from channel uploads or search; detected releases and press go to the media shelf. | Site setting `taper_youtube_api_key`; per-band `youtube_channel_id` and/or `youtube_search_query`. Optional scraping fallback uses `taper_youtube_scrape_enabled` and a search query. |
+| **Archive.org** | Recordings and their metadata from an etree collection or a search across audio/video collections. | Per-band `archive_org_collection` or `archive_org_query`. No API key required. |
+
+The built-in Discourse scheduler checks hourly and dispatches enabled importers
+once `taper_import_interval_hours` has elapsed, **six hours by default**. No
+separate cron job is needed. Importers propose changes rather than continuously
+overwriting accepted records; setlist.fm IDs prevent already imported shows
+from being proposed again.
 
 ## How it works
 
@@ -16,16 +33,15 @@ did.
   where the venue is read out of the title), YouTube channels and
   searches, and setlist.fm, and file what they find as *suggestions*. Members
   suggest shows, sources, and corrections through the same queue.
-  Nothing becomes a record until a reviewer accepts it, so the archive
-  is trustworthy whether a bot or a human found the item.
-- **One suggestion per show.** Everything an importer finds for a date
-  is filed as a single suggestion carrying every recording, with the
-  venue chosen by majority spelling. A real archive.org collection has
-  about five recordings per night and a dozen spellings of each venue,
-  so proposing per item would flood the queue with duplicates. Re-runs
-  append newly found recordings to the pending suggestion instead of
-  proposing the show again, and a transient network fault retries the
-  page rather than discarding the run.
+  New shows and recording suggestions wait for review by default. A band can
+  opt into automatic acceptance of confidently dated recordings; detected
+  media items are filed separately, as described below.
+- **Review by band and date.** Importers can bundle recordings for a night,
+  but reviewers can split them into individual suggestions and choose the
+  performance each belongs to. Separate performances on the same date retain
+  their own show IDs. Refreshes can append to unsplit bundles, but do not
+  recombine recordings a reviewer has separated. See
+  [Reviewing recordings individually](#reviewing-recordings-individually).
 - **Show-only sources.** setlist.fm knows the date, venue, city, tour,
   and songs of every show fans have logged, and nothing about tapes. Its
   importer proposes shows complete with setlists, and for a show a
@@ -42,15 +58,15 @@ did.
   of the full sets.
 - **Releases stay out.** Searching for a band turns up its albums,
   singles, music videos, teasers, and podcast appearances next to the
-  tapes. Both importers run every item through a release detector
+  tapes. The YouTube and Archive.org importers run items through a release detector
   (title patterns in English and French, a numbered volume with no
   date, an undated upload on the band's own channel with no live cue)
   and file what it flags on the band's **media shelf** instead of the queue:
   albums, singles, official videos, promo, interviews, podcasts, each
   with a kind, the uploader, and a date. The shelf is at `/taper/media`
   (and `/taper/<band>/media`), by kind, with a strip of the newest on
-  the front door; no topic and no review, since it is the band's own
-  output, but a reviewer can hide an item and a re-run will not bring
+  the front door. These items have no topic and bypass the suggestion queue;
+  classification is heuristic, so a reviewer can hide an item and a re-run will not bring
   it back. The YouTube search adds "interview" and "entrevue" phrasings
   without the long-video filter to find press.
 - **Undated videos find their show.** YouTube titles carry dates in
@@ -110,8 +126,13 @@ concept. Its shows live at `/taper/1977-05-08`; any other band's at
    pages instead: brittle, and not something YouTube's terms allow) and
    `taper_setlistfm_api_key` (free at setlist.fm/settings/api) to enable
    the setlist.fm one.
-4. Importers run every `taper_import_interval_hours`. A reviewer can
-   kick one early with `POST /taper/suggestions/import`.
+4. Review suggestions at `/taper/review`. Keep `auto_accept_recordings`
+   off on the band unless you want confidently dated recordings attached
+   automatically. New shows, corrections and ownership claims still need review.
+5. Leave the six-hour import interval or change `taper_import_interval_hours`
+   (1-168 hours). A reviewer can trigger an import early with
+   `POST /taper/suggestions/import`, passing `band_id` and `importer`
+   (`setlist_fm`, `youtube` or `archive_org`).
 
 Importer GET requests make at most three attempts on network failures or HTTP
 429/503, with exponential waits of 2 and 4 seconds. [Retry-After](https://www.rfc-editor.org/rfc/rfc9110.html#name-retry-after) accepts seconds
@@ -129,15 +150,29 @@ or schedule a deferred retry after a long cooldown.
 | `GET /taper` and `GET /taper/:band` | A band's shows, with year facets; filter by `year`, `venue`, `tour`. The short form is the primary band |
 | `GET /taper/:date` and `GET /taper/:band/:date` | One show: setlist and sources. `-2` suffix for a second show that night |
 | `POST /taper/suggest` and `POST /taper/:band/suggest` | Propose a `new_show`, `new_source`, or `correction` |
-| `GET /taper/suggestions` | Pending queue (reviewers) |
+| `GET /taper/media` and `/taper/:band/media` | Media shelf |
+| `GET /taper/songs` and `/taper/:band/songs` | Song index; append `/:song` for performance history |
+| `GET /taper/recordings/:id` | Recording detail |
+| `PUT /taper/recordings/:id` | Edit a recording (reviewers) |
+| `POST /taper/recordings/:id/move` | Move a recording to another show of the same band (reviewers) |
+| `DELETE /taper/recordings/:id` | Remove a recording and prevent re-import (reviewers) |
+| `GET /taper/review` | Review UI |
+| `GET /taper/suggestions.json` | Pending suggestions (reviewers) |
+| `POST /taper/suggestions/:id/split.json` | Split a recording bundle into individual suggestions (reviewers) |
 | `POST /taper/suggestions/:id/accept` and `/reject` | Review |
-| `POST /taper/suggestions/import` | Run an importer for a band now |
+| `POST /taper/suggestions/import` | Run an importer for a band now (reviewers) |
+| `POST /taper/suggestions/accept_all.json` | Enqueue a reviewer-requested bulk acceptance of matching pending suggestions |
+| `GET /taper/sitemap.xml` | Public archive sitemap index |
+
+Reader HTML pages also expose `.json` responses. Mutation endpoints require an
+authenticated member or reviewer as appropriate; normal Discourse authentication
+and CSRF rules apply.
 
 ## Reader surface
 
-`/taper` is a server-rendered site in the band's own look (ink on
-paper, a mono face for every date, the three shapes), with no Ember app
-underneath, so it is fast, cacheable, and indexable:
+`/taper` serves Rails-rendered HTML in the site's theme. Public archive pages
+contain their content and links without loading the Ember app; the reviewer
+queue and band administration use Discourse's app.
 
 - **Front door**: the band name, one line of tagline (the band's
   description), headline counts, a bar per year from the first show to
@@ -162,9 +197,9 @@ underneath, so it is fast, cacheable, and indexable:
   MusicEvent structured data.
 
 The reader renders in the site's own fonts and colours; a band's
-identity belongs in a theme component (see Theming). Every path also
-answers with `.json`. Anonymous
-readers go through the anonymous cache. The reader strings are
+identity belongs in a theme component (see Theming). Reader data also
+answers with `.json`. Eligible anonymous listing and show requests use the
+anonymous cache; recording detail pages use `private, no-store`. The reader strings are
 translated to French (`server.fr.yml`). Discourse picks the locale
 from the user or the browser, and the reader's top bar offers a switch
 (`?lang=fr`, remembered in a cookie for a year) between every locale
@@ -182,6 +217,30 @@ Every show page links to a suggestion form (`/taper/suggest?date=…`)
 with a recording form and a correction form; the listing links to a
 missing-show form. Plain HTML forms, no JavaScript, logged-in members
 only; submissions land in the review queue.
+
+## Search and sharing
+
+- `/taper/sitemap.xml` lists paginated sitemaps for public shows, recordings,
+  bands, song pages and archive indexes. `robots.txt` advertises it alongside
+  Discourse's topic sitemap when indexing and sitemaps are enabled. Private,
+  disabled and login-required archives do not expose the archive sitemap.
+- Archive listings, song aggregation and sitemaps exclude hidden, deleted,
+  private and personal-message topics from anonymous discovery.
+- Canonical URLs retain meaningful year, venue and tour filters while dropping
+  tracking parameters. Empty filtered pages use `noindex,follow`; malformed
+  years return 404.
+- English/French alternate links and language-aware canonicals identify the
+  reader translations.
+- Reader pages include descriptions and Open Graph/Twitter metadata. Eligible
+  YouTube show/recording pages use video thumbnails; other pages use the
+  site's configured social-image fallback.
+- JSON-LD describes bands, shows, recordings, collections and breadcrumbs.
+  Imported text is escaped for script embedding.
+
+A sitemap makes URLs available to crawlers; it does not guarantee indexing or
+rich results. Site owners still need to verify their search-console accounts,
+submit the sitemap and monitor indexing. The implementation and audit are
+recorded in [docs/discoverability-audit.md](docs/discoverability-audit.md).
 
 ## Managing recordings
 
@@ -214,9 +273,10 @@ again.
 
 ## Not yet
 
-- Direct audio upload. Sources come from archive.org and YouTube, which
-  is where tapers already put recordings; hosting audio here is a
-  storage decision deferred on purpose.
+- A direct audio-upload workflow. Recording links can already be submitted,
+  but hosting tapes here needs a separate storage decision.
+- Pagination for large reader listings beyond the current 500-show and
+  300-media-item limits. Sitemap pages are already paginated.
 
 ## Development
 
@@ -226,6 +286,18 @@ bundle install
 bundle exec rubocop
 bundle exec stree check $(git ls-files '*.rb') Gemfile
 ```
+
+The latest deployed changes were tested against Discourse on Ruby 4.0.9:
+159 backend examples and nine browser examples passed. Run plugin specs from a
+Discourse checkout with the plugin installed and its test database prepared:
+
+```sh
+LOAD_PLUGINS=1 RAILS_ENV=test bundle exec rspec plugins/discourse-taper/spec/lib plugins/discourse-taper/spec/models plugins/discourse-taper/spec/requests plugins/discourse-taper/spec/jobs
+LOAD_PLUGINS=1 RAILS_ENV=test bundle exec rspec plugins/discourse-taper/spec/system
+```
+
+The standalone `shell.nix` supplies Ruby 3.3 for plugin lint tooling; it does not
+select the Ruby version of the Discourse host.
 
 ## Theming
 
