@@ -218,6 +218,26 @@ with a recording form and a correction form; the listing links to a
 missing-show form. Plain HTML forms, no JavaScript, logged-in members
 only; submissions land in the review queue.
 
+## Sorting reader pages
+
+Reader lists have a **Sort by** selector and an **Apply** button. These submit
+normal GET requests, preserve active filters and language, and work without
+JavaScript. The selected order is shareable through `?sort=` and is also used
+by the corresponding `.json` response.
+
+| Page | Sort values | Default |
+| --- | --- | --- |
+| Show lists, including year/venue/tour filters | `newest`, `oldest` | Newest performance first |
+| Individual song's performance history | `newest`, `oldest` | Newest performance first |
+| Song index | `most_played`, `least_played`, `title`, `recently_played` | Most played |
+| Media shelf | `newest`, `oldest`, `title` | Newest publication first; undated items last |
+| Recordings on a show | `added_oldest`, `added_newest`, `title` | First added |
+
+The homepage keeps its latest-show preview and links to **Browse all shows**.
+Media remains grouped by kind, with sorting applied within each group. A song's
+first/last performance facts stay chronological regardless of the selected
+display order. Sort-only variants share the same canonical URL.
+
 ## Search and sharing
 
 - `/taper/sitemap.xml` lists paginated sitemaps for public shows, recordings,

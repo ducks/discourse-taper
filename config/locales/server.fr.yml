@@ -1,5 +1,17 @@
 fr:
   taper:
+    sorting:
+      label: "Trier par"
+      apply: "Appliquer"
+      browse: "Tous les spectacles"
+      newest: "Les plus récents"
+      oldest: "Les plus anciens"
+      title: "Titre A-Z"
+      most_played: "Les plus jouées"
+      least_played: "Les moins jouées"
+      recently_played: "Jouées le plus récemment"
+      added_oldest: "Ajoutés en premier"
+      added_newest: "Ajoutés récemment"
     seo:
       band: "Spectacles, setlists et enregistrements de %{band}."
       listing: "%{band} : %{listing}. Spectacles, setlists et enregistrements en concert."

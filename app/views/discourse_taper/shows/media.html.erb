@@ -9,6 +9,8 @@
   </header>
   <%= render partial: "discourse_taper/shows/tabs", locals: { current: :media } %>
 
+  <%= render partial: "discourse_taper/shows/sort" %>
+
   <%- if @items.empty? %>
     <p class="taper-empty"><%= t("taper.media.empty") %></p>
   <%- else %>

@@ -32,6 +32,7 @@ module DiscourseTaper
       locale_links.map do |link|
         uri = URI.parse("#{Discourse.base_url_no_prefix}#{link[:url]}")
         query = Rack::Utils.parse_query(uri.query)
+        query.delete("sort")
         query.delete("lang") if link[:locale] == SiteSetting.default_locale
         uri.query = query.presence&.to_query
         { locale: link[:locale], url: uri.to_s }

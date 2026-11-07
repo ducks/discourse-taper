@@ -11,6 +11,18 @@ en:
     taper_import_interval_hours: "How often the importers run, in hours."
     taper_import_page_size: "Results fetched per request from each service."
   taper:
+    sorting:
+      label: "Sort by"
+      apply: "Apply"
+      browse: "Browse all shows"
+      newest: "Newest first"
+      oldest: "Oldest first"
+      title: "Title A-Z"
+      most_played: "Most played"
+      least_played: "Least played"
+      recently_played: "Most recently played"
+      added_oldest: "First added"
+      added_newest: "Recently added"
     seo:
       band: "%{band} live shows, setlists and recordings."
       listing: "%{band}: %{listing}. Browse shows, setlists and live recordings."

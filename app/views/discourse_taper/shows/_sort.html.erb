@@ -1,0 +1,13 @@
+<form class="taper-sort" method="get" action="<%= @canonical_path %>">
+  <%- reader_query.each do |key, value| %>
+    <input type="hidden" name="<%= key %>" value="<%= value %>">
+  <%- end %>
+  <input type="hidden" name="lang" value="<%= I18n.locale %>">
+  <label for="taper-sort"><%= t("taper.sorting.label") %></label>
+  <select id="taper-sort" name="sort">
+    <%- @sort_options.each do |value| %>
+      <option value="<%= value %>"<%= " selected" if @sort == value %>><%= t("taper.sorting.#{value}") %></option>
+    <%- end %>
+  </select>
+  <button class="taper-btn" type="submit"><%= t("taper.sorting.apply") %></button>
+</form>

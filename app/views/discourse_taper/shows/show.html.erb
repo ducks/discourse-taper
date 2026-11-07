@@ -48,6 +48,7 @@
 
     <section>
       <div class="taper-section-title"><h2><%= t("taper.recordings") %></h2><a href="<%= suggest_url %>"><%= t("taper.suggest.recording_heading") %></a></div>
+      <%= render partial: "discourse_taper/shows/sort" %>
       <%- if @player %>
         <div class="taper-player">
           <iframe src="<%= embed_url(@player) %>" title="<%= @player.title.presence || t("taper.provider.#{@player.provider}") %>" allow="accelerometer; encrypted-media; picture-in-picture" allowfullscreen loading="lazy"></iframe>

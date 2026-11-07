@@ -31,7 +31,7 @@
   <%- else %>
     <div class="taper-two">
       <section>
-        <div class="taper-section-title"><h2><%= t("taper.front.latest_shows") %></h2><a href="<%= @band.url %>?year=<%= @shows.first.date.year %>"><%= t("taper.front.all_of_year", year: @shows.first.date.year) %></a></div>
+        <div class="taper-section-title"><h2><%= t("taper.front.latest_shows") %></h2><a href="<%= @band.url %>?sort=newest"><%= t("taper.sorting.browse") %></a></div>
         <ul class="taper-showlist">
           <%- @shows.first(8).each do |show| %>
             <%= render partial: "discourse_taper/shows/show_row", locals: { show: show, short_date: false } %>
