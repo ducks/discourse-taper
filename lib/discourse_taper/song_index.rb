@@ -90,7 +90,7 @@ module DiscourseTaper
 
       by_slug.each_value do |song|
         song.title = spellings[song.slug].max_by { |_t, n| n }.first
-        song.nights.sort_by! { |night| night.show.date }
+        song.nights.sort_by! { |night| [night.show.date, night.show.sequence, night.show.id] }
       end
       by_slug.values
     end

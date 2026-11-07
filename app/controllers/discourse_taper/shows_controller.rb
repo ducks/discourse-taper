@@ -8,7 +8,10 @@ module DiscourseTaper
   class ShowsController < ::ApplicationController
     requires_plugin PLUGIN_NAME
     include ReaderLocale
+    include ReaderSorting
+    before_action :set_reader_sort, only: %i[band show songs song media]
     helper MetadataHelper
+    helper_method :reader_query
 
     skip_before_action :preload_json,
                        :check_xhr,
@@ -49,6 +52,8 @@ module DiscourseTaper
       shows = shows.for_year(@year) if @year
       shows = shows.where(venue: params[:venue]) if params[:venue].present?
       shows = shows.where(tour: params[:tour]) if params[:tour].present?
+      direction = @sort == "oldest" ? :asc : :desc
+      shows = shows.reorder(date: direction, sequence: direction, id: direction)
       @shows = shows.limit(500).to_a
       @years =
         @band.shows.readable_by(guardian).group("EXTRACT(YEAR FROM date)::int").count.sort.reverse
@@ -62,7 +67,7 @@ module DiscourseTaper
                  years: @years.map { |year, count| { year: year, count: count } },
                  shows: @shows.map { |show| show_summary(show) },
                }
-      elsif @year || params[:venue].present? || params[:tour].present?
+      elsif @year || params[:venue].present? || params[:tour].present? || params[:sort].present?
         cache_for_anonymous
         prepare_listing(shows)
         @page_noindex = @shows.empty?
@@ -77,12 +82,16 @@ module DiscourseTaper
     def show
       @band = find_band!
       @show = find_show!(@band, params[:date])
-      @sources = @show.sources.includes(:taper, :upload).order(:created_at).to_a
+      @sources = sorted_sources(@show.sources.includes(:taper, :upload)).to_a
       @previous_show, @next_show = neighbours(@show)
       canonical(@show.url)
 
       if json_request?
-        render json: { show: ShowSerializer.new(@show, root: false, scope: guardian).as_json }
+        data = ShowSerializer.new(@show, root: false, scope: guardian).as_json.deep_stringify_keys
+        data["sources"] = @sources.map do |source|
+          SourceSerializer.new(source, root: false, scope: guardian).as_json
+        end
+        render json: { show: data }
       else
         cache_for_anonymous
         @player = @sources.find { |source| embed_url(source) }
@@ -97,7 +106,7 @@ module DiscourseTaper
     # and each song's nights.
     def songs
       @band = find_band!
-      @songs = SongIndex.new(@band, guardian: guardian).songs
+      @songs = sorted_songs(SongIndex.new(@band, guardian: guardian).songs)
       canonical("#{@band.url}/songs")
 
       if json_request?
@@ -115,6 +124,9 @@ module DiscourseTaper
       @band = find_band!
       @song = SongIndex.new(@band, guardian: guardian).find(params[:song].to_s)
       raise Discourse::NotFound if @song.nil?
+      @nights =
+        @song.nights.sort_by { |night| [night.show.date, night.show.sequence, night.show.id] }
+      @nights.reverse! if @sort == "newest"
       canonical("#{@band.url}/songs/#{@song.slug}")
 
       if json_request?
@@ -123,7 +135,7 @@ module DiscourseTaper
                  song:
                    song_json(@song).merge(
                      nights:
-                       @song.nights.map do |night|
+                       @nights.map do |night|
                          {
                            date: night.show.date,
                            label: night.show.label,
@@ -149,7 +161,7 @@ module DiscourseTaper
     # singles, official videos, interviews, podcasts. Not shows.
     def media
       @band = find_band!
-      @items = MediaItem.visible.where(band: @band).newest.limit(300).to_a
+      @items = sorted_media(MediaItem.visible.where(band: @band)).limit(300).to_a
       canonical("#{@band.url}/media")
 
       if json_request?
@@ -263,7 +275,9 @@ module DiscourseTaper
     # right at / too.
     def json_url
       uri = URI.parse(@canonical_url || "#{Discourse.base_url_no_prefix}#{request.path}")
-      "#{uri.path}.json#{"?#{uri.query}" if uri.query.present?}"
+      query = Rack::Utils.parse_query(uri.query)
+      query["sort"] = @sort if params[:sort].present? && @sort
+      "#{uri.path}.json#{"?#{query.to_query}" if query.present?}"
     end
 
     # Localised names where the locale has them, strftime where it does
@@ -338,7 +352,8 @@ module DiscourseTaper
     # A year, a venue, or a tour: the same month-grouped listing under a
     # monumental heading.
     def prepare_listing(scope)
-      @listing_title = @year&.to_s || params[:venue].presence || params[:tour].presence
+      @listing_title =
+        @year&.to_s || params[:venue].presence || params[:tour].presence || I18n.t("taper.shows")
       total = scope.count
       @truncated = total > @shows.size
       @listing_stats = {

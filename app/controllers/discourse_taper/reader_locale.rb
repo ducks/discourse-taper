@@ -42,6 +42,7 @@ module DiscourseTaper
       path = (@canonical_path.presence || request.path).split("?", 2).first.chomp("/")
       DiscourseTaper.reader_locales.map do |locale|
         query = reader_query.merge("lang" => locale)
+        query["sort"] = @sort if params[:sort].present? && @sort
         { locale: locale, url: "#{path}?#{query.to_query}", current: I18n.locale.to_s == locale }
       end
     end

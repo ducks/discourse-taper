@@ -16,6 +16,8 @@
     <%- end %>
   </nav>
 
+  <%= render partial: "discourse_taper/shows/sort" %>
+
   <%- if @shows.empty? %>
     <p class="taper-empty"><%= t("taper.no_shows") %></p>
   <%- else %>

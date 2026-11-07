@@ -366,7 +366,7 @@ describe DiscourseTaper::ShowsController do
 
       get "/taper/songs/scarlet-begonias.json"
       expect(response.parsed_body["song"]["nights"].map { |n| n["date"] }).to eq(
-        %w[1977-05-08 1977-05-09],
+        %w[1977-05-09 1977-05-08],
       )
 
       get "/taper/songs/nope"

@@ -19,8 +19,9 @@
   </header>
 
   <div class="taper-section-title"><h2><%= t("taper.songs.every_night") %></h2></div>
+  <%= render partial: "discourse_taper/shows/sort" %>
   <ul class="taper-showlist">
-    <%- @song.nights.each do |night| %>
+    <%- @nights.each do |night| %>
       <%- show = night.show %>
       <li class="taper-show-row">
         <span class="taper-show-row__date"><%= show.date.iso8601 %></span>
